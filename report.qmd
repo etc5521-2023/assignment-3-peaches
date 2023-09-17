@@ -1,0 +1,41 @@
+---
+title: "MY WILD THING REPORT"
+author: "YOUR TEAM NAME AND MEMBERS HERE"
+format: html
+---
+
+## Introduction
+
+<!-- 
+1. For your assigned Australian wild thing, read all you can about it, and write a paragraph describing it's key features, such as it's habitat, usual active time, whether numbers are increasing or declining, and even things like, if it is common for tourists to travel to see them, or there are special spotting promotions occurring as is happening [this month for the platypus](https://platypus.asn.au/report-a-sighting/). The write five unique expectations on what you might find when you explore the data, for example: 
+<br><br>"We expect to see the occurrences only in the summer months."
+<br>"We expect to find the most occurrences near the coast."
+<br>"We expect to observe declining numbers since 1994."
+<br><br> Be as specific as reasonably possible for your wild thing!
+-->
+
+## Data description
+
+<!--
+2. Download all the occurrence records from the Atlas of Living Australia, ideally scripted using the `atlas_occurrences()` function from the `galah` package. Make sure you include date, time, collector identification details. Save this into a `data-raw` folder in your repo.
+-->
+
+## Initial data analysis
+
+<!--
+3. Perform a data quality check, and then go ahead and clean the data, saving only the wild sightings. Save the resulting data in a `data` folder as an `WILD_THING_COMMON_NAME.rda` file, so that any special variable types are clearly available. (Replace `WILD_THING_COMMON_NAME` with lower case common name of your assigned wild thing.) *Note:* Some are museum or historical records or live in an animal sanctuary or zoo, which do not truly capture their wild behaviour. Downloading the event information (`galah_select(group = "event")`) can help identify wild sightings.
+
+Weather data pre-processing here too.
+-->
+
+## Exploratory data analysis
+
+<!--
+4. Make plots of the data to check each of your expectations, and report what you learn. *Note:* This might also be a place where visual inference methods *may* be useful to determine if what is seen agrees or disputes what you expected. 
+
+Weather data exploration here too.
+-->
+
+## Summary 
+
+## References
