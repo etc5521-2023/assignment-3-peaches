@@ -1,8 +1,12 @@
 ---
 title: "MY WILD THING REPORT"
-author: "YOUR TEAM NAME AND MEMBERS HERE"
+author: "Peaches: Tanish and Ashvin"
 format: html
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,message = FALSE,warning = FALSE)
+```
 
 ## Introduction
 
@@ -14,11 +18,41 @@ format: html
 <br><br> Be as specific as reasonably possible for your wild thing!
 -->
 
+```{r, message=FALSE}
+# Load libraries
+library(galah)
+library(tidyverse)
+library(ggplot2)
+library(nullabor)
+```
+
+
+
 ## Data description
 
 <!--
 2. Download all the occurrence records from the Atlas of Living Australia, ideally scripted using the `atlas_occurrences()` function from the `galah` package. Make sure you include date, time, collector identification details. Save this into a `data-raw` folder in your repo.
 -->
+
+```{r, eval=FALSE}
+# load occurence records for woylie from ALA
+galah_config(email = "aran0026@student.monash.edu")
+woylie<-
+  galah_call() %>%
+  galah_identify("Bettongia penicillata ogilbyi") %>%
+  atlas_occurrences()
+
+# save data as a csv in data-raw folder
+write.csv(woylie,file = "data-raw/woylie.csv")
+```
+
+```{r}
+# load data back into R environment
+woylie <- read_csv("data-raw/woylie.csv")
+
+# remove unnecessary 1st column
+woylie <- woylie[,-1]
+```
 
 ## Initial data analysis
 
