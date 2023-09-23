@@ -62,6 +62,92 @@ woylie <- woylie[,-1]
 Weather data pre-processing here too.
 -->
 
+```{r}
+# Data quality check
+
+# view any missing variables and variable types
+visdat::vis_dat(woylie)
+```
+
+- Missing values appear to be only in "eventDate" column with a few in the decimal longitude and latitude, every other aspect of the variables seem to be correct.
+
+We will check the data resource where event date is a missing value.
+
+```{r}
+# Check why event date has missing value corresponding to their dataResource name
+woylie%>% filter(is.na(eventDate))%>% select(dataResourceName)%>% unique()
+
+# Check the number of observations that there are missing values 
+woylie%>% filter(is.na(eventDate))%>% select(dataResourceName)%>% nrow()
+
+# Check how many of the event Dates in this location are NA
+woylie%>% filter(dataResourceName == "Western Australian Museum provider for OZCAM") %>% select(eventDate)%>% unique()
+```
+- Its only the event dates recorded by the "Western Australian Museum provider for OZCAM" that are missing, and all of their event dates of 182 recordings are missing. 
+
+We will check the data resource where decimal longitude and latitude is missing. They will be checked together as according to the figure above the same observstions for both appear to be missing.
+```{r}
+# Check the data resource name where decimal longitude is missing
+woylie%>% filter(is.na(decimalLongitude), is.na(decimalLatitude))%>% 
+  select(dataResourceName)%>% unique()
+
+# check the number of observations for which it is missing
+woylie%>% filter(is.na(decimalLongitude), is.na(decimalLatitude))%>% 
+  select(dataResourceName)%>% nrow()
+```
+- As we saw earlier there are a total of 182 observations recorded by the *"Western Australian Museum provider for OZCAM"*. 19 of these recordings have missing values in the "decimal longitude" and "decimal latitude" columns.
+
+```{r, eval=FALSE}
+galah_config(email = "aran0026@student.monash.edu")
+woylie_sightings<-
+  galah_call() %>%
+  galah_identify("Bettongia penicillata ogilbyi") %>%
+  galah_select(group = "event")%>%
+  atlas_occurrences()
+
+# remove unecessary columns
+woylie_sightings <-
+  woylie_sightings[,c("eventDate","samplingEffort","samplingProtocol")]
+
+write.csv(woylie_sightings, file = "data-raw/woylie_sightings.csv")
+```
+
+
+```{r, eval=FALSE}
+# reorder columns to make it easily readable after join
+woylie<- woylie[,c("eventDate","decimalLatitude", "decimalLongitude",
+                   "scientificName","taxonConceptID","recordID",
+                   "dataResourceName","occurrenceStatus")]
+
+woylie_sightings<- read_csv("data-raw/woylie_sightings.csv")
+
+# remove unecessary first column in woylie sightings
+woylie_sightings<- woylie_sightings[,-1]
+
+#join the data sets
+WILD_THING_woylie<-
+  woylie%>% 
+  left_join(woylie_sightings, by = "eventDate")%>%
+  unique()
+
+#view different sampling protocols to identify wild sighting protocols
+unique(WILD_THING_woylie$samplingProtocol)
+
+#filter wild sightings
+WILD_THING_woylie<-
+  WILD_THING_woylie%>% 
+  filter(samplingProtocol %in% c("Camera Trapping",
+                                 "Transect Spotlighting",
+                                 "Sign-diggings",
+                                 "Observed-spotlighting",
+                                 "Sign-dropping" ))
+```
+
+
+```{r, eval=FALSE}
+save(WILD_THING_woylie,file = "data/WILD_THING_woylie.rda")
+```
+
 ## Exploratory data analysis
 
 <!--
@@ -69,6 +155,13 @@ Weather data pre-processing here too.
 
 Weather data exploration here too.
 -->
+
+```{r}
+# load the wild sightings data back in
+
+load(file = "data/WILD_THING_woylie.rda")
+```
+
 
 ## Summary 
 
