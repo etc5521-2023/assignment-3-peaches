@@ -165,8 +165,23 @@ Weather data exploration here too.
 
 ```{r}
 # load the wild sightings data back in
-
 load(file = "data/WILD_THING_woylie.rda")
+```
+
+```{r}
+# checking and filtering duplicate values because event date was duplicated
+# a<- WILD_THING_woylie[!duplicated(WILD_THING_woylie$eventDate),]
+
+```
+
+```{r}
+# trying to get the sightings over the years
+# i think my filtering of the "wild sightings" was incorrect because the output doesn't make sense 
+WILD_THING_woylie%>%
+  mutate(year = lubridate::year(eventDate))%>%
+  group_by(year)%>%
+  summarise(count= n())
+
 ```
 
 
