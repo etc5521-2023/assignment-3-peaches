@@ -26,6 +26,13 @@ library(ggplot2)
 library(nullabor)
 ```
 
+The Brush-Tailed Bettong or Woylie is a mammal that is endemci to Australia, living in forests and shrublands. Unfortunately, the Woylie is on the brink of extermination with its numbers severely decreasing over the hundred years or so. It is therefore now categorize as a critically endangered species and is protected by the government of Australia. Most of the remnants of the Woylie population reside in wildlife sanctuaries, where they live in a predator free environment.
+
+From this data we expect the following results:
+
+- "We expect the occurences to be declining over the past 20 years."
+- "We expect there to be fewer sightings in the wild over the past few years as they are mostly in protected sanctuaries."
+- "We expect that there will not be many sightings near many weather stations as they reside in only select areas around Australia."
 
 
 ## Data description
