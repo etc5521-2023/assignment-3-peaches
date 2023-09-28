@@ -233,11 +233,52 @@ Expectation 2: Seasonal Pattern in Sightings
 # This helps us assess if sightings correlate with breeding seasons or climate conditions.
 # Code for seasonal pattern chart
 
+```{r}
+# Extract the month from the eventDate column
+WILD_THING_woylie$month <- lubridate::month(WILD_THING_woylie$eventDate)
+
+# Create a bar plot of monthly sightings
+ggplot(WILD_THING_woylie, aes(x = month)) +
+  geom_bar(stat = "count") +
+  labs(title = "Monthly Seasonal Pattern in Woylie Sightings",
+       x = "Month",
+       y = "Number of Sightings") +
+  scale_x_continuous(breaks = 1:12, labels = month.abb) +  # Label months with abbreviations
+  theme_minimal()
+
+```
+
+
 Expectation 3: Geographical Distribution
 {r}
 # Create a geographical map or heatmap to visualize the distribution of sightings.
 # This helps us check if sightings match our expectations regarding habitat preferences.
 # Code for geographical map or heatmap
+
+```{r}
+library(leaflet)
+
+# Create a leaflet map
+map <- leaflet(data = WILD_THING_woylie) %>%
+  addTiles()  # Add a basemap (you can customize the basemap provider)
+
+# Add circle markers for each sighting
+map <- map %>%
+  addCircleMarkers(
+    lng = ~decimalLongitude,  # Longitude
+    lat = ~decimalLatitude,    # Latitude
+    popup = ~paste("Sighting Date: ", format(eventDate, "%Y-%m-%d")),  # Popup text
+    radius = 5,  # Marker radius
+    color = "blue",  # Marker color
+    fillOpacity = 0.7  # Marker fill opacity
+  )
+
+# Show the map
+map
+
+```
+
+
 
 Statistical Analysis
 Now, let's perform statistical analyses to validate our expectations.
@@ -273,6 +314,21 @@ The geographical analysis indicates...
 
 Weather Data Exploration
 If available, consider exploring how weather conditions correlate with Woylie sightings. This can provide valuable insights into their behavior.
+
+```{r}
+library(rnoaa)
+aus_stations <- ghcnd_stations() |>
+  filter(str_starts(id, "ASN")) |>
+  filter(last_year >= 2020) |>
+  mutate(wmo_id = as.numeric(wmo_id),
+         name = str_to_lower(name)) |>
+  select(-state, -gsn_flag) |>
+  filter(element %in% c("PRCP", "TMAX", "TMIN")) |>
+  nest(element: last_year) |>
+  rowwise() |>
+  filter(nrow(data) == 3) |>
+  select(-data) 
+```
 
 Visual Inference
 If you used visual inference methods, explain the results and highlight any unexpected patterns or insights that emerged.
