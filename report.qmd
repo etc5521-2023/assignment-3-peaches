@@ -24,6 +24,7 @@ library(galah)
 library(tidyverse)
 library(ggplot2)
 library(nullabor)
+library(leaflet)
 ```
 
 The Brush-Tailed Bettong or Woylie (Bettongia penicillata ogilbyi) is a remarkable Australian marsupial with unique characteristics. It thrives in a diverse range of habitats, including forests, woodlands, and shrublands, where dense vegetation offers shelter and sustenance. This nocturnal creature is most active during the night and rests in leafy grass nests during the day. Unfortunately, the Woylie has faced a perilous decline, with its population plummeting by more than 90% in the past two centuries. This decline can be attributed to various factors, including habitat loss, introduced predators, and disease. Consequently, the Woylie is currently classified as a critically endangered species, receiving protection from the Australian government. Most of the remaining Woylie population resides in wildlife sanctuaries, where they can live free from predators. While the Woylie is not a common attraction for tourists due to its elusive nature, there are a few places like the Perth Zoo and the Australian Wildlife Conservancy's Scotia Sanctuary where visitors can catch a glimpse of this unique marsupial.
@@ -185,22 +186,6 @@ Weather data exploration here too.
 load(file = "data/WILD_THING_woylie.rda")
 ```
 
-```{r}
-# checking and filtering duplicate values because event date was duplicated
-# a<- WILD_THING_woylie[!duplicated(WILD_THING_woylie$eventDate),]
-
-```
-
-```{r}
-# trying to get the sightings over the years
-# i think my filtering of the "wild sightings" was incorrect because the output doesn't make sense 
-WILD_THING_woylie%>%
-  mutate(year = lubridate::year(eventDate))%>%
-  group_by(year)%>%
-  summarise(count= n())
-
-```
-
 In this section, we dive into the exploratory data analysis of the Brush-Tailed Bettong or Woylie sightings. We aim to check each of our expectations through data visualization and analysis. Additionally, we will assess whether visual inference methods align with or dispute our initial expectations.
 
 Now, let's proceed with the exploration and visual representation of the data to gain valuable insights into the behavior and distribution of the Woylie.
@@ -212,9 +197,9 @@ Let's start our exploratory data analysis by visualizing Woylie sightings and an
 
 Expectation 1: Trend in Woylie Sightings
 {r}
-# Create a time series plot to observe the trend in Woylie sightings over the years
-# This helps us assess whether the population is declining as expected.
-# Code for time series plot
+#### Create a time series plot to observe the trend in Woylie sightings over the years
+#### This helps us assess whether the population is declining as expected.
+#### Code for time series plot
 
 ```{r}
 # Code for time series plot
@@ -229,9 +214,9 @@ ggplot(WILD_THING_woylie, aes(x = eventDate)) +
 
 Expectation 2: Seasonal Pattern in Sightings
 {r}
-# Generate a seasonal pattern chart to analyze if there are specific times of the year with more sightings.
-# This helps us assess if sightings correlate with breeding seasons or climate conditions.
-# Code for seasonal pattern chart
+#### Generate a seasonal pattern chart to analyze if there are specific times of the year with more sightings.
+#### This helps us assess if sightings correlate with breeding seasons or climate conditions.
+#### Code for seasonal pattern chart
 
 ```{r}
 # Extract the month from the eventDate column
@@ -251,13 +236,11 @@ ggplot(WILD_THING_woylie, aes(x = month)) +
 
 Expectation 3: Geographical Distribution
 {r}
-# Create a geographical map or heatmap to visualize the distribution of sightings.
-# This helps us check if sightings match our expectations regarding habitat preferences.
-# Code for geographical map or heatmap
+#### Create a geographical map or heatmap to visualize the distribution of sightings.
+#### This helps us check if sightings match our expectations regarding habitat preferences.
+#### Code for geographical map or heatmap
 
 ```{r}
-library(leaflet)
-
 # Create a leaflet map
 map <- leaflet(data = WILD_THING_woylie) %>%
   addTiles()  # Add a basemap (you can customize the basemap provider)
@@ -329,6 +312,94 @@ aus_stations <- ghcnd_stations() |>
   filter(nrow(data) == 3) |>
   select(-data) 
 ```
+
+```{r}
+leaflet(data=aus_stations)%>%
+  addTiles()%>%
+  addCircleMarkers(
+    lng = ~longitude,  # Longitude
+    lat = ~latitude,    # Latitude
+    popup = ~paste("Weather Station ID: ", id),  # Popup text
+    radius = 5,  # Marker radius
+    color = "blue",  # Marker color
+    fillOpacity = 0.7  # Marker fill opacity
+  )
+```
+
+
+### The closest weather station to each Woylie sighting
+
+
+Using the leaflet interactive maps we identified the closest weather station to the clusters of woylie sightings.
+
+1. Weather Station ID: ASN00020028, which is closest to the Danggali Wilderness Protection area.
+
+2. Weather Station ID: ASN00023373, which is closest to the Yookamura Private Nature Reserve.
+
+3. Weather Station ID: ASN00018192, which is closest to the sightings near Port Lincoln at the Lincoln National Park.
+
+4. Weather Station ID: ASN00076031, which is closest to the sightings at Mallee Cliffs National Park.
+
+5. Weather Station ID: ASN00054038, located near the sightings at Pilliga East State Forest.
+
+
+#### Subset the weather stations to the closest to Woylie Sightins
+```{r}
+# filter weather stations to those mentioned above
+
+narrogin <- aus_stations |>
+  filter(id %in% c("ASN00020028", "ASN00023373", "ASN00018192",
+                 "ASN00076031", "ASN00054038")) |>
+  rowwise() |>
+  mutate(ts = list(meteo_pull_monitors(
+    monitors = id, var = c("PRCP", "TMAX", "TMIN"),
+    date_min = "2004-01-01",
+    date_max = "2023-09-13") |>
+      select(-id))) |>
+  rename(lat = latitude, long = longitude, elev = elevation) |> select(id, long, lat, elev, name, wmo_id, ts) %>%
+  unnest(ts) |>
+  mutate(tmax = tmax/10, tmin = tmin/ 10)
+
+WILD_THING_woylie<- WILD_THING_woylie%>%
+  rename(lat=decimalLatitude, long = decimalLongitude)
+```
+
+
+```{r, eval=FALSE}
+# I used this to find the distance between sightings and weather stations but couldn't find a way to join the data so just used the leaflet map.
+
+# We will find the haversine distance between the sets of coordinates
+# For this we will use the geosphere package
+library(geosphere)
+
+# create a function to calculate the haversine distance
+
+haversine_distance <- function(lat1,lon1,lat2,lon2){
+  dist_haversine <- distHaversine(matrix(c(lon1, lat1), ncol = 2),
+                                  matrix(c(lon2, lat2), ncol = 2))
+  return(dist_haversine)
+}
+
+
+# Iterate through each Woylie wild sighting to get the closest weather station
+
+woylie_weather_stations <-WILD_THING_woylie %>%
+  rowwise()%>%
+  mutate(
+    station_dist =which.min(
+      haversine_distance(lat, long,
+                         aus_stations$latitude,
+                         aus_stations$longitude)
+    )
+  )
+
+```
+
+
+
+
+
+
 
 Visual Inference
 If you used visual inference methods, explain the results and highlight any unexpected patterns or insights that emerged.
