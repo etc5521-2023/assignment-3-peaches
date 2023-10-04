@@ -355,19 +355,33 @@ australia <- st_read("data/AUS_2021_AUST_GDA94.shp")
 WILD_THING_woylie <- WILD_THING_woylie %>%
   rename(latitude = decimalLatitude, longitude = decimalLongitude)
 
-#make 
+#make woylie sightings and weather stations into spatial data
 woylie_sf <- st_as_sf(WILD_THING_woylie, 
                      coords = c("longitude", 
                                 "latitude"), 
                      crs = 4326)
 
-
+stations_sf <- st_as_sf(aus_stations,
+                        coords = c("longitude",
+                                   "latitude"),
+                        crs = 4326)
+#transform both
 woylie_trf <- st_transform(woylie_sf,
                            crs = st_crs(australia))
 
+stations_trf <- st_transform(stations_sf,
+                             crs = st_crs(australia))
+
+#add buffer to see the area with most sightings
+woylie_buf <- st_buffer(woylie_trf, 2e5)
+
+#plot the map with woylie sightings and buffer for most sightings
 plot(st_geometry(australia), axes = TRUE)
 
-plot(woylie_trf, col = "blue", add = TRUE)
+plot(st_geometry(woylie_trf), col = "darkblue", add = TRUE)
+
+plot(st_geometry(woylie_buf), border = "red", add = TRUE)
+
 ```
 
 
