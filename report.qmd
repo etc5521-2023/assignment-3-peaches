@@ -313,6 +313,7 @@ aus_stations <- ghcnd_stations() |>
   select(-data) 
 ```
 
+
 ```{r}
 leaflet(data=aus_stations)%>%
   addTiles()%>%
@@ -342,6 +343,33 @@ Using the leaflet interactive maps we identified the closest weather station to 
 
 5. Weather Station ID: ASN00054038, located near the sightings at Pilliga East State Forest.
 
+#### Plotting Sightings weather stations and sightings
+
+```{r}
+library(sf)
+library(sp)
+
+australia <- st_read("data/AUS_2021_AUST_GDA94.shp")
+
+#rename columns to latitude and longitude for convenience
+WILD_THING_woylie <- WILD_THING_woylie %>%
+  rename(latitude = decimalLatitude, longitude = decimalLongitude)
+
+#make 
+woylie_sf <- st_as_sf(WILD_THING_woylie, 
+                     coords = c("longitude", 
+                                "latitude"), 
+                     crs = 4326)
+
+
+woylie_trf <- st_transform(woylie_sf,
+                           crs = st_crs(australia))
+
+plot(st_geometry(australia), axes = TRUE)
+
+plot(woylie_trf, col = "blue", add = TRUE)
+```
+
 
 #### Subset the weather stations to the closest to Woylie Sightins
 ```{r}
@@ -360,8 +388,6 @@ narrogin <- aus_stations |>
   unnest(ts) |>
   mutate(tmax = tmax/10, tmin = tmin/ 10)
 
-WILD_THING_woylie<- WILD_THING_woylie%>%
-  rename(lat=decimalLatitude, long = decimalLongitude)
 ```
 
 
