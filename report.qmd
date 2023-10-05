@@ -2,6 +2,9 @@
 title: "MY WILD THING REPORT"
 author: "Peaches: Tanish and Ashvin"
 format: html
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include=FALSE}
@@ -19,20 +22,50 @@ library(nullabor)
 library(leaflet)
 ```
 
-The Brush-Tailed Bettong or Woylie (Bettongia penicillata ogilbyi) is a remarkable Australian marsupial with unique characteristics. It thrives in a diverse range of habitats, including forests, woodlands, and shrublands, where dense vegetation offers shelter and sustenance. This nocturnal creature is most active during the night and rests in leafy grass nests during the day. Unfortunately, the Woylie has faced a perilous decline, with its population plummeting by more than 90% in the past two centuries. This decline can be attributed to various factors, including habitat loss, introduced predators, and disease. Consequently, the Woylie is currently classified as a critically endangered species, receiving protection from the Australian government. Most of the remaining Woylie population resides in wildlife sanctuaries, where they can live free from predators. While the Woylie is not a common attraction for tourists due to its elusive nature, there are a few places like the Perth Zoo and the Australian Wildlife Conservancy's Scotia Sanctuary where visitors can catch a glimpse of this unique marsupial.
+![](images/img1.jpeg){width="300"}
+
+The Brush-Tailed Bettong or Woylie (Bettongia penicillata ogilbyi) is a
+remarkable Australian marsupial with unique characteristics. It thrives
+in a diverse range of habitats, including forests, woodlands, and
+shrublands, where dense vegetation offers shelter and sustenance. This
+nocturnal creature is most active during the night and rests in leafy
+grass nests during the day. Unfortunately, the Woylie has faced a
+perilous decline, with its population plummeting by more than 90% in the
+past two centuries. This decline can be attributed to various factors,
+including habitat loss, introduced predators, and disease. Consequently,
+the Woylie is currently classified as a critically endangered species,
+receiving protection from the Australian government. Most of the
+remaining Woylie population resides in wildlife sanctuaries, where they
+can live free from predators. While the Woylie is not a common
+attraction for tourists due to its elusive nature, there are a few
+places like the Perth Zoo and the Australian Wildlife Conservancy's
+Scotia Sanctuary where visitors can catch a glimpse of this unique
+marsupial.
 
 From this data we expect the following results:
 
-- "We expect to observe a decline in Woylie occurrences over the past 20 years, reflecting their critically endangered status."
-- "The dataset is likely to show fewer sightings in the wild over recent years, given that Woylies are mostly found in protected sanctuaries."
-- "Woylies are expected to have limited sightings near weather stations, as their habitat preferences are specific to certain regions within Australia."
-- "We anticipate a seasonal pattern in sightings, with more occurrences during specific times of the year, possibly correlating with breeding seasons or favorable climate conditions."
-- "It is unlikely that there will be a significant number of sightings in urban areas, as Woylies tend to avoid human-populated regions due to habitat disturbance."
-
+-   "We expect to observe a decline in Woylie occurrences over the past
+    20 years, reflecting their critically endangered status."
+-   "The dataset is likely to show fewer sightings in the wild over
+    recent years, given that Woylies are mostly found in protected
+    sanctuaries."
+-   "Woylies are expected to have limited sightings near weather
+    stations, as their habitat preferences are specific to certain
+    regions within Australia."
+-   "We anticipate a seasonal pattern in sightings, with more
+    occurrences during specific times of the year, possibly correlating
+    with breeding seasons or favorable climate conditions."
+-   "It is unlikely that there will be a significant number of sightings
+    in urban areas, as Woylies tend to avoid human-populated regions due
+    to habitat disturbance."
 
 ## Data description
 
-To ensure a robust foundation for our analysis, we obtained the occurrence records of the Brush-Tailed Bettong or Woylie (Bettongia penicillata ogilbyi) from the Atlas of Living Australia (ALA). This dataset includes essential information such as date, time, and collector identification details.
+To ensure a robust foundation for our analysis, we obtained the
+occurrence records of the Brush-Tailed Bettong or Woylie (Bettongia
+penicillata ogilbyi) from the Atlas of Living Australia (ALA). This
+dataset includes essential information such as date, time, and collector
+identification details.
 
 ```{r, eval=FALSE}
 # load occurence records for woylie from ALA
@@ -54,8 +87,8 @@ woylie <- read_csv("data-raw/woylie.csv")
 woylie <- woylie[,-1]
 ```
 
-With our dataset prepared and structured, we are now equipped to embark on a thorough analysis of Woylie occurrences and related insights.
-
+With our dataset prepared and structured, we are now equipped to embark
+on a thorough analysis of Woylie occurrences and related insights.
 
 ## Initial data analysis
 
@@ -66,9 +99,13 @@ With our dataset prepared and structured, we are now equipped to embark on a tho
 visdat::vis_dat(woylie)
 ```
 
-- Upon initial examination, we observed that missing values are primarily present in the "eventDate" column, with a few occurrences of missing data in the decimal longitude and latitude columns. All other variables seem to be correctly populated.
+-   Upon initial examination, we observed that missing values are
+    primarily present in the "eventDate" column, with a few occurrences
+    of missing data in the decimal longitude and latitude columns. All
+    other variables seem to be correctly populated.
 
-To gain further insight, we investigated the data resource where "eventDate" was missing:
+To gain further insight, we investigated the data resource where
+"eventDate" was missing:
 
 ```{r}
 # Check why event date has missing value corresponding to their dataResource name
@@ -81,9 +118,13 @@ woylie%>% filter(is.na(eventDate))%>% select(dataResourceName)%>% nrow()
 woylie%>% filter(dataResourceName == "Western Australian Museum provider for OZCAM") %>% select(eventDate)%>% unique()
 ```
 
-- It was determined that only the event dates recorded by the "Western Australian Museum provider for OZCAM" were missing, with all 182 recordings in this category lacking event date information.
+-   It was determined that only the event dates recorded by the "Western
+    Australian Museum provider for OZCAM" were missing, with all 182
+    recordings in this category lacking event date information.
 
-Next, we examined the data resource where decimal longitude and latitude were missing. Since these two variables seemed to be missing together for the same observations, they were investigated simultaneously:
+Next, we examined the data resource where decimal longitude and latitude
+were missing. Since these two variables seemed to be missing together
+for the same observations, they were investigated simultaneously:
 
 ```{r}
 # Check the data resource name where decimal longitude is missing
@@ -95,9 +136,13 @@ woylie%>% filter(is.na(decimalLongitude), is.na(decimalLatitude))%>%
   select(dataResourceName)%>% nrow()
 ```
 
-- As previously observed, there were 182 observations recorded by the "Western Australian Museum provider for OZCAM," and 19 of these recordings had missing values in both the "decimalLongitude" and "decimalLatitude" columns.
+-   As previously observed, there were 182 observations recorded by the
+    "Western Australian Museum provider for OZCAM," and 19 of these
+    recordings had missing values in both the "decimalLongitude" and
+    "decimalLatitude" columns.
 
-We will proceed to identify and save only the wild sightings in a structured manner to facilitate further analysis.
+We will proceed to identify and save only the wild sightings in a
+structured manner to facilitate further analysis.
 
 ```{r, eval=FALSE}
 galah_config(email = "aran0026@student.monash.edu")
@@ -114,7 +159,8 @@ woylie_sightings <-
 write.csv(woylie_sightings, file = "data-raw/woylie_sightings.csv")
 ```
 
-Next, we will join and filter the datasets to obtain the wild sightings data:
+Next, we will join and filter the datasets to obtain the wild sightings
+data:
 
 ```{r, eval=FALSE}
 # reorder columns to make it easily readable after join
@@ -146,14 +192,15 @@ WILD_THING_woylie<-
                                  "Sign-dropping" ))
 ```
 
-Finally, we will save the filtered wild sightings data as an .rda file in the data folder for further analysis.
-
+Finally, we will save the filtered wild sightings data as an .rda file
+in the data folder for further analysis.
 
 ```{r, eval=FALSE}
 save(WILD_THING_woylie,file = "data/WILD_THING_woylie.rda")
 ```
 
-With the wild sightings data prepared and cleaned, we are ready to delve into the exploratory data analysis.
+With the wild sightings data prepared and cleaned, we are ready to delve
+into the exploratory data analysis.
 
 ## Exploratory data analysis
 
@@ -162,20 +209,15 @@ With the wild sightings data prepared and cleaned, we are ready to delve into th
 load(file = "data/WILD_THING_woylie.rda")
 ```
 
-In this section, we dive into the exploratory data analysis of the Brush-Tailed Bettong or Woylie sightings. We aim to check each of our expectations through data visualization and analysis. Additionally, we will assess whether visual inference methods align with or dispute our initial expectations.
+In this section, we will delve into the exploratory data analysis of
+Woylie sightings, focusing on verifying our expectations through data
+visualization and analysis. Furthermore, we will evaluate whether visual
+inference techniques support or contradict our initial assumptions.
 
-Now, let's proceed with the exploration and visual representation of the data to gain valuable insights into the behavior and distribution of the Woylie.
+Now, let's move forward with exploring the data visually to acquire
+meaningful insights into the behavior and distribution of the Woylie.
 
---//--
-
-Visualizing Woylie Sightings
-Let's start our exploratory data analysis by visualizing Woylie sightings and analyzing the data to check each of our expectations.
-
-Expectation 1: Trend in Woylie Sightings
-{r}
-#### Create a time series plot to observe the trend in Woylie sightings over the years
-#### This helps us assess whether the population is declining as expected.
-#### Code for time series plot
+### Expectation 1: Trend in Woylie Sightings
 
 ```{r}
 # Code for time series plot
@@ -187,12 +229,10 @@ ggplot(WILD_THING_woylie, aes(x = eventDate)) +
   theme_minimal()
 
 ```
+- This plot will observe the trend in Woylie sightings over the years.
+- This helps us assess whether the population is declining as expected.
 
-Expectation 2: Seasonal Pattern in Sightings
-{r}
-#### Generate a seasonal pattern chart to analyze if there are specific times of the year with more sightings.
-#### This helps us assess if sightings correlate with breeding seasons or climate conditions.
-#### Code for seasonal pattern chart
+### Expectation 2: Seasonal Pattern in Sightings
 
 ```{r}
 # Extract the month from the eventDate column
@@ -209,12 +249,15 @@ ggplot(WILD_THING_woylie, aes(x = month)) +
 
 ```
 
+- We will generate the following chart to visualize the seasonal pattern
+chart to investigate whether there are particular periods during the
+year when Woylie sightings are more frequent. 
+- This analysis will assist us in determining if these sightings coincide with breeding seasons or
+specific climate conditions. Below is the code for generating the
+seasonal pattern chart.
 
-Expectation 3: Geographical Distribution
-{r}
-#### Create a geographical map or heatmap to visualize the distribution of sightings.
-#### This helps us check if sightings match our expectations regarding habitat preferences.
-#### Code for geographical map or heatmap
+
+### Expectation 3: Geographical Distribution 
 
 ```{r}
 # Create a leaflet map
@@ -237,42 +280,37 @@ map
 
 ```
 
+We will create a geographical map or heatmap to visually represent the distribution of sightings. This will enable us to verify if the sightings align with our expectations regarding habitat preferences. 
 
+Statistical Analysis Now, let's perform statistical analyses to validate
+our expectations.
 
-Statistical Analysis
-Now, let's perform statistical analyses to validate our expectations.
+Expectation 1: Trend Analysis {r} \# Calculate the annual sighting rate
+or trend using statistical methods. \# Provide insights into whether the
+population is declining. \# Code for trend analysis
 
-Expectation 1: Trend Analysis
-{r}
-# Calculate the annual sighting rate or trend using statistical methods.
-# Provide insights into whether the population is declining.
-# Code for trend analysis
+Expectation 2: Seasonality Tests {r} \# Perform seasonality tests to
+determine if there is a significant seasonal pattern in sightings. \#
+Explain the results and their implications. \# Code for seasonality
+tests
 
-Expectation 2: Seasonality Tests
-{r}
-# Perform seasonality tests to determine if there is a significant seasonal pattern in sightings.
-# Explain the results and their implications.
-# Code for seasonality tests
+Expectation 3: Geographical Analysis {r} \# Conduct spatial statistics,
+such as hotspot analysis, to identify areas with higher concentrations
+of sightings. \# Discuss any significant spatial patterns. \# Code for
+geographical analysis
 
-Expectation 3: Geographical Analysis
-{r}
-# Conduct spatial statistics, such as hotspot analysis, to identify areas with higher concentrations of sightings.
-# Discuss any significant spatial patterns.
-# Code for geographical analysis
+Comparison with Expectations Expectation 1: Trend Analysis Based on our
+trend analysis, we found...
 
+Expectation 2: Seasonal Pattern Our seasonal pattern analysis
+revealed...
 
-Comparison with Expectations
-Expectation 1: Trend Analysis
-Based on our trend analysis, we found...
+Expectation 3: Geographical Distribution The geographical analysis
+indicates...
 
-Expectation 2: Seasonal Pattern
-Our seasonal pattern analysis revealed...
-
-Expectation 3: Geographical Distribution
-The geographical analysis indicates...
-
-Weather Data Exploration
-If available, consider exploring how weather conditions correlate with Woylie sightings. This can provide valuable insights into their behavior.
+Weather Data Exploration If available, consider exploring how weather
+conditions correlate with Woylie sightings. This can provide valuable
+insights into their behavior.
 
 ```{r}
 library(rnoaa)
@@ -289,7 +327,6 @@ aus_stations <- ghcnd_stations() |>
   select(-data) 
 ```
 
-
 ```{r}
 leaflet(data=aus_stations)%>%
   addTiles()%>%
@@ -303,20 +340,25 @@ leaflet(data=aus_stations)%>%
   )
 ```
 
-
 ### The closest weather station to each Woylie sighting
 
-Using the leaflet interactive maps we identified the closest weather station to the clusters of woylie sightings.
+Using the leaflet interactive maps we identified the closest weather
+station to the clusters of woylie sightings.
 
-1. Weather Station ID: ASN00020028, which is closest to the Danggali Wilderness Protection area.
+1.  Weather Station ID: ASN00020028, which is closest to the Danggali
+    Wilderness Protection area.
 
-2. Weather Station ID: ASN00023373, which is closest to the Yookamura Private Nature Reserve.
+2.  Weather Station ID: ASN00023373, which is closest to the Yookamura
+    Private Nature Reserve.
 
-3. Weather Station ID: ASN00018192, which is closest to the sightings near Port Lincoln at the Lincoln National Park.
+3.  Weather Station ID: ASN00018192, which is closest to the sightings
+    near Port Lincoln at the Lincoln National Park.
 
-4. Weather Station ID: ASN00076031, which is closest to the sightings at Mallee Cliffs National Park.
+4.  Weather Station ID: ASN00076031, which is closest to the sightings
+    at Mallee Cliffs National Park.
 
-5. Weather Station ID: ASN00054038, located near the sightings at Pilliga East State Forest.
+5.  Weather Station ID: ASN00054038, located near the sightings at
+    Pilliga East State Forest.
 
 #### Finding the weather station closest to the most sightings
 
@@ -354,7 +396,6 @@ cluster_counts %>%
 
 ```
 
-
 ```{r}
 # Normalize the counts for radius scaling
 max_count <- max(cluster_counts$num_sightings)
@@ -383,9 +424,12 @@ map_clusters
 
 ```
 
-From the Leaflet Map we can see that the most sightings of Woylies was recorded in Pilliga East State Forest, and the weather station closest to it is weather station ID: ASN00054038.
+From the Leaflet Map we can see that the most sightings of Woylies was
+recorded in Pilliga East State Forest, and the weather station closest
+to it is weather station ID: ASN00054038.
 
 #### Subset the weather stations to the closest to location with the most Woylie Sightings
+
 ```{r}
 # filter weather station mentioned above
 narrogin <- aus_stations |>
@@ -400,7 +444,6 @@ narrogin <- aus_stations |>
   unnest(ts) |>
   mutate(tmax = tmax/10, tmin = tmin/ 10)
 ```
-
 
 ### Joining the Weather Station to the Woylie Data
 
@@ -427,48 +470,77 @@ woylie_stations <- woylie_stations %>%
 
 ```
 
+Visual Inference If you used visual inference methods, explain the
+results and highlight any unexpected patterns or insights that emerged.
 
-Visual Inference
-If you used visual inference methods, explain the results and highlight any unexpected patterns or insights that emerged.
+Conclusion In this section, we conducted a comprehensive exploratory
+data analysis of Woylie sightings. We visualized the data, performed
+statistical analyses, and compared the results with our initial
+expectations. We also explored potential correlations with weather data
+and discussed the implications of our findings.
 
-Conclusion
-In this section, we conducted a comprehensive exploratory data analysis of Woylie sightings. We visualized the data, performed statistical analyses, and compared the results with our initial expectations. We also explored potential correlations with weather data and discussed the implications of our findings.
-
-The analysis provides valuable insights into the behavior and distribution of Woylies in their natural habitat, helping us better understand this critically endangered species.
+The analysis provides valuable insights into the behavior and
+distribution of Woylies in their natural habitat, helping us better
+understand this critically endangered species.
 
 --//--
 
+## Summary
 
+In this report, we conducted an in-depth exploratory data analysis of
+Woylie (Brush-Tailed Bettong) sightings in Australia. Our analysis aimed
+to gain insights into the behavior, distribution, and population trends
+of this critically endangered species. Here are the key findings from
+our investigation:
 
+Key Findings 1. Trend in Woylie Sightings: Our analysis revealed a
+\[describe the trend, whether it's increasing, decreasing, or stable\]
+trend in Woylie sightings over the years. This trend analysis provides
+valuable information about the population dynamics of Woylies.
 
+2.  Seasonal Patterns: We explored seasonal patterns in Woylie sightings
+    and found that \[describe the seasonal patterns, such as peak
+    sighting seasons\]. Understanding these patterns can help us
+    comprehend the species' breeding habits and responses to climate
+    variations.
 
+3.  Geographical Distribution: The analysis of geographical distribution
+    indicated that \[describe the geographical distribution findings,
+    including regions with high or low sightings\]. This information is
+    critical for assessing habitat preferences and conservation
+    priorities.
 
-## Summary 
+Conservation Implications Our findings have significant implications for
+Woylie conservation efforts. \[Discuss how the findings can inform
+conservation strategies, habitat protection measures, and the importance
+of preserving Woylie habitats.\]
 
-In this report, we conducted an in-depth exploratory data analysis of Woylie (Brush-Tailed Bettong) sightings in Australia. Our analysis aimed to gain insights into the behavior, distribution, and population trends of this critically endangered species. Here are the key findings from our investigation:
+Limitations It's important to acknowledge the limitations of our
+analysis. \[Mention any limitations encountered during data analysis,
+such as data gaps or constraints, to provide context for the findings.\]
 
-Key Findings
-1. Trend in Woylie Sightings: Our analysis revealed a [describe the trend, whether it's increasing, decreasing, or stable] trend in Woylie sightings over the years. This trend analysis provides valuable information about the population dynamics of Woylies.
+Further Research To advance our understanding of Woylie behavior and
+conservation, future research avenues could include \[mention potential
+areas for future research or data collection\].
 
-2. Seasonal Patterns: We explored seasonal patterns in Woylie sightings and found that [describe the seasonal patterns, such as peak sighting seasons]. Understanding these patterns can help us comprehend the species' breeding habits and responses to climate variations.
+Conclusion In conclusion, our exploratory data analysis offers valuable
+insights into Woylie sightings in Australia. Understanding population
+trends, seasonal patterns, and geographical distribution is pivotal for
+the conservation of this unique marsupial. Our findings can guide
+conservationists, researchers, and policymakers in making informed
+decisions and taking actions to safeguard the future of Woylies in their
+natural habitat.
 
-3. Geographical Distribution: The analysis of geographical distribution indicated that [describe the geographical distribution findings, including regions with high or low sightings]. This information is critical for assessing habitat preferences and conservation priorities.
-
-Conservation Implications
-Our findings have significant implications for Woylie conservation efforts. [Discuss how the findings can inform conservation strategies, habitat protection measures, and the importance of preserving Woylie habitats.]
-
-Limitations
-It's important to acknowledge the limitations of our analysis. [Mention any limitations encountered during data analysis, such as data gaps or constraints, to provide context for the findings.]
-
-Further Research
-To advance our understanding of Woylie behavior and conservation, future research avenues could include [mention potential areas for future research or data collection].
-
-Conclusion
-In conclusion, our exploratory data analysis offers valuable insights into Woylie sightings in Australia. Understanding population trends, seasonal patterns, and geographical distribution is pivotal for the conservation of this unique marsupial. Our findings can guide conservationists, researchers, and policymakers in making informed decisions and taking actions to safeguard the future of Woylies in their natural habitat.
-
-We emphasize the importance of ongoing monitoring and research to ensure the long-term survival of this iconic and critically endangered Australian species.
-
-
-
+We emphasize the importance of ongoing monitoring and research to ensure
+the long-term survival of this iconic and critically endangered
+Australian species.
 
 ## References
+
+1)  https://wwf.org.au/news/2021/census-results-show-west-australian-woylies-are-ready-for-big-move-to-south-australia/
+  
+  2)  https://library.dbca.wa.gov.au/static/FullTextFiles/071861.pdf
+
+3)  https://www.australianwildlife.org/wildlife/woylie-brush-tailed-bettong/
+  
+  4)  https://theconversation.com/australian-endangered-species-woylie-19448
