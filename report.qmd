@@ -10,14 +10,6 @@ knitr::opts_chunk$set(echo = TRUE,message = FALSE,warning = FALSE)
 
 ## Introduction
 
-<!-- 
-1. For your assigned Australian wild thing, read all you can about it, and write a paragraph describing it's key features, such as it's habitat, usual active time, whether numbers are increasing or declining, and even things like, if it is common for tourists to travel to see them, or there are special spotting promotions occurring as is happening [this month for the platypus](https://platypus.asn.au/report-a-sighting/). The write five unique expectations on what you might find when you explore the data, for example: 
-<br><br>"We expect to see the occurrences only in the summer months."
-<br>"We expect to find the most occurrences near the coast."
-<br>"We expect to observe declining numbers since 1994."
-<br><br> Be as specific as reasonably possible for your wild thing!
--->
-
 ```{r, message=FALSE}
 # Load libraries
 library(galah)
@@ -39,10 +31,6 @@ From this data we expect the following results:
 
 
 ## Data description
-
-<!--
-2. Download all the occurrence records from the Atlas of Living Australia, ideally scripted using the `atlas_occurrences()` function from the `galah` package. Make sure you include date, time, collector identification details. Save this into a `data-raw` folder in your repo.
--->
 
 To ensure a robust foundation for our analysis, we obtained the occurrence records of the Brush-Tailed Bettong or Woylie (Bettongia penicillata ogilbyi) from the Atlas of Living Australia (ALA). This dataset includes essential information such as date, time, and collector identification details.
 
@@ -70,12 +58,6 @@ With our dataset prepared and structured, we are now equipped to embark on a tho
 
 
 ## Initial data analysis
-
-<!--
-3. Perform a data quality check, and then go ahead and clean the data, saving only the wild sightings. Save the resulting data in a `data` folder as an `WILD_THING_COMMON_NAME.rda` file, so that any special variable types are clearly available. (Replace `WILD_THING_COMMON_NAME` with lower case common name of your assigned wild thing.) *Note:* Some are museum or historical records or live in an animal sanctuary or zoo, which do not truly capture their wild behaviour. Downloading the event information (`galah_select(group = "event")`) can help identify wild sightings.
-
-Weather data pre-processing here too.
--->
 
 ```{r}
 # Data quality check
@@ -175,12 +157,6 @@ With the wild sightings data prepared and cleaned, we are ready to delve into th
 
 ## Exploratory data analysis
 
-<!--
-4. Make plots of the data to check each of your expectations, and report what you learn. *Note:* This might also be a place where visual inference methods *may* be useful to determine if what is seen agrees or disputes what you expected. 
-
-Weather data exploration here too.
--->
-
 ```{r}
 # load the wild sightings data back in
 load(file = "data/WILD_THING_woylie.rda")
@@ -253,7 +229,7 @@ map <- map %>%
     popup = ~paste("Sighting Date: ", format(eventDate, "%Y-%m-%d")),  # Popup text
     radius = 5,  # Marker radius
     color = "blue",  # Marker color
-    fillOpacity = 0.7  # Marker fill opacity
+    fillOpacity = 0.7 # Marker fill opacity
   )
 
 # Show the map
@@ -330,7 +306,6 @@ leaflet(data=aus_stations)%>%
 
 ### The closest weather station to each Woylie sighting
 
-
 Using the leaflet interactive maps we identified the closest weather station to the clusters of woylie sightings.
 
 1. Weather Station ID: ASN00020028, which is closest to the Danggali Wilderness Protection area.
@@ -343,55 +318,78 @@ Using the leaflet interactive maps we identified the closest weather station to 
 
 5. Weather Station ID: ASN00054038, located near the sightings at Pilliga East State Forest.
 
-#### Plotting Sightings weather stations and sightings
+#### Finding the weather station closest to the most sightings
 
 ```{r}
-library(sf)
-library(sp)
-
-australia <- st_read("data/AUS_2021_AUST_GDA94.shp")
+# Load necessary libraries
+library(dplyr)
 
 #rename columns to latitude and longitude for convenience
 WILD_THING_woylie <- WILD_THING_woylie %>%
   rename(latitude = decimalLatitude, longitude = decimalLongitude)
 
-#make woylie sightings and weather stations into spatial data
-woylie_sf <- st_as_sf(WILD_THING_woylie, 
-                     coords = c("longitude", 
-                                "latitude"), 
-                     crs = 4326)
+set.seed(383724)
 
-stations_sf <- st_as_sf(aus_stations,
-                        coords = c("longitude",
-                                   "latitude"),
-                        crs = 4326)
-#transform both
-woylie_trf <- st_transform(woylie_sf,
-                           crs = st_crs(australia))
+# Combine latitude and longitude into a matrix
+coords_matrix <- WILD_THING_woylie %>%
+  select(longitude, latitude) %>%
+  as.matrix()
 
-stations_trf <- st_transform(stations_sf,
-                             crs = st_crs(australia))
+# Perform k-means clustering
+num_clusters <- 5  # Number of clusters (parks)
+kmeans_result <- kmeans(coords_matrix, centers = num_clusters)
 
-#add buffer to see the area with most sightings
-woylie_buf <- st_buffer(woylie_trf, 2e5)
+# Extract cluster assignments
+WILD_THING_woylie$cluster <- kmeans_result$cluster
 
-#plot the map with woylie sightings and buffer for most sightings
-plot(st_geometry(australia), axes = TRUE)
+# Count the number of sightings in each cluster
+cluster_counts <- WILD_THING_woylie %>%
+  group_by(cluster) %>%
+  summarise(num_sightings = n())
 
-plot(st_geometry(woylie_trf), col = "darkblue", add = TRUE)
-
-plot(st_geometry(woylie_buf), border = "red", add = TRUE)
+# Print the number of sightings in each cluster
+cluster_counts %>% 
+  kableExtra::kbl(col.names = c("Cluster", "Number of Sightings"), align = 'c') %>%
+  kableExtra::kable_styling(bootstrap_options = "bordered")
 
 ```
 
 
-#### Subset the weather stations to the closest to Woylie Sightins
 ```{r}
-# filter weather stations to those mentioned above
+# Normalize the counts for radius scaling
+max_count <- max(cluster_counts$num_sightings)
+normalized_counts <- cluster_counts$num_sightings / max_count
 
+# Scale the radius based on the normalized counts
+scaled_radius <- normalized_counts * 20  # Adjust 20 as needed for appropriate scaling
+
+# Create a Leaflet map
+map_clusters <- leaflet(data = WILD_THING_woylie) %>%
+  addTiles()  # Add a basemap (you can customize the basemap provider)
+
+# Add circle markers for each sighting with scaled radius
+map_clusters <- map_clusters %>%
+  addCircleMarkers(
+    lng = ~longitude,  # Longitude
+    lat = ~latitude,    # Latitude
+    popup = ~paste("Sighting Date: ", format(eventDate, "%Y-%m-%d")),  # Popup text
+    radius = ~scaled_radius[cluster],  # Use scaled radius based on the cluster
+    color = "blue",  # Marker color
+    fillOpacity = 0.7  # Marker fill opacity
+  )
+
+# Print the map
+map_clusters
+
+```
+
+From the Leaflet Map we can see that the most sightings of Woylies was recorded in Pilliga East State Forest, and the weather station closest to it is weather station ID: ASN00054038.
+
+#### Subset the weather stations to the closest to location with the most Woylie Sightings
+```{r}
+# filter weather station mentioned above
 narrogin <- aus_stations |>
-  filter(id %in% c("ASN00020028", "ASN00023373", "ASN00018192",
-                 "ASN00076031", "ASN00054038")) |>
+  filter(id %in% "ASN00054038") |>
   rowwise() |>
   mutate(ts = list(meteo_pull_monitors(
     monitors = id, var = c("PRCP", "TMAX", "TMIN"),
@@ -401,44 +399,33 @@ narrogin <- aus_stations |>
   rename(lat = latitude, long = longitude, elev = elevation) |> select(id, long, lat, elev, name, wmo_id, ts) %>%
   unnest(ts) |>
   mutate(tmax = tmax/10, tmin = tmin/ 10)
-
 ```
 
 
-```{r, eval=FALSE}
-# I used this to find the distance between sightings and weather stations but couldn't find a way to join the data so just used the leaflet map.
+### Joining the Weather Station to the Woylie Data
 
-# We will find the haversine distance between the sets of coordinates
-# For this we will use the geosphere package
-library(geosphere)
+```{r}
+#rename eventDate as date for convenience
+WILD_THING_woylie <- WILD_THING_woylie %>%
+  rename(date = eventDate)
 
-# create a function to calculate the haversine distance
+#classifying the date columns as a Date
+WILD_THING_woylie$date <- as.Date(WILD_THING_woylie$date, origin = "1970-01-01")
+narrogin$date <- as.Date(narrogin$date, origin = "1970-01-01")
 
-haversine_distance <- function(lat1,lon1,lat2,lon2){
-  dist_haversine <- distHaversine(matrix(c(lon1, lat1), ncol = 2),
-                                  matrix(c(lon2, lat2), ncol = 2))
-  return(dist_haversine)
-}
+#filter observations in cluster 1 as it is the largest
+woylie_most <- WILD_THING_woylie %>% filter(cluster == 1)
 
+#join the data sets by date
+woylie_stations <- narrogin%>% 
+  left_join(woylie_most, by = "date")
 
-# Iterate through each Woylie wild sighting to get the closest weather station
+#remove observations based on duplicate record IDs
+woylie_stations <- woylie_stations %>% 
+  distinct(recordID, .keep_all = TRUE)  # .keep_all = TRUE keeps all columns
 
-woylie_weather_stations <-WILD_THING_woylie %>%
-  rowwise()%>%
-  mutate(
-    station_dist =which.min(
-      haversine_distance(lat, long,
-                         aus_stations$latitude,
-                         aus_stations$longitude)
-    )
-  )
 
 ```
-
-
-
-
-
 
 
 Visual Inference

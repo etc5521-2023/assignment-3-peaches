@@ -1,32 +1,23 @@
-# Sample AI script
+ME: I have a data set of woylie sightings with the date of the sighting and the coordinates(latitude and longitude) of each. All the sightings seem to be clustered into 5 nature parks. How can I find the the park with the most sightings  by counting each of the woylie sightings in the vicintiy of each park
 
-ME: Using dplyr how would you write the code to expand a categorical variable by a count variable?
+CHATEGPT: To group the sightings into 5 clusters based on proximity, considering a 100 km radius for each cluster, you can follow these steps:
 
-CHATGPT: In R, the dplyr package provides various data manipulation functions. If you have a data frame that contains a categorical variable and a count variable, and you wish to expand the data frame based on the count variable, you can use the uncount function. Here's how to do it:
+Initialize Clusters:
+Start by initializing 5 empty clusters, each representing a potential park or grouping.
+
+Iterate Through Sightings:
+For each woylie sighting, calculate the distance from the sighting coordinates to the centroid of each existing cluster. If the distance to any cluster is within 100 km, add the sighting to that cluster. If the distance exceeds 100 km for all clusters, create a new cluster for that sighting.
+
+Update Cluster Centroids:
+After adding a sighting to a cluster, update the centroid of that cluster to be the new mean location of the sightings within that cluster.
+
+Repeat Iteration:
+Repeat steps 2 and 3 until no more sightings change clusters.
 ...
 
-ME: Can you tell me how to remove ( ) from a string with a regular expression?
+ME: How can I remove duplicate values in R?
 
-CHATGPT: Certainly! You can use regular expressions to remove parentheses from a string. In various programming languages, the regular expression to match parentheses would be \(|\). 
-
-Here's how to remove parentheses in some popular programming languages:
-
-...
-
-ME: What about with stringr in R
-
-CHATGPT: In R, you can use the stringr package to work with strings, including using regular expressions to remove characters. To remove parentheses, you can use the str_replace_all function with the regular expression for matching parentheses, which is \\(|\\).
-
-Here's how you would do it:
-...
-
-ME: How would you write the code to make a lineup for a qqplot using the nullabor R package?
-
-CHATGPT: The nullabor package in R is used to generate lineup tests, which are a graphical diagnostic tool often used to evaluate the validity of the assumptions behind statistical models, such as whether data is normally distributed. The package can be used in combination with ggplot2 to create QQ plots.
-
-Here is a sample code snippet that shows how to create a lineup for a QQ plot using the nullabor package. This code assumes that you have some observed data that you want to compare against a theoretical normal distribution.
-
-First, you will need to install the nullabor and ggplot2 packages if you haven't already.
+CHATGPT: To remove duplicate values in a column of a data frame in R, you can use the dplyr package, which is a powerful tool for data manipulation. Specifically, you can use the distinct() function to remove duplicates based on a specific column. 
 
 ...
 
@@ -38,6 +29,6 @@ lineup(create_qqplot(data.frame(x = rnorm(100))),
 ```
 --------
 
-ANALYSIS: ChatGPT helped me to make a start on code to use for different exercises. It provided mostly useful code. 
+ANALYSIS: ChatGPT helped me to start in certain areas. It rarely provided useful code. 
 
 
