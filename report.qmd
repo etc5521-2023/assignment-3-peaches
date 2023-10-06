@@ -628,6 +628,25 @@ load(file = "data/woylie_stations.rda")
 ```
 
 
+```{r}
+# Filtering  the data for sightings in 2022
+woylie_sightings_2022 <- woylie_stations %>%
+  filter(year(date) == 2022)
+
+#Extracting the month name
+woylie_sightings_2022$month_name <- 
+  factor(format(as.Date(woylie_sightings_2022$date), "%B"), levels = month.name)
+
+# A bar chart to visualize the number of sightings in 2022
+ggplot(woylie_sightings_2022, aes(x = month_name)) +
+  geom_bar() +
+  labs(title = "Woylie Sightings in 2022",
+       x = "Month",
+       y = "Number of Sightings")
+
+```
+
+
 ## Summary
 
 In summary, our thorough exploration of Woylie (Brush-Tailed Bettong)
