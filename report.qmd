@@ -629,6 +629,28 @@ load(file = "data/woylie_stations.rda")
 
 
 ```{r}
+#Plot a bar chart to see the sightings each year
+ggplot(woylie_stations, aes(x = date)) +
+  geom_bar() +
+  labs(title = "Woylie Sightings over time")
+```
+
+Since, it appears there is a spike in sightings between 2021 and 2023. We will check the years where sightings occur. 
+
+```{r}
+#check years that sightings actually occur
+#create a column for years
+
+woylie_stations$year <- lubridate::year(woylie_stations$date)
+
+woylie_stations%>% filter(sightings == 1)%>%distinct(year)
+  
+  
+```
+
+2022 is the only year that woylie sightings have been recorded. Therefore, the following visualizations will contain only information from 2022 as the other years are irrelevant in this respect.
+
+```{r}
 # Filtering  the data for sightings in 2022
 woylie_sightings_2022 <- woylie_stations %>%
   filter(year(date) == 2022)
@@ -642,9 +664,69 @@ ggplot(woylie_sightings_2022, aes(x = month_name)) +
   geom_bar() +
   labs(title = "Woylie Sightings in 2022",
        x = "Month",
-       y = "Number of Sightings")
+       y = "Number of Sightings")+
+  theme(axis.text.x = element_text(angle = 25, hjust = 1))
 
 ```
+
+The provided code filters the dataset to isolate Woylie sightings that occurred exclusively in the year 2022 and subsequently generates a bar chart to visualize the distribution of these sightings across different months.
+
+The resulting bar chart shows that the number of Woylie sightings varied throughout the year, but the highest number of sightings occurred in the spring and summer months (October to March). The lowest number of sightings occurred in the winter months (April to September).
+
+There are a few possible explanations for this pattern. One possibility is that Woylies are more active during the spring and summer months due to the warmer weather and longer days. Another possibility is that there is more food available for Woylies during the spring and summer months. Finally, it is also possible that Woylies are more visible during the spring and summer months because they are spending more time outside.
+
+To delve into the connection between temperature and sightings, you have the option to craft scatter plots or line plots that unveil how temperature variables like 'tmax' or 'tmin' correlate with the observed number of sightings. Here's an illustrative instance of crafting a plot:
+
+```{r}
+#A scatter plot to visualize the relationship between tmax and sightings
+woylie_sightings_2022<-
+  woylie_sightings_2022%>% 
+  group_by(month_name)%>%
+  mutate(count_sightings=n())
+
+ggplot(woylie_sightings_2022,aes(x = tmax, y = count_sightings, color= month_name)) +
+  geom_point() +
+  labs(title = "Relationship Between Maximum Temperature (tmax) and Sightings in 2022",
+       x = "Maximum Temperature (tmax)",
+       y = "Number of Sightings",
+       color = "Month")
+```
+
+
+The ensuing code constructs a scatter plot wherein 'tmax' is situated on the horizontal axis, while the number of sightings occupies the vertical axis.
+The resulting scatter plot shows a positive correlation between maximum temperature and the number of Woylie sightings. This suggests that Woylies are more likely to be seen on days where the maximum temperature is between 20 and 35.
+
+
+
+```{r}
+# Scatter plot for tmin vs. sightings
+ggplot(woylie_sightings_2022, aes(x = tmin, y = count_sightings, color=month_name)) +
+  geom_point() +
+  labs(title = "Relationship Between Minimum Temperature (tmin) and Sightings in 2022",
+       x = "Minimum Temperature (tmin)",
+       y = "Number of Sightings",
+       color = "Month")
+```
+
+
+The resulting scatter plot shows a negative correlation between minimum temperature and the number of Woylie sightings. This suggests that Woylies are less likely to be seen during periods when the minimum temperature is lower. However, when the minimum temperature is between about 5 and 20 woylies have been seen more often.
+
+```{r}
+# Scatter plot for tmin vs. tmax with a line of best fit
+ggplot(woylie_sightings_2022, aes(x = tmin, y = tmax)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Add a line of best fit
+  labs(title = "Relationship Between Minimum Temperature (tmin) and Maximum Temperature (tmax) in 2022",
+       x = "Minimum Temperature (tmin)",
+       y = "Maximum Temperature (tmax)")
+```
+
+
+Lastly, the chart above displays the relationship between minimum temperature (tmin) and maximum temperature (tmax) in 2022. The blue line represents the line of best fit, indicating a moderate positive correlation between the two temperature variables.
+
+The resulting scatter plot shows a positive correlation between minimum temperature and maximum temperature. This suggests that days with higher minimum temperatures tend to also have higher maximum temperatures.
+
+Another way to interpret the scatter plot is that the points tend to cluster around the diagonal line. This suggests that the minimum temperature and maximum temperature are often close to each other.
 
 
 ## Summary
