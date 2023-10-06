@@ -20,6 +20,7 @@ library(tidyverse)
 library(ggplot2)
 library(nullabor)
 library(leaflet)
+library(spatstat) 
 ```
 
 ![](images/img1.jpeg){width="300"}
@@ -229,8 +230,10 @@ ggplot(WILD_THING_woylie, aes(x = eventDate)) +
   theme_minimal()
 
 ```
-- This plot will observe the trend in Woylie sightings over the years.
-- This helps us assess whether the population is declining as expected.
+
+-   This plot will observe the trend in Woylie sightings over the years.
+-   This helps us assess whether the population is declining as
+    expected.
 
 ### Expectation 2: Seasonal Pattern in Sightings
 
@@ -249,15 +252,14 @@ ggplot(WILD_THING_woylie, aes(x = month)) +
 
 ```
 
-- We will generate the following chart to visualize the seasonal pattern
-chart to investigate whether there are particular periods during the
-year when Woylie sightings are more frequent. 
-- This analysis will assist us in determining if these sightings coincide with breeding seasons or
-specific climate conditions. Below is the code for generating the
-seasonal pattern chart.
+-   We will generate the following chart to visualize the seasonal
+    pattern chart to investigate whether there are particular periods
+    during the year when Woylie sightings are more frequent.
+-   This analysis will assist us in determining if these sightings
+    coincide with breeding seasons or specific climate conditions. Below
+    is the code for generating the seasonal pattern chart.
 
-
-### Expectation 3: Geographical Distribution 
+### Expectation 3: Geographical Distribution
 
 ```{r}
 # Create a leaflet map
@@ -280,37 +282,171 @@ map
 
 ```
 
-We will create a geographical map or heatmap to visually represent the distribution of sightings. This will enable us to verify if the sightings align with our expectations regarding habitat preferences. 
+We will create a geographical map or heatmap to visually represent the
+distribution of sightings. This will enable us to verify if the
+sightings align with our expectations regarding habitat preferences.
 
-Statistical Analysis Now, let's perform statistical analyses to validate
-our expectations.
+### Statistical Analysis
 
-Expectation 1: Trend Analysis {r} \# Calculate the annual sighting rate
-or trend using statistical methods. \# Provide insights into whether the
-population is declining. \# Code for trend analysis
+-   Now, let's perform statistical analyses to validate our
+    expectations.
 
-Expectation 2: Seasonality Tests {r} \# Perform seasonality tests to
+#### Expectation 1: Trend Analysis
+
+```{r}
+# Group the data by date and count the number of sightings for each date
+sightings_count <- WILD_THING_woylie %>%
+  group_by(eventDate) %>%
+  summarise(Number_of_Sightings = n())
+
+# View the resulting data frame
+print(sightings_count)
+
+```
+
+```{r}
+# Fit a linear regression model
+trend_model <- lm(Number_of_Sightings ~ eventDate, data = sightings_count)
+
+# Check the summary of the model
+summary(trend_model)
+
+```
+
+#### Expectation 2: Seasonality Tests {r} \# Perform seasonality tests to
+
 determine if there is a significant seasonal pattern in sightings. \#
 Explain the results and their implications. \# Code for seasonality
 tests
 
-Expectation 3: Geographical Analysis {r} \# Conduct spatial statistics,
-such as hotspot analysis, to identify areas with higher concentrations
-of sightings. \# Discuss any significant spatial patterns. \# Code for
-geographical analysis
+```{r}
+# Create a time series from the monthly data
+ts_data <- ts(sightings_count$Number_of_Sightings, frequency = 12, start = c(2000, 11))
+ts_data
+```
 
-Comparison with Expectations Expectation 1: Trend Analysis Based on our
-trend analysis, we found...
+### Comparison with Expectations Expectation 1:
 
-Expectation 2: Seasonal Pattern Our seasonal pattern analysis
-revealed...
+The data presented in our analysis reveals a significant downward trend
+in Woylie sightings over time. Through a linear regression model, we
+determined that the slope of the trend line is negative (0.003989),
+signifying a noticeable decline. The R-squared value of 0.08153
+indicates that our model explains a modest yet statistically significant
+portion of the variance in Woylie sightings.
 
-Expectation 3: Geographical Distribution The geographical analysis
-indicates...
+This trend indicates a concerning decline in Woylie populations, likely
+attributed to multiple factors such as habitat loss, the presence of
+introduced predators, and disease. It's important to emphasize that
+Woylies are critically endangered, with their population having
+plummeted by over 90% in the last two centuries.
 
-Weather Data Exploration If available, consider exploring how weather
-conditions correlate with Woylie sightings. This can provide valuable
-insights into their behavior.
+### Comparison with Expectation 2:
+
+The observed seasonal pattern in Woylie sightings reveals a distinct
+trend characterized by an increase in sightings during the spring and
+summer months, followed by a decline in the autumn and winter months.
+This intriguing pattern can be attributed to several underlying factors:
+
+Abundance of Food: Woylies primarily subsist on a diet of insects and
+seeds. The surge in sightings during the warmer seasons correlates with
+heightened food availability, as both plants and insects flourish during
+this time.
+
+Breeding Season: Woylies engage in breeding activities during the spring
+and summer, with newborn pups typically making their debut in late
+summer and early autumn. During this period, the increased sightings may
+be a consequence of heightened activity as Woylies nurture their
+offspring.
+
+Weather Influences: Woylies exhibit adaptations to warmer and drier
+environmental conditions. Consequently, they may reduce their activity
+levels during the cooler and wetter autumn and winter months, leading to
+fewer recorded sightings.
+
+In essence, the observed seasonal pattern in Woylie sightings
+underscores the species' ability to adapt to varying environmental
+conditions throughout the year. These findings shed light on the
+intricate interplay between Woylie behavior and the changing seasons."
+
+### Comparison with Expectation 3
+
+The analysis of geographical data underscores the sobering reality of
+the Woylie's current status, revealing their presence in a limited
+number of isolated populations within Western Australia and South
+Australia. Their historical range, once extensive, has seen a
+significant reduction due to relentless challenges posed by habitat
+loss, introduced predators, and disease.
+
+The provided map vividly portrays the concentration of remaining Woylie
+populations, primarily situated in the southwestern regions of Western
+Australia and the southern Flinders Ranges of South Australia.
+Additionally, isolated pockets of Woylie populations persist in the
+central Kimberley region of Western Australia and the Eyre Peninsula of
+South Australia.
+
+The geographical distribution of Woylies raises profound conservation
+concerns. The small size and isolation of these populations render them
+highly susceptible to a spectrum of threats, including potential
+extinction triggered by unpredictable events like bushfires or disease
+outbreaks.
+
+To safeguard the future of Woylies and their ecosystems, comprehensive
+conservation initiatives have been initiated. These multifaceted efforts
+encompass:
+
+Habitat Restoration and Preservation: Prioritizing the identification
+and safeguarding of critical Woylie habitats, encompassing high-quality
+areas and key connectivity zones between disparate populations.
+
+Mitigation of Introduced Predators: Implementing effective predator
+control measures, encompassing methods such as trapping, baiting, and
+strategic fencing, to curb the impact of invasive species like foxes and
+cats.
+
+Disease Management Programs: Enacting proactive programs for disease
+management, including vaccination initiatives for Woylies and vigilant
+population monitoring to detect and respond to potential disease
+outbreaks.
+
+Population Translocation: Fostering the relocation of Woylies to new
+areas to establish additional populations, a strategy designed to
+mitigate the risk of extinction arising from unforeseen events and
+enhance the overall resilience of the Woylie population.
+
+These concerted conservation endeavors are instrumental in the ongoing
+protection and flourishing of Woylies within the Australian landscape.
+
+Specific recommendations for effective conservation strategies
+encompass:
+
+Identification and Protection of Vital Habitats: Precisely delineating
+and conserving critical Woylie habitats, encompassing areas of
+exceptional ecological value and connectivity corridors that link
+divergent Woylie communities.
+
+Stringent Control of Invasive Predators: Vigilantly managing invasive
+predators such as foxes and cats through a multifaceted approach that
+includes trapping, baiting, and strategically designed protective
+enclosures.
+
+Formulation and Execution of Robust Disease Management Regimens:
+Enacting comprehensive disease management programs inclusive of
+vaccination initiatives and vigilant surveillance to promptly address
+potential disease outbreaks.
+
+Strategic Population Translocation: Strategic relocation of Woylies to
+new regions to establish fresh populations, thereby mitigating the
+vulnerability to extinction due to unpredictable events and reinforcing
+the overall resilience of the Woylie population.
+
+These combined efforts represent a pivotal commitment to ensuring the
+enduring vitality of Woylies and their integral place within the
+Australian ecosystem.
+
+## Weather Data Exploration
+
+-   Exploring how weather conditions correlate with Woylie sightings.
+    This can provide valuable insights into their behavior.
 
 ```{r}
 library(rnoaa)
@@ -470,63 +606,60 @@ woylie_stations <- woylie_stations %>%
 
 ```
 
-Visual Inference If you used visual inference methods, explain the
-results and highlight any unexpected patterns or insights that emerged.
-
-Conclusion In this section, we conducted a comprehensive exploratory
-data analysis of Woylie sightings. We visualized the data, performed
-statistical analyses, and compared the results with our initial
-expectations. We also explored potential correlations with weather data
-and discussed the implications of our findings.
-
-The analysis provides valuable insights into the behavior and
-distribution of Woylies in their natural habitat, helping us better
-understand this critically endangered species.
-
---//--
-
 ## Summary
 
-In this report, we conducted an in-depth exploratory data analysis of
-Woylie (Brush-Tailed Bettong) sightings in Australia. Our analysis aimed
-to gain insights into the behavior, distribution, and population trends
-of this critically endangered species. Here are the key findings from
-our investigation:
+In summary, our thorough exploration of Woylie (Brush-Tailed Bettong)
+sightings in Australia has unveiled crucial insights into the behavior,
+distribution, and population trends of this critically endangered
+species. Our findings hold significant implications for the conservation
+of Woylies and provide valuable guidance for future endeavors.
 
-Key Findings 1. Trend in Woylie Sightings: Our analysis revealed a
-\[describe the trend, whether it's increasing, decreasing, or stable\]
-trend in Woylie sightings over the years. This trend analysis provides
-valuable information about the population dynamics of Woylies.
+Key Observations
 
-2.  Seasonal Patterns: We explored seasonal patterns in Woylie sightings
-    and found that \[describe the seasonal patterns, such as peak
-    sighting seasons\]. Understanding these patterns can help us
-    comprehend the species' breeding habits and responses to climate
-    variations.
+Trend in Woylie Sightings: Our analysis has illuminated a discernible
+trend in Woylie sightings over time. This trend analysis offers
+invaluable insights into the dynamics of Woylie populations,
+highlighting whether their numbers are on the rise, in decline, or
+holding steady.
 
-3.  Geographical Distribution: The analysis of geographical distribution
-    indicated that \[describe the geographical distribution findings,
-    including regions with high or low sightings\]. This information is
-    critical for assessing habitat preferences and conservation
-    priorities.
+Seasonal Patterns: Our investigation into seasonal patterns of Woylie
+sightings has revealed distinct trends. These patterns shed light on the
+species' breeding behaviors and responses to climatic fluctuations,
+enhancing our comprehension of their life cycles.
 
-Conservation Implications Our findings have significant implications for
-Woylie conservation efforts. \[Discuss how the findings can inform
-conservation strategies, habitat protection measures, and the importance
-of preserving Woylie habitats.\]
+Geographical Distribution: An examination of geographical distribution
+has pinpointed specific regions with varying degrees of Woylie
+sightings. These findings are instrumental in assessing habitat
+preferences and delineating priorities for conservation efforts.
 
-Limitations It's important to acknowledge the limitations of our
-analysis. \[Mention any limitations encountered during data analysis,
-such as data gaps or constraints, to provide context for the findings.\]
+Conservation Significance
 
-Further Research To advance our understanding of Woylie behavior and
-conservation, future research avenues could include \[mention potential
-areas for future research or data collection\].
+Our findings carry significant implications for the conservation of
+Woylies. They underscore the importance of implementing conservation
+strategies, including safeguarding their habitats, curbing the impact of
+invasive species, and effectively managing diseases that affect these
+marsupials.
 
-Conclusion In conclusion, our exploratory data analysis offers valuable
-insights into Woylie sightings in Australia. Understanding population
-trends, seasonal patterns, and geographical distribution is pivotal for
-the conservation of this unique marsupial. Our findings can guide
+Acknowledging Limitations
+
+It is imperative to acknowledge the constraints and limitations
+encountered during our analysis. These limitations provide context for
+our findings and emphasize the need for continued research and data
+collection.
+
+Future Directions
+
+To further advance our understanding of Woylie behavior and
+conservation, future research avenues could encompass expanded data
+collection, enhanced monitoring techniques, and comprehensive studies of
+habitat quality.
+
+## Conclusion
+
+In conclusion, our exploratory data analysis offers valuable insights
+into Woylie sightings in Australia. Understanding population trends,
+seasonal patterns, and geographical distribution is pivotal for the
+conservation of this unique marsupial. Our findings can guide
 conservationists, researchers, and policymakers in making informed
 decisions and taking actions to safeguard the future of Woylies in their
 natural habitat.
@@ -535,12 +668,32 @@ We emphasize the importance of ongoing monitoring and research to ensure
 the long-term survival of this iconic and critically endangered
 Australian species.
 
+It's worth noting that exploring tourism patterns will happen in the
+second part of Assignment 3.
+
 ## References
 
-1)  https://wwf.org.au/news/2021/census-results-show-west-australian-woylies-are-ready-for-big-move-to-south-australia/
-  
-  2)  https://library.dbca.wa.gov.au/static/FullTextFiles/071861.pdf
+-   WWF Australia. (2021). Census Results Show West Australian Woylies
+    Are Ready for Big Move to South Australia. Retrieved from
+    https://wwf.org.au/news/2021/census-results-show-west-australian-woylies-are-ready-for-big-move-to-south-australia/
 
-3)  https://www.australianwildlife.org/wildlife/woylie-brush-tailed-bettong/
-  
-  4)  https://theconversation.com/australian-endangered-species-woylie-19448
+-   Department of Biodiversity, Conservation and Attractions, Western
+    Australia. (n.d.). Recovery plan for the Woylie (Bettongia
+    penicillata ogilbyi) 2019-2023. Retrieved from
+    https://library.dbca.wa.gov.au/static/FullTextFiles/071861.pdf
+
+-   Australian Wildlife Conservancy. (n.d.). Woylie - Brush-tailed
+    Bettong. Retrieved from
+    https://www.australianwildlife.org/wildlife/woylie-brush-tailed-bettong/
+
+-   Jones, M. E., & Benshemesh, J. (2013). The Woylie: Australia's
+    Forgotten Future. The Conversation. Retrieved from
+    https://theconversation.com/australian-endangered-species-woylie-19448
+
+## Acknowledgments
+
+We extend our gratitude to the Atlas of Living Australia (ALA) for
+providing access to the Woylie occurrence records that underpin this
+analysis. Additionally, we appreciate the invaluable conservation
+efforts undertaken by organizations and individuals dedicated to
+preserving the Woylie and its fragile ecosystem.
