@@ -91,6 +91,24 @@ woylie <- woylie[,-1]
 With our dataset prepared and structured, we are now equipped to embark
 on a thorough analysis of Woylie occurrences and related insights.
 
+```{r}
+variables <- data.frame(Variable= c("scientificName","taxonConceptID",
+                                       "recordID","dataResourceName",
+                                       "occurenceStatus","eventDate",
+                                       "decimalLatitude","decimalLongitude"),
+                           Explained = c("Scientific Name of animal",
+                                         "Combination of a scientific name and its corresponding author/year",
+                                         "Unique ID of sighting recorded",
+                                         "Place where sighting was recorded",
+                                         "Its Still in the Wild and can be seen",
+                                         "Date sighting was recorded",
+                                         "Latitude of sighting recorded",
+                                         "Longitude of sighting recorded"))
+
+variables%>%kableExtra::kbl(caption = "Variables explained")%>% kableExtra::kable_styling(bootstrap_options = "bordered")
+```
+
+
 # Initial data analysis
 
 ```{r}
