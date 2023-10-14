@@ -23,6 +23,12 @@ library(leaflet)
 library(spatstat) 
 ```
 
+```{r}
+# loading tourism data 
+load("data/tourism.RDA")
+```
+
+
 ![](images/img1.jpeg){width="300"}
 
 The Brush-Tailed Bettong or Woylie (Bettongia penicillata ogilbyi) is a
