@@ -763,6 +763,13 @@ Based on the available data which is obtained from [Tourism Research Australia (
 1. Port Lincoln
 2. Malle region
 
+```{r}
+locs <- c("Port Lincoln","Mallee Region nfd")
+
+tourism_woylie <- tourism %>% filter(Region %in% locs)
+```
+
+
 
 ## Summary
 
