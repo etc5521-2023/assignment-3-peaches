@@ -2,9 +2,11 @@
 title: "MY WILD THING REPORT"
 author: "Peaches: Tanish and Ashvin"
 format: html
+number-sections: true
 editor: 
   markdown: 
     wrap: 72
+    
 ---
 
 ```{r setup, include=FALSE}
@@ -264,7 +266,7 @@ leaflet(data=aus_stations)%>%
   )
 ```
 
-#### The closest weather station to each Woylie sighting
+#### The closest weather station to each Woylie sighting {#sec-ref}
 
 Using the leaflet interactive map of the Australia weather stations as well as the map of the map of Woylie sightings (shown below in exploration of geographical locations of Woylie sightings), we identified the closest weather
 stations to the clusters of woylie sightings.
@@ -752,6 +754,15 @@ The resulting scatter plot shows a positive correlation between minimum temperat
 
 Another way to interpret the scatter plot is that the points tend to cluster around the diagonal line. This suggests that the minimum temperature and maximum temperature are often close to each other.
 
+# Ecotourism interest
+
+In order to study whether there is a special interest among tourists for the Woylies across Australia, we will analyse the sightings close to the weather stations of interest as reported in @sec-ref.
+
+Based on the available data which is obtained from [Tourism Research Australia (TRA)](https://www.tra.gov.au), we will focus our analysis on two critical locations. These are:
+
+1. Port Lincoln
+2. Malle region
+
 
 ## Summary
 
@@ -801,6 +812,7 @@ conservation, future research avenues could encompass expanded data
 collection, enhanced monitoring techniques, and comprehensive studies of
 habitat quality.
 
+
 # Conclusion
 
 In conclusion, our exploratory data analysis offers valuable insights
@@ -818,7 +830,7 @@ Australian species.
 It's worth noting that exploring tourism patterns will happen in the
 second part of Assignment 3.
 
-## References
+# References
 
 -   WWF Australia. (2021). Census Results Show West Australian Woylies
     Are Ready for Big Move to South Australia. Retrieved from
@@ -837,7 +849,7 @@ second part of Assignment 3.
     Forgotten Future. The Conversation. Retrieved from
     https://theconversation.com/australian-endangered-species-woylie-19448
 
-## Acknowledgments
+# Acknowledgments
 
 We extend our gratitude to the Atlas of Living Australia (ALA) for
 providing access to the Woylie occurrence records that underpin this
