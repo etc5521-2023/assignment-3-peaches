@@ -23,6 +23,7 @@ library(ggplot2)
 library(nullabor)
 library(leaflet)
 library(spatstat) 
+library(plotly)
 ```
 
 ```{r}
@@ -765,8 +766,18 @@ Based on the available data which is obtained from [Tourism Research Australia (
 
 ```{r}
 locs <- c("Port Lincoln","Mallee Region nfd")
+purpose <- c("Holiday","Visiting")
+tourism_woylie <- tourism %>% filter(Region %in% locs,Purpose %in% purpose)
 
-tourism_woylie <- tourism %>% filter(Region %in% locs)
+tourism_pl <- tourism_woylie %>% filter(Region == "Port Lincoln")
+
+
+
+tourism_pl_grouped <- tourism_woylie %>% group_by_key(Purpose) %>%
+  index_by(Quarter) %>% summarise(Total_trips = sum(Trips))
+
+pl1 <- ggplot(data = tourism_pl_grouped,aes(x = Quarter,y = Total_trips)) + geom_line() + geom_smooth() + geom_point()
+ggplotly(pl1)
 ```
 
 
