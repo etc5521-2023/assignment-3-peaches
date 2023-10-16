@@ -765,21 +765,31 @@ Based on the available data which is obtained from [Tourism Research Australia (
 2. Malle region
 
 ```{r}
+#| label: fig-mallee
+#| fig-cap: "Number of holiday trips in Mallee region"
 locs <- c("Port Lincoln","Mallee Region nfd")
 purpose <- c("Holiday","Visiting")
-tourism_woylie <- tourism %>% filter(Region %in% locs,Purpose %in% purpose)
+tourism_woylie <- tourism %>% filter(Region %in% locs,Purpose == "Holiday")
 
-tourism_pl <- tourism_woylie %>% filter(Region == "Port Lincoln")
+tourism_pl <- tourism_woylie %>% filter(Region == "Mallee Region nfd")
 
 
 
-tourism_pl_grouped <- tourism_woylie %>% group_by_key(Purpose) %>%
-  index_by(Quarter) %>% summarise(Total_trips = sum(Trips))
+tourism_pl_grouped <- tourism_pl %>% group_by_key() %>%
+  index_by() %>% summarise(Total_trips = sum(Trips*1000))
 
-pl1 <- ggplot(data = tourism_pl_grouped,aes(x = Quarter,y = Total_trips)) + geom_line() + geom_smooth() + geom_point()
+pl1 <- ggplot(data = tourism_pl_grouped,aes(x = Quarter,y = Total_trips)) + 
+  geom_line() + geom_point() + theme_classic() + ggtitle("Tourism trends in Mallee Region") + labs(x = "Year (Quarter)",
+                                                                                                      y = "Total holiday trips",
+                                                                                                      caption = "Source: Tourism Research Australia",
+                                                                                                      subtitle = "1998 Q1 - 2022 Q4")
 ggplotly(pl1)
 ```
+Based on our initial analysis of @fig-mallee, we can observe the following:
 
+1. The number of trips designated as "holidays" are highly irregular with multiple quarters and years of no holiday visitors in the region of interest.
+2. As a result, there is no discernible seasonality in the holiday visits in this region.
+3. The highest number of holiday visitors were recorded in the 3rd quarter of 2009 with close to 4278 visits.
 
 
 ## Summary
