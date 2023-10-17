@@ -24,6 +24,7 @@ library(nullabor)
 library(leaflet)
 library(spatstat) 
 library(plotly)
+library(tsibble)
 ```
 
 ```{r}
@@ -359,7 +360,7 @@ to it is weather station ID: ASN00054038.
 
 #### Subset the weather stations to the closest to location with the most Woylie Sightings
 
-```{r, eval=FALSE}
+```{r eval=FALSE}
 # filter weather station mentioned above
 narrogin <- aus_stations |>
   filter(id %in% "ASN00054038") |>
@@ -376,7 +377,7 @@ narrogin <- aus_stations |>
 
 #### Joining the Weather Station to the Woylie Data
 
-```{r, eval=FALSE}
+```{r eval=FALSE}
 #rename eventDate as date for convenience
 WILD_THING_woylie <- WILD_THING_woylie %>%
   rename(date = eventDate)
@@ -707,8 +708,8 @@ To delve into the connection between temperature and sightings, you have the opt
 ```{r}
 #A scatter plot to visualize the relationship between tmax and sightings
 woylie_sightings_2022<-
-  woylie_sightings_2022%>% 
-  group_by(month_name)%>%
+  woylie_sightings_2022 %>% 
+  group_by(month_name) %>%
   mutate(count_sightings=n())
 
 ggplot(woylie_sightings_2022,aes(x = tmax, y = count_sightings, color= month_name)) +
@@ -764,6 +765,8 @@ Based on the available data which is obtained from [Tourism Research Australia (
 1. Port Lincoln
 2. Malle region
 
+## Analysis of tourists in the Mallee region
+
 ```{r}
 #| label: fig-mallee
 #| fig-cap: "Number of holiday trips in Mallee region"
@@ -776,7 +779,7 @@ tourism_pl <- tourism_woylie %>% filter(Region == "Mallee Region nfd")
 
 
 tourism_pl_grouped <- tourism_pl %>% group_by_key() %>%
-  index_by() %>% summarise(Total_trips = sum(Trips*1000))
+  index_by() %>% summarise(Total_trips = round(sum(Trips*1000)),0)
 
 pl1 <- ggplot(data = tourism_pl_grouped,aes(x = Quarter,y = Total_trips)) + 
   geom_line() + geom_point() + theme_classic() + ggtitle("Tourism trends in Mallee Region") + labs(x = "Year (Quarter)",
@@ -790,6 +793,15 @@ Based on our initial analysis of @fig-mallee, we can observe the following:
 1. The number of trips designated as "holidays" are highly irregular with multiple quarters and years of no holiday visitors in the region of interest.
 2. As a result, there is no discernible seasonality in the holiday visits in this region.
 3. The highest number of holiday visitors were recorded in the 3rd quarter of 2009 with close to 4278 visits.
+
+Now that we have looked into the number of visitors in the Mallee region for the purpose of holidays, it will be interesting to compare the sightings and understand if there is any correlation between the sightings and the presence of the number of visitors.
+
+Let us now try to compare the Woylie sightings with the visitor trends for the Mallee region.
+
+```{r}
+
+```
+
 
 
 ## Summary
