@@ -756,25 +756,26 @@ The resulting scatter plot shows a positive correlation between minimum temperat
 
 Another way to interpret the scatter plot is that the points tend to cluster around the diagonal line. This suggests that the minimum temperature and maximum temperature are often close to each other.
 
+
 # Ecotourism interest
 
 In order to study whether there is a special interest among tourists for the Woylies across Australia, we will analyse the sightings close to the weather stations of interest as reported in @sec-ref.
 
-Based on the available data which is obtained from [Tourism Research Australia (TRA)](https://www.tra.gov.au), we will focus our analysis on two critical locations. These are:
+Based on the available data which is obtained from [Tourism Research Australia (TRA)](https://www.tra.gov.au), we will focus our analysis on the location __Narrabri Surrounds__ in NSW.
 
-1. Port Lincoln
-2. Malle region
+
 
 ## Analysis of tourists in the Mallee region
 
 ```{r}
 #| label: fig-mallee
 #| fig-cap: "Number of holiday trips in Mallee region"
-locs <- c("Port Lincoln","Mallee Region nfd")
-purpose <- c("Holiday","Visiting")
-tourism_woylie <- tourism %>% filter(Region %in% locs,Purpose == "Holiday")
 
-tourism_pl <- tourism_woylie %>% filter(Region == "Mallee Region nfd")
+load("data/woylie_region.rda")
+
+tourism_woylie <- tourism %>% filter(Purpose == "Holiday")
+
+tourism_pl <- tourism_woylie %>% filter(Region == "Narrabri Surrounds")
 
 
 
@@ -782,12 +783,13 @@ tourism_pl_grouped <- tourism_pl %>% group_by_key() %>%
   index_by() %>% summarise(Total_trips = round(sum(Trips*1000)),0)
 
 pl1 <- ggplot(data = tourism_pl_grouped,aes(x = Quarter,y = Total_trips)) + 
-  geom_line() + geom_point() + theme_classic() + ggtitle("Tourism trends in Mallee Region") + labs(x = "Year (Quarter)",
+  geom_line() + geom_point() + theme_classic() + ggtitle("Tourism trends in Narrabri Surrounds") + labs(x = "Year (Quarter)",
                                                                                                       y = "Total holiday trips",
                                                                                                       caption = "Source: Tourism Research Australia",
                                                                                                       subtitle = "1998 Q1 - 2022 Q4")
 ggplotly(pl1)
 ```
+
 Based on our initial analysis of @fig-mallee, we can observe the following:
 
 1. The number of trips designated as "holidays" are highly irregular with multiple quarters and years of no holiday visitors in the region of interest.
@@ -799,9 +801,37 @@ Now that we have looked into the number of visitors in the Mallee region for the
 Let us now try to compare the Woylie sightings with the visitor trends for the Mallee region.
 
 ```{r}
+t_region <- st_read(here::here("data/SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GDA2020.shp")) |>
+  ms_simplify(keep = 0.1) |>
+  st_transform(crs = st_crs("WGS84")) |>
+  st_make_valid() |>
+  select(STE_NAME21, SA2_NAME21, SA2_CODE21, geometry) |>
+  rename("state" = STE_NAME21,
+         "region" = SA2_NAME21,
+         "sa2_code21" = SA2_CODE21)
 
+
+woylie_sf <- WILD_THING_woylie |>
+  filter(!is.na(decimalLongitude) & !is.na(decimalLatitude)) |>
+  select(-c(dataResourceName , recordID,scientificName,taxonConceptID)) |>
+  st_as_sf(coords = c("decimalLongitude", "decimalLatitude"),
+  crs = st_crs("WGS84"))
+
+
+woylie_stsf <-
+  st_join(t_region, woylie_sf, left = TRUE) %>%  
+  filter(!is.na(region))
+
+woylie_narrabri <- woylie_stsf %>% filter(region == "Narrabri Surrounds")
+woylie_narrabri_grouped <- woylie_narrabri %>% group_by(eventDate) %>% summarise(Total_sightings = n() )
 ```
 
+```{r}
+
+pl2 <- ggplot(data = woylie_narrabri_grouped,aes(x = eventDate,y = Total_sightings)) + geom_line()
+pl2
+
+```
 
 
 ## Summary

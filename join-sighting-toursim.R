@@ -41,3 +41,5 @@ pt_sf_region <- left_join(
     summarise(sighting = n()),
   by = c("region" = "region")
 )
+
+save(file = "data/woylie_region.rda",pt_sf_region)
