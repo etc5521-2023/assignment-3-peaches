@@ -754,50 +754,65 @@ Another way to interpret the scatter plot is that the points tend to cluster aro
 
 # Ecotourism
 
-Ecotourism involves traveling to places in support of the conservation efforts of endangered wildlife. To assess the level of interest in ecotourism for the Woylie, an analysis that combines tourism data and previous findings will provide us with a holistic view. In this initial ecotourism analysis, the focus will be on one of the prominent regions where Woylies are found: Port Lincoln in the Port Lincoln National Park.
+Ecotourism involves traveling to places in support of the conservation efforts of endangered wildlife. To assess the level of interest in ecotourism for the Woylie, an analysis that combines tourism data and previous findings will provide us with a holistic view. In this initial ecotourism analysis, the focus will be on one of the prominent regions where Woylies are found: the SA2 region of Narrabri Surrounds.
 
-## Port Lincoln, Lincoln National Park
+## Narrabri Surrounds
 
 ### Analysis 
 
-The 'tourism' data will be filtered for the region of **Port Lincoln** as part of the analysis. The purpose of tourism will also be filtered to **holiday** since this suggests the intention to travel for sightseeing and exploration. Other purposes, such as visiting friends and relatives or business, may include visiting the endangered Woylie species during the trip, but the purposes are too broad to draw conclusive insights. Therefore, choosing **holiday** tourism data will result in the most accurate analysis.
-
-As previous findings have shown, the number of observations of Woylies were most prominent in the year 2022. Most observations were made during the Spring and Summer months (starting in October). Therefore, a deeper analysis will focus on Quarter 4 of the year in relation to tourism numbers. Most importantly, the question that is explored is, is there a correlation between the number of observations and the number of tourists in the region?
+The 'tourism' data will be filtered for the region of **Narrabri Surrounds** as part of the analysis. The purpose of tourism will also be filtered to **holiday** since this suggests the intention to travel for sightseeing and exploration. Other purposes, such as visiting friends and relatives or business, may include visiting the endangered Woylie species during the trip, but the purposes are too broad to draw conclusive insights. Therefore, choosing **holiday** tourism data will result in the most accurate analysis.
 
 ```{r}
 set.seed(383724)
 kmeans_result <- kmeans(coords_matrix, centers = num_clusters)
 WILD_THING_woylie$cluster <- kmeans_result$cluster
-port_lincoln_observations <- WILD_THING_woylie %>%
-  filter(cluster == 2) %>%
-  mutate(Quarter = yearquarter(eventDate)) %>% 
+narrabri_surrounds_observations <- WILD_THING_woylie %>%
+  filter(cluster == 3) %>%
+  mutate(Quarter = yearquarter(eventDate)) %>%
   select(Quarter, everything())
 ```
 
 ```{r}
-port_lincoln_tourism <- tourism %>%
-  filter(Region == "Port Lincoln",
+narrabri_surrounds_tourism <- tourism %>%
+  filter(Region == "Narrabri Surrounds",
          Purpose == "Holiday") %>% 
   mutate(Year = year(Quarter),
          Q = quarter(Quarter))
 ```
 
 ```{r}
-ggplot(port_lincoln_tourism, aes(x = Quarter, y = Trips, fill = as.factor(Q))) +
+ggplot(narrabri_surrounds_tourism,
+       aes(x = Quarter, y = Trips, fill = as.factor(Q))) +
   geom_col() +
-  facet_wrap(~ Year, scales = "free_x") +
-  scale_x_discrete(labels = scales::date_format("%Y")) +
-  labs(title = "Holiday Tourism in Port Lincoln by Year",
+  facet_wrap( ~ Year, scales = "free_x") +
+  labs(title = "Holiday Tourism in Narrabri Surrounds by Year",
        x = "Quarter",
        y = "Number of trips") +
   theme_bw() +
   scale_fill_brewer(palette = "Set3") +
-  guides(fill = guide_legend(title = "Quarterly Period"))
+  guides(fill = guide_legend(title = "Quarterly Period")) +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+```
+```{r}
+narrabri_surrounds_tourism %>%
+  ggplot(aes(x = Q, y = Trips, fill = as.factor(Q))) +
+  geom_col() +
+  scale_x_discrete(labels = scales::date_format("%Y")) +
+  labs(
+    title = "Total Holiday Tourism in Narrabri Surrounds by Quarter",
+    subtitle = "Years 1998 - 2022",
+    x = "Quarter",
+    y = "Number of trips"
+  ) +
+  theme_bw() +
+  scale_fill_brewer(palette = "Set3") +
+  guides(fill = guide_legend(title = "Quarterly Period")) 
 ```
 
 ```{r}
-port_lincoln_full <-
-  left_join(port_lincoln_observations, port_lincoln_tourism, by = "Quarter") %>%
+narrabri_surrounds_full <-
+  left_join(narrabri_surrounds_observations, narrabri_surrounds_tourism, by = "Quarter") %>%
   select(
     -c(
       "scientificName",
