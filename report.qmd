@@ -25,6 +25,9 @@ library(leaflet)
 library(spatstat) 
 library(plotly)
 library(tsibble)
+library(sf)
+library(rmapshaper)
+library(lubridate)
 ```
 
 ```{r}
@@ -768,8 +771,8 @@ Based on the available data which is obtained from [Tourism Research Australia (
 ## Analysis of tourists in the Mallee region
 
 ```{r}
-#| label: fig-mallee
-#| fig-cap: "Number of holiday trips in Mallee region"
+#| label: fig-narr
+#| fig-cap: "Number of holiday trips in the Narrabri region"
 
 load("data/woylie_region.rda")
 
@@ -790,7 +793,7 @@ pl1 <- ggplot(data = tourism_pl_grouped,aes(x = Quarter,y = Total_trips)) +
 ggplotly(pl1)
 ```
 
-Based on our initial analysis of @fig-mallee, we can observe the following:
+Based on our initial analysis of @fig-narr, we can observe the following:
 
 1. The number of trips designated as "holidays" are highly irregular with multiple quarters and years of no holiday visitors in the region of interest.
 2. As a result, there is no discernible seasonality in the holiday visits in this region.
@@ -800,7 +803,7 @@ Now that we have looked into the number of visitors in the Mallee region for the
 
 Let us now try to compare the Woylie sightings with the visitor trends for the Mallee region.
 
-```{r}
+```{r include=FALSE,echo=FALSE}
 t_region <- st_read(here::here("data/SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GDA2020.shp")) |>
   ms_simplify(keep = 0.1) |>
   st_transform(crs = st_crs("WGS84")) |>
@@ -827,12 +830,28 @@ woylie_narrabri_grouped <- woylie_narrabri %>% group_by(eventDate) %>% summarise
 ```
 
 ```{r}
-
-pl2 <- ggplot(data = woylie_narrabri_grouped,aes(x = eventDate,y = Total_sightings)) + geom_line()
+#| label: fig-sighting
+#| fig-cap: "Woylie sightings in the Narrabri region"
+woylie_tsibble <- woylie_narrabri_grouped %>%
+  as_tsibble(key = Total_sightings, index = eventDate)
+pl2 <- ggplot(data = woylie_tsibble,aes(x = eventDate,
+                                        y = Total_sightings)) + geom_line() + geom_point()  + labs(x = "Date of sighting",y = "Number of sightings",subtitle = "Year: 2022") + ggtitle("Woylie sightings in the Narrabri region")
 pl2
 
 ```
+:::{.callout-note}
+# Key takeaways
 
+Based on the analysis of @fig-sighting, following are the key takeaways:
+
+1. While the Narrabri region was observed to be the region with the highest Woylie sightings in Australia, this was not always the case.
+2. Based on the sightings data from the Atlas of Living Australia, the sightings of Woylies in the Narrabri region were all in the 3rd and 4th quarters of the year 2022.
+3. Upon observing this peculiar trend in the data, a deeper analysis was undertaken to get to the root cause for the skewed sightings.
+4. Based on a detailed report by the [Australian wildlife organisation](https://www.australianwildlife.org/wp-content/uploads/2023/08/Pilliga-Ecohealth-Report-2022-23.pdf), the Woylies due to __being an endangered wild being__, are inhabited within the __safe confines of the Pilliga East Forest reserve, which is in the Narrabri SA2 region__.
+5. These Woylies were transferred from Western Australia to New South Wales (where Narrabri region is a part of) in large numbers in the year 2022 for the __purpose of safekeeping and providing the right environment for them to breed.__
+6. The __special conservation efforts taken up by the Australian wildlife organisation__ as mentioned in the above points are expected to contribute to the __high number of Woylie sightings in the year 2022__.
+
+:::
 
 ## Summary
 

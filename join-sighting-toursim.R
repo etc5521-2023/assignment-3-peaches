@@ -33,7 +33,7 @@ pt_sf <-
   filter(!is.na(region)) # get only the points (sightings) that fall in the polygon (tourism region)
 
 # Aggregate by Region, Year
-pt_sf_region <- left_join(
+woylie_region <- left_join(
   t_region |> select(region, geometry),
   pt_sf |>
     as_tibble() |>
@@ -42,4 +42,4 @@ pt_sf_region <- left_join(
   by = c("region" = "region")
 )
 
-save(file = "data/woylie_region.rda",pt_sf_region)
+save(file = "data/woylie_region.rda",woylie_region)
