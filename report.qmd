@@ -754,7 +754,7 @@ Another way to interpret the scatter plot is that the points tend to cluster aro
 
 # Ecotourism
 
-Ecotourism involves traveling to places in support of the conservation efforts of endangered wildlife. To assess the level of interest in ecotourism for the Woylie, an analysis that combines tourism data and previous findings will provide us with a holistic view. In this initial ecotourism analysis, the focus will be on one of the prominent regions where Woylies are found: the SA2 region of Narrabri Surrounds.
+Ecotourism involves traveling to places in support of the conservation efforts of endangered wildlife. To assess the level of interest in ecotourism for the Woylie, an analysis that combines tourism data and previous findings will provide us with a holistic view. In this initial ecotourism analysis, the focus will be on one of the prominent regions where the Woylie is found: the SA2 region of **Narrabri Surrounds**.
 
 ## Narrabri Surrounds
 
@@ -816,7 +816,7 @@ narrabri_surrounds_tourism %>%
 
 There is no clear year-by-year trend in tourism numbers. When grouping the tourism numbers by quarter, Quarter 1 experiences the fewest tourists compared to Quarter 3, which receives the most. Specifically, from January to March, Narrabri Surrounds experiences the least tourism, and from July to September, the area has the most tourism.
 
-In terms of sightings of the Woylie specifically in the Narrabri region, these sightings occurred only in Quarters 3 and 4 of the year 2022. This suggests a recent surge in observations, but unfortunately, the tourism data for trips involving over a thousand people is only available for Quarter 3, 2022.
+In terms of sightings of the Woylie specifically in the Narrabri region, these sightings occurred only in Quarters 3 and 4 of 2022. This suggests a recent surge in observations, but unfortunately, the tourism data for trips involving over a thousand people is only available for Quarter 3, 2022.
 
 ```{r echo=FALSE}
 q_colours <- RColorBrewer::brewer.pal(12, "Set3")[3:4]
@@ -836,6 +836,13 @@ narrabri_surrounds_observations %>%
   theme_bw() +
   guides(fill = guide_legend(title = "Quarterly Period"))
 ```
+
+
+Overall, there is a limited correlation between these two sets of data. It is evident that tourism in the Narrabri Surrounds area exhibits significant inconsistency and year-to-year variation. The peak in Woylie observations in Narrabri Surrounds toward the end of 2022 can be attributed to conservation efforts for this endangered species, resulting in a notable increase in sightings. However, the lack of alignment between these two time periods hinders further analysis. This suggests that tourism in the area may not be strongly linked to Woylie sightings, ultimately yielding an inconclusive result in terms of ecotourism.
+
+In general, an internet search for terms such as _"Pilliga Forest Conservation,"_ _"Woylie,"_ and _"Narrabri Surrounds Woylie,"_ or a combination of these terms, yields minimal results related to marketing efforts promoting visits to the area for Woylie sightings.
+
+This aligns with our findings, indicating that there is little to no ecotourism activity in this area for this particular species.
 
 ## Summary
 
