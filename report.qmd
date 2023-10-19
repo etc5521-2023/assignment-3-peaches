@@ -754,13 +754,13 @@ Another way to interpret the scatter plot is that the points tend to cluster aro
 
 # Ecotourism
 
-Ecotourism involves traveling to places in support of the conservation efforts of endangered wildlife. To assess the level of interest in ecotourism for the Woylie, an analysis that combines tourism data and previous findings will provide us with a holistic view. In this initial ecotourism analysis, the focus will be on one of the prominent regions where the Woylie is found: the SA2 region of **Narrabri Surrounds**.
+Ecotourism involves traveling to places in support of the conservation efforts of endangered wildlife. To assess the level of interest in ecotourism for the Woylie, an analysis that combines tourism data and previous findings will provide us with a holistic view. In this initial ecotourism analysis, the focus will be on one of the prominent regions where the Woylie is found: the SA2 region of Narrabri Surrounds.
 
 ## Narrabri Surrounds
 
 ### Analysis 
 
-The 'tourism' data will be filtered for the region of **Narrabri Surrounds** as part of the analysis. The purpose of tourism will also be filtered to **holiday** since this suggests the intention to travel for sightseeing and exploration. Other purposes, such as visiting friends and relatives or business, may include visiting the endangered Woylie species during the trip, but the purposes are too broad to draw conclusive insights. Therefore, choosing **holiday** tourism data will result in the most accurate analysis.
+The 'tourism' data will be filtered for the region of Narrabri Surrounds as part of the analysis. The purpose of tourism will also be filtered to holiday since this suggests the intention to travel for sightseeing and exploration. Other purposes, such as visiting friends and relatives or business, may include visiting the endangered Woylie species during the trip, but the purposes are too broad to draw conclusive insights. Therefore, choosing holiday tourism data will result in the most accurate analysis.
 
 ```{r echo=FALSE}
 set.seed(383724)
