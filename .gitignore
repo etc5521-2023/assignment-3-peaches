@@ -47,3 +47,6 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# Large shape files
+SA2_2021_AUST_SHP_GDA2020

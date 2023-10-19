@@ -2,9 +2,11 @@
 title: "MY WILD THING REPORT"
 author: "Peaches: Tanish and Ashvin"
 format: html
+number-sections: true
 editor: 
   markdown: 
     wrap: 72
+    
 ---
 
 ```{r setup, include=FALSE}
@@ -21,6 +23,11 @@ library(ggplot2)
 library(nullabor)
 library(leaflet)
 library(spatstat) 
+library(plotly)
+library(tsibble)
+library(sf)
+library(rmapshaper)
+library(lubridate)
 ```
 
 ```{r}
@@ -264,7 +271,7 @@ leaflet(data=aus_stations)%>%
   )
 ```
 
-#### The closest weather station to each Woylie sighting
+#### The closest weather station to each Woylie sighting {#sec-ref}
 
 Using the leaflet interactive map of the Australia weather stations as well as the map of the map of Woylie sightings (shown below in exploration of geographical locations of Woylie sightings), we identified the closest weather
 stations to the clusters of woylie sightings.
@@ -356,7 +363,7 @@ to it is weather station ID: ASN00054038.
 
 #### Subset the weather stations to the closest to location with the most Woylie Sightings
 
-```{r, eval=FALSE}
+```{r eval=FALSE}
 # filter weather station mentioned above
 narrogin <- aus_stations |>
   filter(id %in% "ASN00054038") |>
@@ -373,7 +380,7 @@ narrogin <- aus_stations |>
 
 #### Joining the Weather Station to the Woylie Data
 
-```{r, eval=FALSE}
+```{r eval=FALSE}
 #rename eventDate as date for convenience
 WILD_THING_woylie <- WILD_THING_woylie %>%
   rename(date = eventDate)
@@ -704,8 +711,8 @@ To delve into the connection between temperature and sightings, you have the opt
 ```{r}
 #A scatter plot to visualize the relationship between tmax and sightings
 woylie_sightings_2022<-
-  woylie_sightings_2022%>% 
-  group_by(month_name)%>%
+  woylie_sightings_2022 %>% 
+  group_by(month_name) %>%
   mutate(count_sightings=n())
 
 ggplot(woylie_sightings_2022,aes(x = tmax, y = count_sightings, color= month_name)) +
@@ -752,6 +759,99 @@ The resulting scatter plot shows a positive correlation between minimum temperat
 
 Another way to interpret the scatter plot is that the points tend to cluster around the diagonal line. This suggests that the minimum temperature and maximum temperature are often close to each other.
 
+
+# Ecotourism interest
+
+In order to study whether there is a special interest among tourists for the Woylies across Australia, we will analyse the sightings close to the weather stations of interest as reported in @sec-ref.
+
+Based on the available data which is obtained from [Tourism Research Australia (TRA)](https://www.tra.gov.au), we will focus our analysis on the location __Narrabri Surrounds__ in NSW.
+
+
+
+## Analysis of tourists in the Mallee region
+
+```{r}
+#| label: fig-narr
+#| fig-cap: "Number of holiday trips in the Narrabri region"
+
+load("data/woylie_region.rda")
+
+tourism_woylie <- tourism %>% filter(Purpose == "Holiday")
+
+tourism_pl <- tourism_woylie %>% filter(Region == "Narrabri Surrounds")
+
+
+
+tourism_pl_grouped <- tourism_pl %>% group_by_key() %>%
+  index_by() %>% summarise(Total_trips = round(sum(Trips*1000)),0)
+
+pl1 <- ggplot(data = tourism_pl_grouped,aes(x = Quarter,y = Total_trips)) + 
+  geom_line() + geom_point() + theme_classic() + ggtitle("Tourism trends in Narrabri Surrounds") + labs(x = "Year (Quarter)",
+                                                                                                      y = "Total holiday trips",
+                                                                                                      caption = "Source: Tourism Research Australia",
+                                                                                                      subtitle = "1998 Q1 - 2022 Q4")
+ggplotly(pl1)
+```
+
+Based on our initial analysis of @fig-narr, we can observe the following:
+
+1. The number of trips designated as "holidays" are highly irregular with multiple quarters and years of no holiday visitors in the region of interest.
+2. As a result, there is no discernible seasonality in the holiday visits in this region.
+3. The highest number of holiday visitors were recorded in the 3rd quarter of 2009 with close to 4278 visits.
+
+Now that we have looked into the number of visitors in the Mallee region for the purpose of holidays, it will be interesting to compare the sightings and understand if there is any correlation between the sightings and the presence of the number of visitors.
+
+Let us now try to compare the Woylie sightings with the visitor trends for the Mallee region.
+
+```{r include=FALSE,echo=FALSE}
+t_region <- st_read(here::here("data/SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GDA2020.shp")) |>
+  ms_simplify(keep = 0.1) |>
+  st_transform(crs = st_crs("WGS84")) |>
+  st_make_valid() |>
+  select(STE_NAME21, SA2_NAME21, SA2_CODE21, geometry) |>
+  rename("state" = STE_NAME21,
+         "region" = SA2_NAME21,
+         "sa2_code21" = SA2_CODE21)
+
+
+woylie_sf <- WILD_THING_woylie |>
+  filter(!is.na(decimalLongitude) & !is.na(decimalLatitude)) |>
+  select(-c(dataResourceName , recordID,scientificName,taxonConceptID)) |>
+  st_as_sf(coords = c("decimalLongitude", "decimalLatitude"),
+  crs = st_crs("WGS84"))
+
+
+woylie_stsf <-
+  st_join(t_region, woylie_sf, left = TRUE) %>%  
+  filter(!is.na(region))
+
+woylie_narrabri <- woylie_stsf %>% filter(region == "Narrabri Surrounds")
+woylie_narrabri_grouped <- woylie_narrabri %>% group_by(eventDate) %>% summarise(Total_sightings = n() )
+```
+
+```{r}
+#| label: fig-sighting
+#| fig-cap: "Woylie sightings in the Narrabri region"
+woylie_tsibble <- woylie_narrabri_grouped %>%
+  as_tsibble(key = Total_sightings, index = eventDate)
+pl2 <- ggplot(data = woylie_tsibble,aes(x = eventDate,
+                                        y = Total_sightings)) + geom_line() + geom_point()  + labs(x = "Date of sighting",y = "Number of sightings",subtitle = "Year: 2022") + ggtitle("Woylie sightings in the Narrabri region")
+pl2
+
+```
+:::{.callout-note}
+# Key takeaways
+
+Based on the analysis of @fig-sighting, following are the key takeaways:
+
+1. While the Narrabri region was observed to be the region with the highest Woylie sightings in Australia, this was not always the case.
+2. Based on the sightings data from the Atlas of Living Australia, the sightings of Woylies in the Narrabri region were all in the 3rd and 4th quarters of the year 2022.
+3. Upon observing this peculiar trend in the data, a deeper analysis was undertaken to get to the root cause for the skewed sightings.
+4. Based on a detailed report by the [Australian wildlife organisation](https://www.australianwildlife.org/wp-content/uploads/2023/08/Pilliga-Ecohealth-Report-2022-23.pdf), the Woylies due to __being an endangered wild being__, are inhabited within the __safe confines of the Pilliga East Forest reserve, which is in the Narrabri SA2 region__.
+5. These Woylies were transferred from Western Australia to New South Wales (where Narrabri region is a part of) in large numbers in the year 2022 for the __purpose of safekeeping and providing the right environment for them to breed.__
+6. The __special conservation efforts taken up by the Australian wildlife organisation__ as mentioned in the above points are expected to contribute to the __high number of Woylie sightings in the year 2022__.
+
+:::
 
 ## Summary
 
@@ -801,6 +901,7 @@ conservation, future research avenues could encompass expanded data
 collection, enhanced monitoring techniques, and comprehensive studies of
 habitat quality.
 
+
 # Conclusion
 
 In conclusion, our exploratory data analysis offers valuable insights
@@ -818,7 +919,7 @@ Australian species.
 It's worth noting that exploring tourism patterns will happen in the
 second part of Assignment 3.
 
-## References
+# References
 
 -   WWF Australia. (2021). Census Results Show West Australian Woylies
     Are Ready for Big Move to South Australia. Retrieved from
@@ -837,7 +938,7 @@ second part of Assignment 3.
     Forgotten Future. The Conversation. Retrieved from
     https://theconversation.com/australian-endangered-species-woylie-19448
 
-## Acknowledgments
+# Acknowledgments
 
 We extend our gratitude to the Atlas of Living Australia (ALA) for
 providing access to the Woylie occurrence records that underpin this
