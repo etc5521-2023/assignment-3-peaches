@@ -75,22 +75,20 @@ From this data we expect the following results:
 
 ## Data description
 
-To ensure a robust foundation for our analysis, we obtained the
-occurrence records of the Brush-Tailed Bettong or Woylie (Bettongia
-penicillata ogilbyi) from the Atlas of Living Australia (ALA). This
-dataset includes essential information such as date, time, and collector
-identification details.
+To ensure a robust foundation for the analysis, the occurrence records of the Brush-Tailed Bettong or Woylie (Bettongia penicillata ogilbyi) were obtained from the Atlas of Living Australia (ALA). This dataset includes essential information such as date, time, and collector identification details.
+
+The code to derive the species data is shown below:
 
 ```{r, eval=FALSE}
 # load occurence records for woylie from ALA
 galah_config(email = "aran0026@student.monash.edu")
-woylie<-
+woylie <-
   galah_call() %>%
   galah_identify("Bettongia penicillata ogilbyi") %>%
   atlas_occurrences()
 
 # save data as a csv in data-raw folder
-write.csv(woylie,file = "data-raw/woylie.csv")
+write.csv(woylie, file = "data-raw/woylie.csv")
 ```
 
 ```{r}
@@ -98,27 +96,45 @@ write.csv(woylie,file = "data-raw/woylie.csv")
 woylie <- read_csv("data-raw/woylie.csv")
 
 # remove unnecessary 1st column
-woylie <- woylie[,-1]
+woylie <- woylie[, -1]
 ```
 
-With our dataset prepared and structured, we are now equipped to embark
-on a thorough analysis of Woylie occurrences and related insights.
+With the dataset prepared and structured, a thorough analysis of Woylie occurrences and related insights can take place.
 
-```{r}
-variables <- data.frame(Variable= c("scientificName","taxonConceptID",
-                                       "recordID","dataResourceName",
-                                       "occurenceStatus","eventDate",
-                                       "decimalLatitude","decimalLongitude"),
-                           Explained = c("Scientific Name of animal",
-                                         "Combination of a scientific name and its corresponding author/year",
-                                         "Unique ID of sighting recorded",
-                                         "Place where sighting was recorded",
-                                         "Its Still in the Wild and can be seen",
-                                         "Date sighting was recorded",
-                                         "Latitude of sighting recorded",
-                                         "Longitude of sighting recorded"))
+The data dictionary of the variables can be seen in @fig-data.
 
-variables%>%kableExtra::kbl(caption = "Variables explained")%>% kableExtra::kable_styling(bootstrap_options = "bordered")
+```{r echo=FALSE}
+#| label: fig-data
+#| fig-cap: "Variable definitions for the Woylie dataset"
+
+variables <-
+  data.frame(
+    Variable = c(
+      "scientificName",
+      "taxonConceptID",
+      "recordID",
+      "dataResourceName",
+      "occurenceStatus",
+      "eventDate",
+      "decimalLatitude",
+      "decimalLongitude"
+    ),
+    Explained = c(
+      "The scientific name of the observed species.",
+      "The taxonomy website ID.",
+      "The record ID of each observation.",
+      "The data resource associated with the observation.",
+      "The occurrence status: Present.",
+      "Recorded sighting date in the format YYYY-MM-DD.",
+      "Latitude value of sighting in decimal format.",
+      "	Longitude value of sighting in decimal format."
+    )
+  )
+
+
+variables %>%
+  kableExtra::kbl(caption = "Data Dictionary for the Woylie dataset") %>%
+  kableExtra::kable_styling(bootstrap_options = "bordered")
 ```
 
 
@@ -895,9 +911,10 @@ pl2 <- ggplot(data = woylie_tsibble, aes(x = eventDate,
                                          y = Total_sightings)) +
   geom_line() +
   geom_point()  +
-  labs(x = "Date of Sighting", y = "Number of Sightings", subtitle = "September - December 2022") +
+  labs(x = "Date of Sighting", y = "Number of Sightings",
+       subtitle = "September - December 2022") +
   ggtitle("Woylie Sightings in Narrabri Surrounds") +
-  theme_classic() 
+  theme_classic()
 pl2
 ```
 
