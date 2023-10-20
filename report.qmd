@@ -29,7 +29,7 @@ library(sf)
 library(rmapshaper)
 library(lubridate)
 library(broom)
-
+library(GGally)
 ```
 
 ```{r}
@@ -761,6 +761,46 @@ The resulting scatter plot shows a positive correlation between minimum temperat
 
 Another way to interpret the scatter plot is that the points tend to cluster around the diagonal line. This suggests that the minimum temperature and maximum temperature are often close to each other.
 
+# Temporal analysis
+
+For the purpose of performing a temporal analysis of the tourist patterns, we will be focusing on the tourist footfalls in the Narrabri region.
+
+```{r}
+
+library(tsibble)
+library(tsibbletalk)
+
+tourism_shared <- tourism %>%
+  as_shared_tsibble(spec = Region * Purpose)
+
+p0 <- plotly_key_tree(tourism_shared, height = 700, width = 450)
+
+ 
+
+library(feasts)
+
+tourism_feat <- tourism_shared %>%
+
+  features(Trips, feat_stl)
+
+ 
+
+p1 <- tourism_shared %>%
+
+  ggplot(aes(x = Quarter, y = Trips)) +
+
+  geom_line(aes(group = Region), alpha = 0.5) +
+
+  facet_wrap(~ Purpose, scales = "free_y") 
+
+p2 <- tourism_feat %>%
+
+  ggplot(aes(x = trend_strength, y = seasonal_strength_year)) +
+
+  geom_point(aes(group = Region))
+```
+
+
 # Ecotourism
 
 Ecotourism involves traveling to places in support of the conservation efforts of endangered wildlife. To assess the level of interest in ecotourism for the Woylie, an analysis that combines tourism data and previous findings will provide us with a holistic view. 
@@ -894,6 +934,8 @@ ggplot(narrabri_surrounds_tourism,
   theme(axis.text.x = element_blank(),
         axis.ticks.x = element_blank())
 ```
+
+
 ```{r echo=FALSE}
 narrabri_surrounds_tourism %>%
   ggplot(aes(x = Q, y = Trips, fill = as.factor(Q))) +
@@ -991,26 +1033,6 @@ ggplot(holiday_data, aes(x = Quarter, y = TotalTrips)) +
   theme(text = element_text(size = 14))
 ```
 
-```{r}
-annual_plot <- ggplot(annual_data, aes(x = Year, y = TotalTrips)) +
-  geom_line(group=1, size=1) +
-  geom_point(size=3) +
-  geom_smooth(method='loess', color="red", se=FALSE) +  
-  annotate("text", x=2002, y=75, label="Peak in 2001", vjust=-1) + 
-  annotate("text", x=2016, y=75, label="Peak in 2017", vjust=-1) + 
-  expand_limits(y=0) +  
-  labs(title = "Annual Trend of Trips",
-       x = "Year",
-       y = "Total Trips") +
-  theme_minimal() +
-  theme(axis.text.x=element_text(angle=45, hjust=1)) 
-
-annual_interactive_plot <- ggplotly(annual_plot)
-
-print(annual_interactive_plot)
-  
-
-```
 
 ```{r}
 ggplot(temporal_data, aes(x = Quarter, y = Trips, group = Year, color = as.factor(Year))) +
