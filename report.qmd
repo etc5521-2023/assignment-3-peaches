@@ -995,6 +995,26 @@ ggplot(holiday_data, aes(x = Quarter, y = TotalTrips)) +
   theme(text = element_text(size = 14))
 ```
 
+```{r}
+annual_plot <- ggplot(annual_data, aes(x = Year, y = TotalTrips)) +
+  geom_line(group=1, size=1) +
+  geom_point(size=3) +
+  geom_smooth(method='loess', color="red", se=FALSE) +  
+  annotate("text", x=2002, y=75, label="Peak in 2001", vjust=-1) + 
+  annotate("text", x=2016, y=75, label="Peak in 2017", vjust=-1) + 
+  expand_limits(y=0) +  
+  labs(title = "Annual Trend of Trips",
+       x = "Year",
+       y = "Total Trips") +
+  theme_minimal() +
+  theme(axis.text.x=element_text(angle=45, hjust=1)) 
+
+annual_interactive_plot <- ggplotly(annual_plot)
+
+print(annual_interactive_plot)
+  
+
+```
 
 ```{r}
 ggplot(temporal_data, aes(x = Quarter, y = Trips, group = Year, color = as.factor(Year))) +
