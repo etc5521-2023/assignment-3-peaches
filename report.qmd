@@ -944,6 +944,122 @@ Based on the analysis of @fig-sighting, following are the key takeaways:
 
 :::
 
+## Temporal Analysis 
+
+```{r}
+library(lubridate)
+temporal_data <- tourism %>% filter(Region == "Narrabri Surrounds")
+temporal_data$Quarter <- as.character(temporal_data$Quarter)
+quarter_split <- strsplit(temporal_data$Quarter, " ")
+temporal_data$Year <- sapply(quarter_split, function(x) x[1])
+temporal_data$Quarter <- sapply(quarter_split, function(x) x[2])
+temporal_data$Year <- as.numeric(temporal_data$Year)
+
+grouped_data <- temporal_data %>%
+  group_by(Quarter) %>%
+  summarize(
+    TotalTrips = sum(Trips, na.rm = TRUE)
+  )
+ggplot(grouped_data, aes(x = Quarter, y = TotalTrips)) +
+  geom_bar(stat = "identity", fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Total Trips per Quarter",
+       x = "Quarter",
+       y = "Total Trips") +
+  theme(text = element_text(size = 14))
+```
+```{r}
+business_data <- temporal_data %>% filter(Purpose== "Business") %>% group_by(Quarter) %>%
+  summarize(
+    TotalTrips = sum(Trips, na.rm = TRUE)
+  )
+ggplot(business_data, aes(x = Quarter, y = TotalTrips)) +
+  geom_bar(stat = "identity", fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Total Trips per Quarter",
+       x = "Quarter",
+       y = "Total Trips") +
+  theme(text = element_text(size = 14))
+```
+```{r}
+holiday_data <- temporal_data %>% filter(Purpose== "Holiday") %>% group_by(Quarter) %>%
+  summarize(
+    TotalTrips = sum(Trips, na.rm = TRUE)
+  )
+ggplot(holiday_data, aes(x = Quarter, y = TotalTrips)) +
+  geom_bar(stat = "identity", fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Total Trips per Quarter",
+       x = "Quarter",
+       y = "Total Trips") +
+  theme(text = element_text(size = 14))
+```
+
+
+```{r}
+ggplot(temporal_data, aes(x = Quarter, y = Trips, group = Year, color = as.factor(Year))) +
+     geom_line() +
+     labs(title="Year-by-Year Analysis", x="Quarter", y="Total Trips") +
+     theme_minimal() +
+     theme(legend.title = element_blank())
+```
+
+```{r}
+ ggplot(temporal_data, aes(x = Quarter, y = Trips)) +
+     geom_bar(stat = "identity", position = "dodge") +
+     facet_wrap(~Year) +
+     labs(title="Seasonal Patterns Across Years", x="Quarter", y="Total Trips") +
+     theme_minimal()
+```
+## Tignostics 
+
+```{r}
+# Load required libraries
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(broom)
+library(GGally)
+
+# Assuming your dataframe is named 'data'
+
+# Fit a model for each year
+model_data <- temporal_data %>%
+  group_by(Year) %>%
+  nest() %>%
+  mutate(
+    model_stats = map(temporal_data, ~ {
+      model <- lm(Trips ~ Quarter, temporal_data = .x)
+      tidy_stats <- tidy(model)
+      glance_stats <- glance(model)
+      return(list(tidy_stats = tidy_stats, glance_stats = glance_stats))
+    })
+  ) %>%
+  unnest_wider(model_stats)
+
+# Now, extract the coefficients and the model statistics
+coeff_data <- model_data %>%
+  unnest(cols = tidy_stats) %>%
+  select(Year, term, estimate) %>%
+  spread(term, estimate) %>%
+  rename(intercept = `(Intercept)`, slope = Quarter)
+
+stats_data <- model_data %>%
+  unnest(cols = glance_stats) %>%
+  select(Year, everything(), -tidy_stats, -data)
+
+# Merge coefficients data and stats data
+final_data <- left_join(coeff_data, stats_data, by = "Year")
+
+# Filter out potential anomalies (adjust these filters as needed)
+final_data <- final_data %>% filter(sigma > 0)
+
+# Create a scatterplot matrix for the extracted statistics
+ggscatmat(final_data, columns = 3:7)
+
+```
+
+
 ## Summary
 
 In summary, our thorough exploration of Woylie (Brush-Tailed Bettong)
