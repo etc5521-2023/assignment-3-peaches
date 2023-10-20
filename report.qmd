@@ -763,21 +763,23 @@ Another way to interpret the scatter plot is that the points tend to cluster aro
 
 # Temporal analysis
 
-For the purpose of performing a temporal analysis of the tourist patterns, we will be focusing on the tourist footfalls in the Narrabri region.
+For the purpose of performing a temporal analysis of the tourist patterns, we will be focusing on the tourist footfalls in the Narrabri region with the highest Woylie sightings.
+
+
 
 ```{r}
 
 library(tsibble)
 library(tsibbletalk)
+library(feasts)
 
-tourism_shared <- tourism %>%
+top_regions <- c("Narrabri Surrounds")
+
+tourism_shared <- tourism %>% filter(Region %in% top_regions) %>%
   as_shared_tsibble(spec = Region * Purpose)
 
-p0 <- plotly_key_tree(tourism_shared, height = 700, width = 450)
 
- 
 
-library(feasts)
 
 tourism_feat <- tourism_shared %>%
 
@@ -791,14 +793,23 @@ p1 <- tourism_shared %>%
 
   geom_line(aes(group = Region), alpha = 0.5) +
 
-  facet_wrap(~ Purpose, scales = "free_y") 
+  facet_wrap(~ Purpose, scales = "free_y") + theme_classic() + ggtitle("Tourism trends in the Narrabri region")
 
 p2 <- tourism_feat %>%
 
-  ggplot(aes(x = trend_strength, y = seasonal_strength_year)) +
-
-  geom_point(aes(group = Region))
+  ggplot(aes(x = trend_strength, y = seasonal_strength_year,color=Purpose)) +
+  geom_point() + theme_classic() + ggtitle("Trend analysis of tourism estimates in Narrabri region")
 ```
+
+
+```{r}
+ggplotly(p1)
+```
+
+```{r}
+ggplotly(p2)
+```
+
 
 
 # Ecotourism
