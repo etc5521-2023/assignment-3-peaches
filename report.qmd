@@ -761,13 +761,11 @@ Another way to interpret the scatter plot is that the points tend to cluster aro
 
 # Ecotourism
 
-Ecotourism involves traveling to places in support of the conservation efforts of endangered wildlife. To assess the level of interest in ecotourism for the Woylie, an analysis that combines tourism data and previous findings will provide us with a holistic view. 
-
-The tourism data will be obtained from [Tourism Research Australia (TRA)](https://www.tra.gov.au) and will be used to analyse sightings close to the weather stations of interest, as reported in @sec-ref. The focus will be on one of the prominent regions where the Woylie is found: the SA2 region of Narrabri Surrounds.
+Ecotourism involves traveling to places in support of the conservation efforts of endangered wildlife. To assess the level of interest in ecotourism for the Woylie, an analysis that combines tourism data from [Tourism Research Australia (TRA)](https://www.tra.gov.au) and Woylie sightings near the weather station of interest, Narrabri Airport, as reported in @sec-ref, will provide us with a holistic view. To ensure a more accurate matching of the data with tourism data, the observations of the Woylie are subsetted to focus on the Australian Statistical Area Level 2 (SA2) region: Narrabri Surrounds.
 
 ## Analysis of tourists in Narrabri Surrounds 
 
-The 'tourism' data will be filtered for the region of Narrabri Surrounds as part of the analysis. The purpose of tourism will also be filtered to holiday since this suggests the intention to travel for sightseeing and exploration. Other purposes, such as visiting friends and relatives or business, may include visiting the endangered Woylie species during the trip, but the purposes are too broad to draw conclusive insights. Therefore, choosing holiday tourism data will result in the most accurate analysis.
+The tourism data will be filtered for the region of Narrabri Surrounds as part of the analysis. The purpose of tourism trips will also be filtered to holiday trips since this suggests the intention to travel for sightseeing and exploration. Other purposes, such as visiting friends and relatives or business, may include visiting the endangered Woylie species during the trip, but the purposes are too broad to draw conclusive insights. Therefore, choosing holiday tourism data will result in the most accurate analysis.
 
 ```{r}
 #| label: fig-narr
@@ -775,17 +773,24 @@ The 'tourism' data will be filtered for the region of Narrabri Surrounds as part
 
 load("data/woylie_region.rda")
 
-tourism_woylie <- tourism %>% filter(Purpose == "Holiday")
+tourism_woylie <- tourism %>%
+  filter(Purpose == "Holiday")
 
-tourism_pl <-
-  tourism_woylie %>% filter(Region == "Narrabri Surrounds")
+tourism_pl <- tourism_woylie %>%
+  filter(Region == "Narrabri Surrounds")
 
-tourism_pl_grouped <- tourism_pl %>% group_by_key() %>%
-  index_by() %>% summarise(Total_trips = round(sum(Trips * 1000)), 0)
+tourism_pl_grouped <- tourism_pl %>%
+  group_by_key() %>%
+  index_by() %>%
+  summarise(Total_trips = round(sum(Trips * 1000)), 0)
 
 pl1 <-
   ggplot(data = tourism_pl_grouped, aes(x = Quarter, y = Total_trips)) +
-  geom_line() + geom_point() + theme_classic() + ggtitle("Tourism trends in Narrabri Surrounds") + labs(
+  geom_line() +
+  geom_point() +
+  theme_classic() +
+  ggtitle("Tourism trends in Narrabri Surrounds") +
+  labs(
     x = "Year (Quarter)",
     y = "Total holiday trips",
     caption = "Source: Tourism Research Australia",
@@ -799,6 +804,57 @@ Based on our initial analysis of @fig-narr, we can observe the following:
 1. The number of trips designated as "holidays" are highly irregular with multiple quarters and years of no holiday visitors in the region of interest.
 2. As a result, there is no discernible seasonality in the holiday visits in this region.
 3. The highest number of holiday visitors were recorded in the 3rd quarter of 2009 with close to 4278 visits.
+
+```{r echo=FALSE}
+narrabri_surrounds_tourism <- tourism_pl %>%
+  mutate(Year = year(Quarter),
+         Q = quarter(Quarter),
+         Quarter = tsibble::yearquarter(Quarter))
+```
+
+Similarly to @fig-narr, holiday tourism can be presented in a year calendar format to visualise and observe the annual tourism trend. The same irregular pattern with no clear year-by-year trend in tourism numbers can also be seen in @fig-holiday-year.
+
+```{r echo=FALSE}
+#| label: fig-holiday-year
+#| fig-cap: "Holiday Tourism in Narrabri Surrounds by Year (1998 - 2022)"
+
+library(zoo)
+
+narrabri_surrounds_tourism$Quarter <- as.yearqtr(narrabri_surrounds_tourism$Quarter)
+
+ggplot(narrabri_surrounds_tourism,
+       aes(x = Quarter, y = Trips, fill = as.factor(Q))) +
+  geom_col() +
+  facet_wrap( ~ Year, scales = "free_x") +
+  labs(title = "Holiday Tourism in Narrabri Surrounds by Year",
+       x = "",
+       y = "Number of trips ('000)") +
+  theme_classic() +
+  scale_fill_brewer(palette = "Set3") +
+  guides(fill = guide_legend(title = "Quarterly Period")) +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+```
+
+When grouping the tourism visit numbers in Narrabri Surrounds by quarter, Quarter 1 experiences the fewest tourists compared to Quarter 3, which receives the most. Specifically, from January to March, Narrabri Surrounds experiences the least tourism, and from July to September, the area has the most tourism, as depicted in @fig-holiday-group.
+
+```{r echo=FALSE}
+#| label: fig-holiday-group
+#| fig-cap: "Total Holiday Tourism in Narrabri Surrounds by Quarter (1998 - 2022)"
+
+narrabri_surrounds_tourism %>%
+  ggplot(aes(x = Q, y = Trips, fill = as.factor(Q))) +
+  geom_col() +
+  labs(
+    title = "Total Holiday Tourism in Narrabri Surrounds by Quarter",
+    subtitle = "Years 1998 - 2022",
+    x = "Quarter",
+    y = "Number of trips ('000)"
+  ) +
+  theme_classic() +
+  scale_fill_brewer(palette = "Set3") +
+  guides(fill = "none") 
+```
 
 Now that we have looked into the number of visitors in the Mallee region for the purpose of holidays, it will be interesting to compare the sightings and understand if there is any correlation between the sightings and the presence of the number of visitors.
 
@@ -832,13 +888,17 @@ woylie_narrabri_grouped <- woylie_narrabri %>% group_by(eventDate) %>% summarise
 
 ```{r}
 #| label: fig-sighting
-#| fig-cap: "Woylie sightings in the Narrabri region"
+#| fig-cap: "Trend line graph of Woylie Sightings in Narrabri Surrounds (September - December 2022)"
 woylie_tsibble <- woylie_narrabri_grouped %>%
   as_tsibble(key = Total_sightings, index = eventDate)
-pl2 <- ggplot(data = woylie_tsibble,aes(x = eventDate,
-                                        y = Total_sightings)) + geom_line() + geom_point()  + labs(x = "Date of sighting",y = "Number of sightings",subtitle = "Year: 2022") + ggtitle("Woylie sightings in the Narrabri region")
+pl2 <- ggplot(data = woylie_tsibble, aes(x = eventDate,
+                                         y = Total_sightings)) +
+  geom_line() +
+  geom_point()  +
+  labs(x = "Date of Sighting", y = "Number of Sightings", subtitle = "September - December 2022") +
+  ggtitle("Woylie Sightings in Narrabri Surrounds") +
+  theme_classic() 
 pl2
-
 ```
 
 :::{.callout-note}
@@ -855,87 +915,39 @@ Based on the analysis of @fig-sighting, following are the key takeaways:
 
 :::
 
-```{r echo=FALSE}
-set.seed(383724)
-kmeans_result <- kmeans(coords_matrix, centers = num_clusters)
-WILD_THING_woylie$cluster <- kmeans_result$cluster
-narrabri_surrounds_observations <- WILD_THING_woylie %>%
-  filter(cluster == 3) %>%
-  mutate(Quarter = tsibble::yearquarter(eventDate)) %>%
-  select(Quarter, everything())
-```
 
 ```{r echo=FALSE}
-narrabri_surrounds_tourism <- tourism %>%
-  filter(Region == "Narrabri Surrounds",
-         Purpose == "Holiday") %>% 
-  mutate(Year = year(Quarter),
-         Q = quarter(Quarter),
-         Quarter = tsibble::yearquarter(Quarter))
-```
+#| label: fig-woylie-obs
+#| fig-cap: "Column chart of Woylie Sightings in Narrabri Surrounds (September - December 2022)"
 
-```{r echo=FALSE}
-library(zoo)
-
-narrabri_surrounds_tourism$Quarter <- as.yearqtr(narrabri_surrounds_tourism$Quarter)
-
-ggplot(narrabri_surrounds_tourism,
-       aes(x = Quarter, y = Trips, fill = as.factor(Q))) +
-  geom_col() +
-  facet_wrap( ~ Year, scales = "free_x") +
-  labs(title = "Holiday Tourism in Narrabri Surrounds by Year",
-       x = "Quarter",
-       y = "Number of trips ('000)") +
-  theme_bw() +
-  scale_fill_brewer(palette = "Set3") +
-  guides(fill = guide_legend(title = "Quarterly Period")) +
-  theme(axis.text.x = element_blank(),
-        axis.ticks.x = element_blank())
-```
-```{r echo=FALSE}
-narrabri_surrounds_tourism %>%
-  ggplot(aes(x = Q, y = Trips, fill = as.factor(Q))) +
-  geom_col() +
-  labs(
-    title = "Total Holiday Tourism in Narrabri Surrounds by Quarter",
-    subtitle = "Years 1998 - 2022",
-    x = "Quarter",
-    y = "Number of trips ('000)"
-  ) +
-  theme_bw() +
-  scale_fill_brewer(palette = "Set3") +
-  guides(fill = "none") 
-```
-
-There is no clear year-by-year trend in tourism numbers. When grouping the tourism numbers by quarter, Quarter 1 experiences the fewest tourists compared to Quarter 3, which receives the most. Specifically, from January to March, Narrabri Surrounds experiences the least tourism, and from July to September, the area has the most tourism.
-
-In terms of sightings of the Woylie specifically in the Narrabri region, these sightings occurred only in Quarters 3 and 4 of 2022. This suggests a recent surge in observations, but unfortunately, the tourism data for trips involving over a thousand people is only available for Quarter 3, 2022.
-
-```{r echo=FALSE}
 q_colours <- RColorBrewer::brewer.pal(12, "Set3")[3:4]
 
-narrabri_surrounds_observations %>%
-  ggplot(aes(x = as.Date(eventDate))) +
-  geom_rect(aes(xmin = as.Date("2022-09-12"), xmax = as.Date("2022-10-01"), ymin = -Inf, ymax = 0, fill = "3")) +
+woylie_tsibble %>%
+  ggplot(aes(x = as.Date(eventDate), y = Total_sightings)) +
+  geom_rect(aes(xmin = as.Date("2022-09-06"), xmax = as.Date("2022-10-01"), ymin = -Inf, ymax = 0, fill = "3")) +
   geom_rect(aes(xmin = as.Date("2022-10-01"), xmax = as.Date("2023-01-01"), ymin = -Inf, ymax = 0, fill = "4")) +
-  geom_bar() +
+  geom_col() +
   scale_fill_manual(values = c("3" = q_colours[1], "4" = q_colours[2])) +
   labs(
     title = "Woylie Observations in Narrabri Surrounds",
     subtitle = "September - December 2022",
-    x = "Event Date",
-    y = "Number of Observations"
+    x = "Date of Sighting",
+    y = "Number of Sightings"
   ) +
-  theme_bw() +
+  theme_classic() +
   guides(fill = guide_legend(title = "Quarterly Period"))
 ```
 
+@fig-woylie-obs depicts the same information as @fig-sighting, showing the sightings that occurred in Quarters 3 and 4 of 2022 but in a column chart format. As can be seen in the highlighted quarters, this recent short surge in observations is too brief to align with the tourism data, as it only covers trips involving over a thousand people in Quarter 3, 2022, as shown in the last calendar plot of @fig-holiday-year.
 
-Overall, there is a limited correlation between these two sets of data. It is evident that tourism in the Narrabri Surrounds area exhibits significant inconsistency and year-to-year variation. The peak in Woylie observations in Narrabri Surrounds toward the end of 2022 can be attributed to conservation efforts for this endangered species, resulting in a notable increase in sightings. However, the lack of alignment between these two time periods hinders further analysis. This suggests that tourism in the area may not be strongly linked to Woylie sightings, ultimately yielding an inconclusive result in terms of ecotourism.
+:::{.callout-note}
+# Conclusion of Ecotourism in Narrabri Surrounds
+Overall, there is a limited relation between these two sets of data. It is evident that tourism in the Narrabri Surrounds area exhibits significant inconsistency and year-to-year variation. The peak in Woylie observations in Narrabri Surrounds toward the end of 2022 can be attributed to conservation efforts for this endangered species, resulting in a notable increase in sightings. However, the lack of alignment between these two time periods hinders further analysis. This suggests that tourism in the area may not be strongly linked to Woylie sightings, ultimately yielding an inconclusive result in terms of ecotourism.
 
-In general, an internet search for terms such as _"Pilliga Forest Conservation,"_ _"Woylie,"_ and _"Narrabri Surrounds Woylie,"_ or a combination of these terms, yields minimal results related to marketing efforts promoting visits to the area for Woylie sightings.
+In general, an internet search for terms such as _"Pilliga Forest Conservation,"_ _"Woylie,"_ and _"Narrabri Surrounds,"_ or a combination of these terms, yields minimal results related to marketing efforts promoting visits to the area for Woylie sightings.
 
 This aligns with our findings, indicating that there is little to no ecotourism activity in this area for this particular species.
+:::
 
 ## Summary
 
