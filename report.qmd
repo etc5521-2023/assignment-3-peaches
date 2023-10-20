@@ -28,6 +28,8 @@ library(tsibble)
 library(sf)
 library(rmapshaper)
 library(lubridate)
+library(broom)
+
 ```
 
 ```{r}
@@ -1032,6 +1034,27 @@ ggplot(temporal_data, aes(x = Quarter, y = Trips, group = Year, color = as.facto
      theme_minimal()
 ```
 
+```{r}
+reg_1 <- temporal_data %>%
+  group_by(Purpose) %>%
+  nest() %>%
+  mutate(model = purrr::map(data, ~lm(Trips ~ Year, data = .x) %>% tidy)) %>% 
+  unnest(model) %>%
+  select(Purpose, term, estimate) %>%
+  spread(term, estimate) %>%
+  rename(intercept = `(Intercept)`, slope=Year)
+reg_2 <- temporal_data %>%
+  group_by(Purpose) %>%
+  nest() %>%
+  mutate(model = purrr::map(data, ~lm(Trips ~ Year, data = .x) %>% glance)) %>% 
+  unnest(model) %>%
+  select(Purpose, r.squared, sigma, BIC, deviance)
+reg <- left_join(reg_1, reg_2)
+reg <- reg %>% filter(sigma > 0)
+ggscatmat(reg, columns=3:7)
+
+
+```
 
 
 ## Summary
