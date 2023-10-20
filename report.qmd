@@ -1031,53 +1031,7 @@ ggplot(temporal_data, aes(x = Quarter, y = Trips, group = Year, color = as.facto
      labs(title="Seasonal Patterns Across Years", x="Quarter", y="Total Trips") +
      theme_minimal()
 ```
-## Tignostics 
 
-```{r}
-# Load required libraries
-library(dplyr)
-library(tidyr)
-library(purrr)
-library(broom)
-library(GGally)
-
-# Assuming your dataframe is named 'data'
-
-# Fit a model for each year
-model_data <- temporal_data %>%
-  group_by(Year) %>%
-  nest() %>%
-  mutate(
-    model_stats = map(temporal_data, ~ {
-      model <- lm(Trips ~ Quarter, temporal_data = .x)
-      tidy_stats <- tidy(model)
-      glance_stats <- glance(model)
-      return(list(tidy_stats = tidy_stats, glance_stats = glance_stats))
-    })
-  ) %>%
-  unnest_wider(model_stats)
-
-# Now, extract the coefficients and the model statistics
-coeff_data <- model_data %>%
-  unnest(cols = tidy_stats) %>%
-  select(Year, term, estimate) %>%
-  spread(term, estimate) %>%
-  rename(intercept = `(Intercept)`, slope = Quarter)
-
-stats_data <- model_data %>%
-  unnest(cols = glance_stats) %>%
-  select(Year, everything(), -tidy_stats, -data)
-
-# Merge coefficients data and stats data
-final_data <- left_join(coeff_data, stats_data, by = "Year")
-
-# Filter out potential anomalies (adjust these filters as needed)
-final_data <- final_data %>% filter(sigma > 0)
-
-# Create a scatterplot matrix for the extracted statistics
-ggscatmat(final_data, columns = 3:7)
-
-```
 
 
 ## Summary
