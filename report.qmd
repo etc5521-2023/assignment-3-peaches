@@ -763,13 +763,99 @@ Another way to interpret the scatter plot is that the points tend to cluster aro
 
 # Ecotourism
 
-Ecotourism involves traveling to places in support of the conservation efforts of endangered wildlife. To assess the level of interest in ecotourism for the Woylie, an analysis that combines tourism data and previous findings will provide us with a holistic view. In this initial ecotourism analysis, the focus will be on one of the prominent regions where the Woylie is found: the SA2 region of Narrabri Surrounds.
+Ecotourism involves traveling to places in support of the conservation efforts of endangered wildlife. To assess the level of interest in ecotourism for the Woylie, an analysis that combines tourism data and previous findings will provide us with a holistic view. 
 
-## Narrabri Surrounds
+The tourism data will be obtained from [Tourism Research Australia (TRA)](https://www.tra.gov.au) and will be used to analyse sightings close to the weather stations of interest, as reported in @sec-ref. The focus will be on one of the prominent regions where the Woylie is found: the SA2 region of Narrabri Surrounds.
 
-### Analysis 
+## Analysis of tourists in Narrabri Surrounds 
 
 The 'tourism' data will be filtered for the region of Narrabri Surrounds as part of the analysis. The purpose of tourism will also be filtered to holiday since this suggests the intention to travel for sightseeing and exploration. Other purposes, such as visiting friends and relatives or business, may include visiting the endangered Woylie species during the trip, but the purposes are too broad to draw conclusive insights. Therefore, choosing holiday tourism data will result in the most accurate analysis.
+
+```{r}
+#| label: fig-narr
+#| fig-cap: "Number of holiday trips in the Narrabri region"
+
+load("data/woylie_region.rda")
+
+tourism_woylie <- tourism %>% filter(Purpose == "Holiday")
+
+tourism_pl <-
+  tourism_woylie %>% filter(Region == "Narrabri Surrounds")
+
+tourism_pl_grouped <- tourism_pl %>% group_by_key() %>%
+  index_by() %>% summarise(Total_trips = round(sum(Trips * 1000)), 0)
+
+pl1 <-
+  ggplot(data = tourism_pl_grouped, aes(x = Quarter, y = Total_trips)) +
+  geom_line() + geom_point() + theme_classic() + ggtitle("Tourism trends in Narrabri Surrounds") + labs(
+    x = "Year (Quarter)",
+    y = "Total holiday trips",
+    caption = "Source: Tourism Research Australia",
+    subtitle = "1998 Q1 - 2022 Q4"
+  )
+ggplotly(pl1)
+```
+
+Based on our initial analysis of @fig-narr, we can observe the following:
+
+1. The number of trips designated as "holidays" are highly irregular with multiple quarters and years of no holiday visitors in the region of interest.
+2. As a result, there is no discernible seasonality in the holiday visits in this region.
+3. The highest number of holiday visitors were recorded in the 3rd quarter of 2009 with close to 4278 visits.
+
+Now that we have looked into the number of visitors in the Mallee region for the purpose of holidays, it will be interesting to compare the sightings and understand if there is any correlation between the sightings and the presence of the number of visitors.
+
+Let us now try to compare the Woylie sightings with the visitor trends for the Mallee region.
+
+```{r include=FALSE,echo=FALSE}
+t_region <- st_read(here::here("data/SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GDA2020.shp")) |>
+  ms_simplify(keep = 0.1) |>
+  st_transform(crs = st_crs("WGS84")) |>
+  st_make_valid() |>
+  select(STE_NAME21, SA2_NAME21, SA2_CODE21, geometry) |>
+  rename("state" = STE_NAME21,
+         "region" = SA2_NAME21,
+         "sa2_code21" = SA2_CODE21)
+
+
+woylie_sf <- WILD_THING_woylie |>
+  filter(!is.na(decimalLongitude) & !is.na(decimalLatitude)) |>
+  select(-c(dataResourceName , recordID,scientificName,taxonConceptID)) |>
+  st_as_sf(coords = c("decimalLongitude", "decimalLatitude"),
+  crs = st_crs("WGS84"))
+
+
+woylie_stsf <-
+  st_join(t_region, woylie_sf, left = TRUE) %>%  
+  filter(!is.na(region))
+
+woylie_narrabri <- woylie_stsf %>% filter(region == "Narrabri Surrounds")
+woylie_narrabri_grouped <- woylie_narrabri %>% group_by(eventDate) %>% summarise(Total_sightings = n() )
+```
+
+```{r}
+#| label: fig-sighting
+#| fig-cap: "Woylie sightings in the Narrabri region"
+woylie_tsibble <- woylie_narrabri_grouped %>%
+  as_tsibble(key = Total_sightings, index = eventDate)
+pl2 <- ggplot(data = woylie_tsibble,aes(x = eventDate,
+                                        y = Total_sightings)) + geom_line() + geom_point()  + labs(x = "Date of sighting",y = "Number of sightings",subtitle = "Year: 2022") + ggtitle("Woylie sightings in the Narrabri region")
+pl2
+
+```
+
+:::{.callout-note}
+# Key takeaways
+
+Based on the analysis of @fig-sighting, following are the key takeaways:
+
+1. While the Narrabri region was observed to be the region with the highest Woylie sightings in Australia, this was not always the case.
+2. Based on the sightings data from the Atlas of Living Australia, the sightings of Woylies in the Narrabri region were all in the 3rd and 4th quarters of the year 2022.
+3. Upon observing this peculiar trend in the data, a deeper analysis was undertaken to get to the root cause for the skewed sightings.
+4. Based on a detailed report by the [Australian wildlife organisation](https://www.australianwildlife.org/wp-content/uploads/2023/08/Pilliga-Ecohealth-Report-2022-23.pdf), the Woylies due to __being an endangered wild being__, are inhabited within the __safe confines of the Pilliga East Forest reserve, which is in the Narrabri SA2 region__.
+5. These Woylies were transferred from Western Australia to New South Wales (where Narrabri region is a part of) in large numbers in the year 2022 for the __purpose of safekeeping and providing the right environment for them to breed.__
+6. The __special conservation efforts taken up by the Australian wildlife organisation__ as mentioned in the above points are expected to contribute to the __high number of Woylie sightings in the year 2022__.
+
+:::
 
 ```{r echo=FALSE}
 set.seed(383724)
@@ -853,98 +939,6 @@ In general, an internet search for terms such as _"Pilliga Forest Conservation,"
 
 This aligns with our findings, indicating that there is little to no ecotourism activity in this area for this particular species.
 
-# Ecotourism interest
-
-In order to study whether there is a special interest among tourists for the Woylies across Australia, we will analyse the sightings close to the weather stations of interest as reported in @sec-ref.
-
-Based on the available data which is obtained from [Tourism Research Australia (TRA)](https://www.tra.gov.au), we will focus our analysis on the location __Narrabri Surrounds__ in NSW.
-
-
-
-## Analysis of tourists in the Mallee region
-
-```{r}
-#| label: fig-narr
-#| fig-cap: "Number of holiday trips in the Narrabri region"
-
-load("data/woylie_region.rda")
-
-tourism_woylie <- tourism %>% filter(Purpose == "Holiday")
-
-tourism_pl <- tourism_woylie %>% filter(Region == "Narrabri Surrounds")
-
-
-
-tourism_pl_grouped <- tourism_pl %>% group_by_key() %>%
-  index_by() %>% summarise(Total_trips = round(sum(Trips*1000)),0)
-
-pl1 <- ggplot(data = tourism_pl_grouped,aes(x = Quarter,y = Total_trips)) + 
-  geom_line() + geom_point() + theme_classic() + ggtitle("Tourism trends in Narrabri Surrounds") + labs(x = "Year (Quarter)",
-                                                                                                      y = "Total holiday trips",
-                                                                                                      caption = "Source: Tourism Research Australia",
-                                                                                                      subtitle = "1998 Q1 - 2022 Q4")
-ggplotly(pl1)
-```
-
-Based on our initial analysis of @fig-narr, we can observe the following:
-
-1. The number of trips designated as "holidays" are highly irregular with multiple quarters and years of no holiday visitors in the region of interest.
-2. As a result, there is no discernible seasonality in the holiday visits in this region.
-3. The highest number of holiday visitors were recorded in the 3rd quarter of 2009 with close to 4278 visits.
-
-Now that we have looked into the number of visitors in the Mallee region for the purpose of holidays, it will be interesting to compare the sightings and understand if there is any correlation between the sightings and the presence of the number of visitors.
-
-Let us now try to compare the Woylie sightings with the visitor trends for the Mallee region.
-
-```{r include=FALSE,echo=FALSE}
-t_region <- st_read(here::here("data/SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GDA2020.shp")) |>
-  ms_simplify(keep = 0.1) |>
-  st_transform(crs = st_crs("WGS84")) |>
-  st_make_valid() |>
-  select(STE_NAME21, SA2_NAME21, SA2_CODE21, geometry) |>
-  rename("state" = STE_NAME21,
-         "region" = SA2_NAME21,
-         "sa2_code21" = SA2_CODE21)
-
-
-woylie_sf <- WILD_THING_woylie |>
-  filter(!is.na(decimalLongitude) & !is.na(decimalLatitude)) |>
-  select(-c(dataResourceName , recordID,scientificName,taxonConceptID)) |>
-  st_as_sf(coords = c("decimalLongitude", "decimalLatitude"),
-  crs = st_crs("WGS84"))
-
-
-woylie_stsf <-
-  st_join(t_region, woylie_sf, left = TRUE) %>%  
-  filter(!is.na(region))
-
-woylie_narrabri <- woylie_stsf %>% filter(region == "Narrabri Surrounds")
-woylie_narrabri_grouped <- woylie_narrabri %>% group_by(eventDate) %>% summarise(Total_sightings = n() )
-```
-
-```{r}
-#| label: fig-sighting
-#| fig-cap: "Woylie sightings in the Narrabri region"
-woylie_tsibble <- woylie_narrabri_grouped %>%
-  as_tsibble(key = Total_sightings, index = eventDate)
-pl2 <- ggplot(data = woylie_tsibble,aes(x = eventDate,
-                                        y = Total_sightings)) + geom_line() + geom_point()  + labs(x = "Date of sighting",y = "Number of sightings",subtitle = "Year: 2022") + ggtitle("Woylie sightings in the Narrabri region")
-pl2
-
-```
-:::{.callout-note}
-# Key takeaways
-
-Based on the analysis of @fig-sighting, following are the key takeaways:
-
-1. While the Narrabri region was observed to be the region with the highest Woylie sightings in Australia, this was not always the case.
-2. Based on the sightings data from the Atlas of Living Australia, the sightings of Woylies in the Narrabri region were all in the 3rd and 4th quarters of the year 2022.
-3. Upon observing this peculiar trend in the data, a deeper analysis was undertaken to get to the root cause for the skewed sightings.
-4. Based on a detailed report by the [Australian wildlife organisation](https://www.australianwildlife.org/wp-content/uploads/2023/08/Pilliga-Ecohealth-Report-2022-23.pdf), the Woylies due to __being an endangered wild being__, are inhabited within the __safe confines of the Pilliga East Forest reserve, which is in the Narrabri SA2 region__.
-5. These Woylies were transferred from Western Australia to New South Wales (where Narrabri region is a part of) in large numbers in the year 2022 for the __purpose of safekeeping and providing the right environment for them to breed.__
-6. The __special conservation efforts taken up by the Australian wildlife organisation__ as mentioned in the above points are expected to contribute to the __high number of Woylie sightings in the year 2022__.
-
-:::
 
 ## Temporal Analysis 
 
@@ -1032,28 +1026,6 @@ ggplot(temporal_data, aes(x = Quarter, y = Trips, group = Year, color = as.facto
      facet_wrap(~Year) +
      labs(title="Seasonal Patterns Across Years", x="Quarter", y="Total Trips") +
      theme_minimal()
-```
-
-```{r}
-reg_1 <- temporal_data %>%
-  group_by(Purpose) %>%
-  nest() %>%
-  mutate(model = purrr::map(data, ~lm(Trips ~ Year, data = .x) %>% tidy)) %>% 
-  unnest(model) %>%
-  select(Purpose, term, estimate) %>%
-  spread(term, estimate) %>%
-  rename(intercept = `(Intercept)`, slope=Year)
-reg_2 <- temporal_data %>%
-  group_by(Purpose) %>%
-  nest() %>%
-  mutate(model = purrr::map(data, ~lm(Trips ~ Year, data = .x) %>% glance)) %>% 
-  unnest(model) %>%
-  select(Purpose, r.squared, sigma, BIC, deviance)
-reg <- left_join(reg_1, reg_2)
-reg <- reg %>% filter(sigma > 0)
-ggscatmat(reg, columns=3:7)
-
-
 ```
 
 
