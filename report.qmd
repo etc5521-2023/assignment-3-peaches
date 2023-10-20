@@ -976,7 +976,7 @@ business_data <- temporal_data %>% filter(Purpose== "Business") %>% group_by(Qua
 ggplot(business_data, aes(x = Quarter, y = TotalTrips)) +
   geom_bar(stat = "identity", fill = "steelblue", color = "black") +
   theme_minimal() +
-  labs(title = "Total Trips per Quarter",
+  labs(title = "Business Trips per Quarter",
        x = "Quarter",
        y = "Total Trips") +
   theme(text = element_text(size = 14))
@@ -989,7 +989,7 @@ holiday_data <- temporal_data %>% filter(Purpose== "Holiday") %>% group_by(Quart
 ggplot(holiday_data, aes(x = Quarter, y = TotalTrips)) +
   geom_bar(stat = "identity", fill = "steelblue", color = "black") +
   theme_minimal() +
-  labs(title = "Total Trips per Quarter",
+  labs(title = "Holiday Trips per Quarter",
        x = "Quarter",
        y = "Total Trips") +
   theme(text = element_text(size = 14))
