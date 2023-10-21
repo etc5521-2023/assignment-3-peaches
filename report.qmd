@@ -3,6 +3,7 @@ title: "MY WILD THING REPORT"
 author: "Peaches: Tanish and Ashvin"
 format: html
 number-sections: true
+toc: true
 editor: 
   markdown: 
     wrap: 72
@@ -73,8 +74,8 @@ From this data we expect the following results:
     in urban areas, as Woylies tend to avoid human-populated regions due
     to habitat disturbance."
 
-## Data description
-### Species data
+# Data description
+## Species data
 
 To ensure a robust foundation for the analysis, the occurrence records of the Brush-Tailed Bettong or Woylie (Bettongia penicillata ogilbyi) were obtained from the [Atlas of Living Australia (ALA)](https://www.ala.org.au/) database. This dataset includes essential information such as date, time, and collector identification details. It comprises 8 variables and 2,276 observations across Australia as of the current report. However, there are some missing values within the data, particularly in the date record, which are later explored in @sec-ref-ida.
 
@@ -136,7 +137,7 @@ variables %>%
   kableExtra::kable_styling(bootstrap_options = "bordered")
 ```
 
-### Tourism data
+## Tourism data
 
 In addition, to conduct an analysis on ecotourism of the Woylie, tourism data from [Tourism Research Australia (TRA)](https://www.tra.gov.au) was obtained. This dataset includes spatial, temporal, and trip information. It comprises 4 variables and 1,228,000 observations covering Quarter 1 of 1998 to Quarter 4 of 2022 across all Australian Statistical Area Level 2 (SA2) regions of Australia.
 
@@ -811,7 +812,7 @@ Another way to interpret the scatter plot is that the points tend to cluster aro
 
 Ecotourism involves traveling to places in support of the conservation efforts of endangered wildlife. To assess the level of interest in ecotourism for the Woylie, an analysis that combines tourism data from [Tourism Research Australia (TRA)](https://www.tra.gov.au) and Woylie sightings near the weather station of interest, Narrabri Airport, as reported in @sec-ref, will provide us with a holistic view. To ensure a more accurate matching of the data with tourism data, the observations of the Woylie are subsetted to focus on the Australian Statistical Area Level 2 (SA2) region: Narrabri Surrounds.
 
-## Analysis of tourists in Narrabri Surrounds 
+## Tourists in Narrabri Surrounds 
 
 The tourism data will be filtered for the region of Narrabri Surrounds as part of the analysis. The purpose of tourism trips will also be filtered to holiday trips since this suggests the intention to travel for sightseeing and exploration. Other purposes, such as visiting friends and relatives or business, may include visiting the endangered Woylie species during the trip, but the purposes are too broad to draw conclusive insights. Therefore, choosing holiday tourism data will result in the most accurate analysis.
 
@@ -903,10 +904,11 @@ narrabri_surrounds_tourism %>%
   scale_fill_brewer(palette = "Set3") +
   guides(fill = "none") 
 ```
+## Tourists & Species Sightings
 
-Now that we have looked into the number of visitors in the Mallee region for the purpose of holidays, it will be interesting to compare the sightings and understand if there is any correlation between the sightings and the presence of the number of visitors.
+The examination of the number of visitors in the Narrabri Surrounds region for holiday purposes has now laid the foundation for an exploration of wildlife sightings and visitation trends, allowing for the investigation of potential correlations.
 
-Let us now try to compare the Woylie sightings with the visitor trends for the Mallee region.
+Below, an analysis of Woylie sightings with visitor trends in the Narrabri Surrounds region is conducted.
 
 ```{r include=FALSE,echo=FALSE}
 t_region <- st_read(here::here("data/SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GDA2020.shp")) |>
@@ -993,12 +995,12 @@ woylie_tsibble %>%
 # Conclusion of Ecotourism in Narrabri Surrounds
 Overall, there is a limited relation between these two sets of data. It is evident that tourism in the Narrabri Surrounds area exhibits significant inconsistency and year-to-year variation. The peak in Woylie observations in Narrabri Surrounds toward the end of 2022 can be attributed to conservation efforts for this endangered species, resulting in a notable increase in sightings. However, the lack of alignment between these two time periods hinders further analysis. This suggests that tourism in the area may not be strongly linked to Woylie sightings, ultimately yielding an inconclusive result in terms of ecotourism.
 
-In general, an internet search for terms such as _"Pilliga Forest Conservation,"_ _"Woylie,"_ and _"Narrabri Surrounds,"_ or a combination of these terms, yields minimal results related to marketing efforts promoting visits to the area for Woylie sightings.
+In general, an internet search for terms such as _"Pilliga State Conservation Area,"_ _"Pilliga National Park",_ _"Woylie,"_ and _"Narrabri Surrounds,"_ or a combination of these terms, yields minimal results related to marketing efforts promoting visits to the area for Woylie sightings.
 
 This aligns with our findings, indicating that there is little to no ecotourism activity in this area for this particular species.
 :::
 
-## Summary
+# Summary
 
 In summary, our thorough exploration of Woylie (Brush-Tailed Bettong)
 sightings in Australia has unveiled crucial insights into the behavior,
