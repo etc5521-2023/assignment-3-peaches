@@ -28,6 +28,10 @@ library(tsibble)
 library(sf)
 library(rmapshaper)
 library(lubridate)
+library(broom)
+library(GGally)
+library(forecast)
+library(ggalt)
 ```
 
 ```{r}
@@ -739,26 +743,41 @@ ggplot(woylie_sightings_2022, aes(x = tmin, y = count_sightings, color=month_nam
        color = "Month")
 ```
 
+```{r warning=FALSE}
+#| label: fig-temp
+#| fig-cap: "Temperature range on the days of Woylie sightings for each month of the year"
 
-The resulting scatter plot shows a negative correlation between minimum temperature and the number of Woylie sightings. This suggests that Woylies are less likely to be seen during periods when the minimum temperature is lower. However, when the minimum temperature is between about 5 and 20 woylies have been seen more often.
+woylie_sightings_2022$observation <- 1:nrow(woylie_sightings_2022)
+woylie_sightings_2022$observation <- factor(woylie_sightings_2022$observation)
+pl_temp <- ggplot(woylie_sightings_2022, aes(y = observation)) +
+  geom_dumbbell(aes(x = tmin, xend = tmax),
+                color = "darkgray",
+                size = 1, dot_guide = FALSE, 
+                size_x = 3,  size_xend = 3,
+                colour_xend = "#F69541", colour_x = "#699DC6")  + theme_classic()
+   
+pl_temp + geom_vline(xintercept = mean(woylie_sightings_2022$tmax,na.rm = TRUE),alpha = 0.5,linetype =2,color = 'red') +  
+  geom_vline(xintercept = mean(woylie_sightings_2022$tmin,na.rm = TRUE),alpha = 0.5,linetype =2,color = 'blue') +
+    scale_linetype_manual(values = "Mean Temperature", name = "Line Type") +
+ facet_wrap(~month(date,label = TRUE),scales = "free_y") + theme(axis.text.y = element_blank()) + 
+  labs(x = "Temperature (in degree celsius)",y= "Unique Woylie sighting") +
+  ggtitle("Temperature range on days of Woylie sightings for different months of the year")
+  
 
-```{r}
-# Scatter plot for tmin vs. tmax with a line of best fit
-ggplot(woylie_sightings_2022, aes(x = tmin, y = tmax)) +
-  geom_point() +
-  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Add a line of best fit
-  labs(title = "Relationship Between Minimum Temperature (tmin) and Maximum Temperature (tmax) in 2022",
-       x = "Minimum Temperature (tmin)",
-       y = "Maximum Temperature (tmax)")
 ```
 
+:::{.callout-note}
+# Key takeaway
 
-Lastly, the chart above displays the relationship between minimum temperature (tmin) and maximum temperature (tmax) in 2022. The blue line represents the line of best fit, indicating a moderate positive correlation between the two temperature variables.
+Upon analysing the maximum and minimum temperatures on the days of Woylie sightings as illustrated by @fig-temp, we can obseve the following:
 
-The resulting scatter plot shows a positive correlation between minimum temperature and maximum temperature. This suggests that days with higher minimum temperatures tend to also have higher maximum temperatures.
+1. There appears to be lower number of Woylie sightings during the initial months of the year. The initial months in Australia constitute of the summer and is typically characterised by higher than average maximum and minimum temperatures. The low sightings during the summer suggests that the Woylies are not as active on warmer days.
 
-Another way to interpret the scatter plot is that the points tend to cluster around the diagonal line. This suggests that the minimum temperature and maximum temperature are often close to each other.
+2. Between the months of April to August, the number of Woylie sightings are observed to gradually rise. These months are relatively cold in Australia and appear to promote higher mobility among the Woylies.
 
+3. There are distinctly higher number of observations from the month of September to December. This coincides with the Australian spring season. Based on the data, we can infer that the spring season appears to be the one promoting the highest activity among the Woylies.
+
+:::
 
 # Ecotourism interest
 
