@@ -74,10 +74,11 @@ From this data we expect the following results:
     to habitat disturbance."
 
 ## Data description
+### Species data
 
-To ensure a robust foundation for the analysis, the occurrence records of the Brush-Tailed Bettong or Woylie (Bettongia penicillata ogilbyi) were obtained from the Atlas of Living Australia (ALA). This dataset includes essential information such as date, time, and collector identification details.
+To ensure a robust foundation for the analysis, the occurrence records of the Brush-Tailed Bettong or Woylie (Bettongia penicillata ogilbyi) were obtained from the [Atlas of Living Australia (ALA)](https://www.ala.org.au/) database. This dataset includes essential information such as date, time, and collector identification details. It comprises 8 variables and 2,276 observations across Australia as of the current report. However, there are some missing values within the data, particularly in the date record, which are later explored in @sec-ref-ida.
 
-The code to derive the species data is shown below:
+The code to derive the species data is shown below using the [galah](https://cran.r-project.org/web/packages/galah/index.html) R package functions:
 
 ```{r, eval=FALSE}
 # load occurence records for woylie from ALA
@@ -98,8 +99,6 @@ woylie <- read_csv("data-raw/woylie.csv")
 # remove unnecessary 1st column
 woylie <- woylie[, -1]
 ```
-
-With the dataset prepared and structured, a thorough analysis of Woylie occurrences and related insights can take place.
 
 The data dictionary of the variables can be seen in @fig-data.
 
@@ -137,8 +136,41 @@ variables %>%
   kableExtra::kable_styling(bootstrap_options = "bordered")
 ```
 
+### Tourism data
 
-# Initial data analysis
+In addition, to conduct an analysis on ecotourism of the Woylie, tourism data from [Tourism Research Australia (TRA)](https://www.tra.gov.au) was obtained. This dataset includes spatial, temporal, and trip information. It comprises 4 variables and 1,228,000 observations covering Quarter 1 of 1998 to Quarter 4 of 2022 across all Australian Statistical Area Level 2 (SA2) regions of Australia.
+
+The data dictionary of the variables can be seen in @fig-data-tourism.
+
+```{r echo=FALSE}
+#| label: fig-data-tourism
+#| fig-cap: "Variable definitions for the Tourism dataset"
+
+variables2 <-
+  data.frame(
+    Variable = c(
+      "Quarter",
+      "Region",
+      "Purpose",
+      "Trips"
+    ),
+    Explained = c(
+      "The year and quarter of the observation in the format YYYY Q, e.g., Q1, Q2, Q3, or Q4.",
+      "The Australian Statistical Area Level 2 (SA2) region of the observation.",
+      "The purpose of the trip, categorised as Holiday, Visiting friends and relatives, Business, or Other reason.",
+      "The total number of trips in thousands ('000)."
+    )
+  )
+
+
+variables2 %>%
+  kableExtra::kbl(caption = "Data Dictionary for the Tourism dataset") %>%
+  kableExtra::kable_styling(bootstrap_options = "bordered")
+```
+
+With the datasets prepared and structured, a thorough analysis of Woylie occurrences and related insights can take place.
+
+# Initial data analysis {#sec-ref-ida}
 
 ```{r}
 # Data quality check
