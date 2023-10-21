@@ -838,8 +838,15 @@ while figure @fig-trendanalysis provides us with an understanding of the relativ
 
 
 ```{r}
-#| label:fig-trendecomp
-#| fig-cap: "Seasonal decomposition of holiday trips in the Narrabri region"
+load("data/woylie_region.rda")
+
+tourism_woylie <- tourism %>% filter(Purpose == "Holiday")
+
+tourism_pl <-
+  tourism_woylie %>% filter(Region == "Narrabri Surrounds")
+
+tourism_pl_grouped <- tourism_pl %>% group_by_key() %>%
+  index_by() %>% summarise(Total_trips = round(sum(Trips * 1000)), 0)
 
 
 # Convert data to a ts object 
