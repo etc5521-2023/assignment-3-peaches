@@ -831,7 +831,7 @@ tourism_pl <- tourism_woylie %>%
 tourism_pl_grouped <- tourism_pl %>%
   group_by_key() %>%
   index_by() %>%
-  summarise(Total_trips = round(sum(Trips * 1000)), 0)
+  summarise(Total_trips = round(sum(Trips * 1000)))
 
 pl1 <-
   ggplot(data = tourism_pl_grouped, aes(x = Quarter, y = Total_trips)) +
@@ -866,10 +866,6 @@ Similarly to @fig-narr, holiday tourism can be presented in a year calendar form
 ```{r echo=FALSE}
 #| label: fig-holiday-year
 #| fig-cap: "Holiday Tourism in Narrabri Surrounds by Year (1998 - 2022)"
-
-library(zoo)
-
-narrabri_surrounds_tourism$Quarter <- as.yearqtr(narrabri_surrounds_tourism$Quarter)
 
 ggplot(narrabri_surrounds_tourism,
        aes(x = Quarter, y = Trips, fill = as.factor(Q))) +
@@ -941,14 +937,18 @@ woylie_narrabri_grouped <- woylie_narrabri %>% group_by(eventDate) %>% summarise
 #| fig-cap: "Trend line graph of Woylie Sightings in Narrabri Surrounds (September - December 2022)"
 woylie_tsibble <- woylie_narrabri_grouped %>%
   as_tsibble(key = Total_sightings, index = eventDate)
-pl2 <- ggplot(data = woylie_tsibble, aes(x = eventDate,
-                                         y = Total_sightings)) +
+
+pl2 <- ggplot(data = woylie_tsibble,
+              aes(x = eventDate,
+                  y = Total_sightings)) +
   geom_line() +
-  geom_point()  +
-  labs(x = "Date of Sighting", y = "Number of Sightings",
+  geom_point() +
+  labs(x = "Date of Sighting",
+       y = "Number of Sightings",
        subtitle = "September - December 2022") +
   ggtitle("Woylie Sightings in Narrabri Surrounds") +
   theme_classic()
+
 pl2
 ```
 
