@@ -1,7 +1,9 @@
 ---
 title: "MY WILD THING REPORT"
 author: "Peaches: Tanish and Ashvin"
-format: html
+format: 
+  html:
+    code-fold: true
 number-sections: true
 toc: true
 editor: 
