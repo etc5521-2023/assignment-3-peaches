@@ -1,6 +1,6 @@
 ---
-title: "MY WILD THING REPORT"
-author: "Peaches: Tanish and Ashvin"
+title: "The Brush-Tailed Bettong </br> (Bettongia penicillata ogilbyi)"
+author: "Tanish, Ashvin Ranatunga, Khuyen Nguyen, Arindam Baruah, Yashika Taneja"
 format: 
   html:
     code-fold: true
@@ -82,9 +82,11 @@ From this data we expect the following results:
 # Data description
 ## Species data
 
-To ensure a robust foundation for the analysis, the occurrence records of the Brush-Tailed Bettong or Woylie (Bettongia penicillata ogilbyi) were obtained from the [Atlas of Living Australia (ALA)](https://www.ala.org.au/) database. This dataset includes essential information such as date, time, and collector identification details. It comprises 8 variables and 2,276 observations across Australia as of the current report. However, there are some missing values within the data, particularly in the date record, which are later explored in @sec-ref-ida.
+To ensure a robust foundation for the analysis, occurrence records of the Brush-Tailed Bettong or Woylie (Bettongia penicillata ogilbyi) were obtained from the [Atlas of Living Australia (ALA)](https://www.ala.org.au/) database using the functions of the [galah](https://cran.r-project.org/web/packages/galah/index.html) R package. 
 
-The code to derive the species data is shown below using the [galah](https://cran.r-project.org/web/packages/galah/index.html) R package functions:
+This dataset includes essential information, such as date, time, and collector identification details, and comprises 13 variables and 2,276 observations across Australia as of the current report.
+
+The code to derive the species data can be viewed below and the data dictionary of the variables can be seen in @fig-data.
 
 ```{r, eval=FALSE}
 # load occurence records for woylie from ALA
@@ -92,6 +94,7 @@ galah_config(email = "aran0026@student.monash.edu")
 woylie <-
   galah_call() %>%
   galah_identify("Bettongia penicillata ogilbyi") %>%
+  galah_select(group = c("basic", "event")) %>% 
   atlas_occurrences()
 
 # save data as a csv in data-raw folder
@@ -105,8 +108,6 @@ woylie <- read_csv("data-raw/woylie.csv")
 # remove unnecessary 1st column
 woylie <- woylie[, -1]
 ```
-
-The data dictionary of the variables can be seen in @fig-data.
 
 ```{r echo=FALSE}
 #| label: fig-data
@@ -122,7 +123,12 @@ variables <-
       "occurenceStatus",
       "eventDate",
       "decimalLatitude",
-      "decimalLongitude"
+      "decimalLongitude",
+      "eventTime",
+      "eventID",	
+      "eventRemarks",
+      "samplingEffort",
+      "samplingProtocol"
     ),
     Explained = c(
       "The scientific name of the observed species.",
@@ -132,10 +138,14 @@ variables <-
       "The occurrence status: Present.",
       "Recorded sighting date in the format YYYY-MM-DD.",
       "Latitude value of sighting in decimal format.",
-      "	Longitude value of sighting in decimal format."
+      "Longitude value of sighting in decimal format.",
+      "Time of the event recorded in the format hh:mm:ss.",
+      "The event ID of each observation.",
+      "Any additional remarks or comments related to the observation.",
+      "The number of nights spent on trapping activities.",
+      "The protocol that was used to sample the species"
     )
   )
-
 
 variables %>%
   kableExtra::kbl(caption = "Data Dictionary for the Woylie dataset") %>%
@@ -144,7 +154,9 @@ variables %>%
 
 ## Tourism data
 
-In addition, to conduct an analysis on ecotourism of the Woylie, tourism data from [Tourism Research Australia (TRA)](https://www.tra.gov.au) was obtained. This dataset includes spatial, temporal, and trip information. It comprises 4 variables and 1,228,000 observations covering Quarter 1 of 1998 to Quarter 4 of 2022 across all Australian Statistical Area Level 2 (SA2) regions of Australia.
+In addition, to conduct an analysis on ecotourism of the Woylie, tourism data from [Tourism Research Australia (TRA)](https://www.tra.gov.au) was obtained. 
+
+This dataset includes spatial, temporal, and trip information. It comprises 4 variables and 1,228,000 observations covering Quarter 1 of 1998 to Quarter 4 of 2022 across all Australian Statistical Area Level 2 (SA2) regions of Australia.
 
 The data dictionary of the variables can be seen in @fig-data-tourism.
 
@@ -174,161 +186,62 @@ variables2 %>%
   kableExtra::kable_styling(bootstrap_options = "bordered")
 ```
 
-With the datasets prepared and structured, a thorough analysis of Woylie occurrences and related insights can take place.
+# Initial data analysis
 
-# Initial data analysis {#sec-ref-ida}
+## Species data
 
-```{r}
-# Data quality check
+In preparation for the forthcoming analysis, an Initial Data Analysis (IDA) was conducted by removing a few unnecessary columns and identifying and systematically saving only the wild sightings.
 
-# view any missing variables and variable types
-visdat::vis_dat(woylie)
-```
-
--   Upon initial examination, we observed that missing values are
-    primarily present in the "eventDate" column, with a few occurrences
-    of missing data in the decimal longitude and latitude columns. All
-    other variables seem to be correctly populated.
-
-To gain further insight, we investigated the data resource where
-"eventDate" was missing:
+After reducing the dataset, variable types and missing values were checked, as depicted in Figure @fig-vis-dat. There were no missing values that were significantly of interest or required cleaning.
 
 ```{r}
-# Check why event date has missing value corresponding to their dataResource name
-woylie%>% filter(is.na(eventDate))%>% select(dataResourceName)%>% unique()
+# filter wild sightings
+WILD_THING_woylie <- woylie %>%
+  select(-c(eventRemarks, eventID)) %>%
+  filter(
+    samplingProtocol %in% c(
+      "Camera Trapping",
+      "Transect Spotlighting",
+      "Sign-diggings",
+      "Observed-spotlighting",
+      "Sign-dropping"
+    )
+  )
 
-# Check the number of observations that there are missing values 
-woylie%>% filter(is.na(eventDate))%>% select(dataResourceName)%>% nrow()
-
-# Check how many of the event Dates in this location are NA
-woylie%>% filter(dataResourceName == "Western Australian Museum provider for OZCAM") %>% select(eventDate)%>% unique()
+save(WILD_THING_woylie, file = "data/WILD_THING_woylie.rda")
 ```
-
--   It was determined that only the event dates recorded by the "Western
-    Australian Museum provider for OZCAM" were missing, with all 182
-    recordings in this category lacking event date information.
-
-Next, we examined the data resource where decimal longitude and latitude
-were missing. Since these two variables seemed to be missing together
-for the same observations, they were investigated simultaneously:
 
 ```{r}
-# Check the data resource name where decimal longitude is missing
-woylie%>% filter(is.na(decimalLongitude), is.na(decimalLatitude))%>% 
-  select(dataResourceName)%>% unique()
+#| label: fig-vis-dat
+#| fig-cap: "Visualising the data set using the `visdat` function."
 
-# check the number of observations for which it is missing
-woylie%>% filter(is.na(decimalLongitude), is.na(decimalLatitude))%>% 
-  select(dataResourceName)%>% nrow()
+# view missing variables and variable types
+visdat::vis_dat(WILD_THING_woylie)
 ```
 
--   As previously observed, there were 182 observations recorded by the
-    "Western Australian Museum provider for OZCAM," and 19 of these
-    recordings had missing values in both the "decimalLongitude" and
-    "decimalLatitude" columns.
+## Weather data {#sec-ref}
 
-We will proceed to identify and save only the wild sightings in a
-structured manner to facilitate further analysis.
+Exploring the correlation between weather conditions and Woylie sightings can yield valuable insights into their behavior. To conduct this analysis, it would be useful to first identify the locations where Woylies are most frequently found and then obtain the weather data from the nearest weather stations.
 
-```{r, eval=FALSE}
-galah_config(email = "aran0026@student.monash.edu")
-woylie_sightings<-
-  galah_call() %>%
-  galah_identify("Bettongia penicillata ogilbyi") %>%
-  galah_select(group = "event")%>%
-  atlas_occurrences()
-
-# remove unecessary columns
-woylie_sightings <-
-  woylie_sightings[,c("eventDate","samplingEffort","samplingProtocol")]
-
-write.csv(woylie_sightings, file = "data-raw/woylie_sightings.csv")
-```
-
-Next, we will join and filter the datasets to obtain the wild sightings
-data:
-
-```{r, eval=FALSE}
-# reorder columns to make it easily readable after join
-woylie<- woylie[,c("eventDate","decimalLatitude", "decimalLongitude",
-                   "scientificName","taxonConceptID","recordID",
-                   "dataResourceName","occurrenceStatus")]
-
-woylie_sightings<- read_csv("data-raw/woylie_sightings.csv")
-
-# remove unecessary first column in woylie sightings
-woylie_sightings<- woylie_sightings[,-1]
-
-#join the data sets
-WILD_THING_woylie<-
-  woylie%>% 
-  left_join(woylie_sightings, by = "eventDate")%>%
-  unique()
-
-#view different sampling protocols to identify wild sighting protocols
-unique(WILD_THING_woylie$samplingProtocol)
-
-#filter wild sightings
-WILD_THING_woylie<-
-  WILD_THING_woylie%>% 
-  filter(samplingProtocol %in% c("Camera Trapping",
-                                 "Transect Spotlighting",
-                                 "Sign-diggings",
-                                 "Observed-spotlighting",
-                                 "Sign-dropping" ))
-```
-
-Finally, we will save the filtered wild sightings data as an .rda file
-in the data folder for further analysis.
-
-```{r, eval=FALSE}
-save(WILD_THING_woylie,file = "data/WILD_THING_woylie.rda")
-```
-
-With the wild sightings data prepared and cleaned, we are ready to delve
-into the exploratory data analysis.
-
-## Weather Data Exploration
-
--   Exploring how weather conditions correlate with Woylie sightings.
-    This can provide valuable insights into their behavior.
+The [Global Historical Climatology Network (GHCN)](https://www.ncei.noaa.gov/products/land-based-station/global-historical-climatology-network-daily) database contains weather station data that are valuable for analysing trends in weather patterns and precipitation. This data can be obtained using the `rnoaa` package.
 
 ```{r}
-#downloading the coordiantes of Australian weather stations
+# downloading the coordinates of Australian weather stations
 library(rnoaa)
 aus_stations <- ghcnd_stations() |>
   filter(str_starts(id, "ASN")) |>
   filter(last_year >= 2020) |>
   mutate(wmo_id = as.numeric(wmo_id),
          name = str_to_lower(name)) |>
-  select(-state, -gsn_flag) |>
+  select(-state,-gsn_flag) |>
   filter(element %in% c("PRCP", "TMAX", "TMIN")) |>
-  nest(element: last_year) |>
+  nest(element:last_year) |>
   rowwise() |>
   filter(nrow(data) == 3) |>
   select(-data) 
 ```
 
-
-```{r}
-# viewing the weather stations on a leaflet map
-# navigate on the map to find the stations closest to each cluster
-leaflet(data=aus_stations)%>%
-  addTiles()%>%
-  addCircleMarkers(
-    lng = ~longitude,  # Longitude
-    lat = ~latitude,    # Latitude
-    popup = ~paste("Weather Station ID: ", id),  # Popup text
-    radius = 5,  # Marker radius
-    color = "blue",  # Marker color
-    fillOpacity = 0.7  # Marker fill opacity
-  )
-```
-
-#### The closest weather station to each Woylie sighting {#sec-ref}
-
-Using the leaflet interactive map of the Australia weather stations as well as the map of the map of Woylie sightings (shown below in exploration of geographical locations of Woylie sightings), we identified the closest weather
-stations to the clusters of woylie sightings.
+Utilising an interactive Leaflet map of Woylie sightings allows for the identification of the nearest weather stations to the clusters of Woylie sightings. As demonstrated in @fig-cluster-map, the five closest weather stations are:
 
 1.  Weather Station ID: ASN00020028, which is closest to the Danggali
     Wilderness Protection area.
@@ -345,125 +258,104 @@ stations to the clusters of woylie sightings.
 5.  Weather Station ID: ASN00054038, located near the sightings at
     Pilliga East State Forest.
 
-#### Finding the weather station closest to the most sightings
-
 ```{r}
-# load the wild sightings data back in
-load(file = "data/WILD_THING_woylie.rda")
+#| label: fig-cluster-map
+#| fig-cap: "The five highest clusters of Woylie sightings."
 
-#rename columns to latitude and longitude for convenience
-WILD_THING_woylie <- WILD_THING_woylie %>%
-  rename(latitude = decimalLatitude, longitude = decimalLongitude)
-
-# From the geographical map of sightings we can see there are 5 clusters
-# We will now group the sightings into 5 clusters to find the location with the most sightings
-
+# k-means clustering
 set.seed(383724)
 
 coords_matrix <- WILD_THING_woylie %>%
-  select(longitude, latitude) %>%
+  select(decimalLongitude, decimalLatitude) %>%
   as.matrix()
 
-# k-means clustering
-num_clusters <- 5  # Number of clusters (parks)
+num_clusters <- 5  # number of clusters
 kmeans_result <- kmeans(coords_matrix, centers = num_clusters)
 
-# Now extract clusters
+# extract clusters
 WILD_THING_woylie$cluster <- kmeans_result$cluster
 
-# Number of sightings in each cluster
+# number of sightings in each cluster
 cluster_counts <- WILD_THING_woylie %>%
   group_by(cluster) %>%
   summarise(num_sightings = n())
 
-# Present the number of sightings in each cluster as a table
-cluster_counts %>% 
-  kableExtra::kbl(col.names = c("Cluster", "Number of Sightings"), align = 'c') %>%
-  kableExtra::kable_styling(bootstrap_options = "bordered")
-
-```
-
-```{r}
-#view the clusters on a map to identify which of the 5 stations above is closest to the largest number of sightings
-
 max_count <- max(cluster_counts$num_sightings)
 normalized_counts <- cluster_counts$num_sightings / max_count
-
 scaled_radius <- normalized_counts * 20  
 
-
+# add circle markers for each sighting
 map_clusters <- leaflet(data = WILD_THING_woylie) %>%
-  addTiles()  
+  addTiles() 
 
-# Adding circle markers for each sighting
 map_clusters <- map_clusters %>%
   addCircleMarkers(
-    lng = ~longitude, 
-    lat = ~latitude,    
+    lng = ~decimalLongitude, 
+    lat = ~decimalLatitude,    
     popup = ~paste("Sighting Date: ", format(eventDate, "%Y-%m-%d")),  # Popup text
     radius = ~scaled_radius[cluster],  #scaled radius based on the cluster
-    color = "blue",  # Marker color
-    fillOpacity = 0.7  # Marker fill opacity
+    color = "#C94A53",  
+    fillOpacity = 0.7  
   )
 
 # view the map of clusters
 map_clusters
-
 ```
 
-From the Leaflet Map we can see that the most sightings of Woylies was
-recorded in Pilliga East State Forest, and the weather station closest
-to it is weather station ID: ASN00054038.
-
-#### Subset the weather stations to the closest to location with the most Woylie Sightings
+The highest number of Woylie sightings was recorded in Pilliga East State Forest, and consequently, the weather data was obtained from the nearest weather station, Narrabri Airport. The weather data can then be merged with Woylie observation data to create a comprehensive dataset for use in @sec-ref-1.
 
 ```{r eval=FALSE}
-# filter weather station mentioned above
-narrogin <- aus_stations |>
+# filter weather station
+narrabri <- aus_stations |>
   filter(id %in% "ASN00054038") |>
   rowwise() |>
-  mutate(ts = list(meteo_pull_monitors(
-    monitors = id, var = c("PRCP", "TMAX", "TMIN"),
-    date_min = "2004-01-01",
-    date_max = "2023-09-13") |>
-      select(-id))) |>
+  mutate(ts = list(
+    meteo_pull_monitors(
+      monitors = id,
+      var = c("PRCP", "TMAX", "TMIN"),
+      date_min = "2004-01-01",
+      date_max = "2023-09-13"
+    ) |>
+      select(-id)
+  )) |>
   rename(lat = latitude, long = longitude, elev = elevation) |> select(id, long, lat, elev, name, wmo_id, ts) %>%
   unnest(ts) |>
-  mutate(tmax = tmax/10, tmin = tmin/ 10)
+  mutate(tmax = tmax / 10, tmin = tmin / 10)
 ```
 
-#### Joining the Weather Station to the Woylie Data
-
 ```{r eval=FALSE}
-#rename eventDate as date for convenience
+# rename eventDate as date for convenience
 WILD_THING_woylie <- WILD_THING_woylie %>%
   rename(date = eventDate)
 
-#classifying the date columns as a Date
-WILD_THING_woylie$date <- as.Date(WILD_THING_woylie$date, origin = "1970-01-01")
-narrogin$date <- as.Date(narrogin$date, origin = "1970-01-01")
+# classifying the date columns as Date
+WILD_THING_woylie$date <-
+  as.Date(WILD_THING_woylie$date, origin = "1970-01-01")
+narrabri$date <- 
+  as.Date(narrabri$date, origin = "1970-01-01")
 
-#filter observations in cluster 1 as it is the largest
-woylie_most <- WILD_THING_woylie %>% filter(cluster == 1)
+# filter observations in cluster 1 as it is the largest
+woylie_most <- WILD_THING_woylie %>% 
+  filter(cluster == 1)
 
-#join the data sets by date
-woylie_stations <- narrogin%>% 
+# join the data sets by date
+woylie_stations <- narrabri %>%
   left_join(woylie_most, by = "date")
 
 # tidy data further
-woylie_stations <- woylie_stations %>% 
+woylie_stations <- woylie_stations %>%
   
-  #remove observations based on duplicate record IDs
-  filter(!duplicated(recordID)|is.na(recordID)) %>%
+  # remove observations based on duplicate record IDs
+  filter(!duplicated(recordID) | is.na(recordID)) %>%
   
-  #create the sightings column
-  mutate(sightings = ifelse(is.na(scientificName),0,1))
+  # create the sightings column
+  mutate(sightings = ifelse(is.na(scientificName), 0, 1))
 
 # save this as an rda file
-save(woylie_stations,file = "data/woylie_stations.rda")
+save(woylie_stations, file = "data/woylie_stations.rda")
 ```
 
-# Exploratory data analysis
+# Exploratory data analysis 
 
 ## Exploration of Woylie Sightings against intial expectations
 
@@ -548,164 +440,31 @@ We will create a geographical map or heatmap to visually represent the
 distribution of sightings. This will enable us to verify if the
 sightings align with our expectations regarding habitat preferences.
 
-### Statistical Analysis
+### Theoretical Justification for Expectation 2
 
--   Now, let's perform statistical analyses to validate our
-    expectations.
+The observed seasonal pattern in Woylie sightings reveals a distinct trend characterised by an increase in sightings during the Spring and Summer months, followed by a decline in the Autumn and Winter months. This intriguing pattern can be attributed to several underlying factors:
 
-#### Expectation 1: Trend Analysis
+- Abundance of Food: Woylies primarily subsist on a diet of insects and seeds. The surge in sightings during the warmer seasons correlates with heightened food availability, as both plants and insects flourish during this time.
 
-```{r}
-# Group the data by date and count the number of sightings for each date
-sightings_count <- WILD_THING_woylie %>%
-  group_by(eventDate) %>%
-  summarise(Number_of_Sightings = n())
+- Breeding Season: Woylies engage in breeding activities during the Spring and Summer, with newborn pups typically making their debut in late Summer and early Autumn. During this period, the increased sightings may be a consequence of heightened activity as Woylies nurture their offspring.
 
-# View the resulting data frame
-print(sightings_count)
+- Weather Influences: Woylies exhibit adaptations to warmer and drier environmental conditions. Consequently, they may reduce their activity levels during the cooler and wetter Autumn and Winter months, leading to fewer recorded sightings.
 
-```
+In essence, the observed seasonal pattern in Woylie sightings shows how the species adapts to varying environmental conditions throughout the year.
 
-```{r}
-# Fit a linear regression model
-trend_model <- lm(Number_of_Sightings ~ eventDate, data = sightings_count)
+### Theoretical Justification for Expectation 3
 
-# Check the summary of the model
-summary(trend_model)
+The historical range of the Woylie, once extensive, has experienced a significant reduction due to relentless challenges posed by habitat loss, introduced predators, and disease. To safeguard the future of Woylies and their ecosystems, comprehensive conservation initiatives have been initiated. These efforts encompass:
 
-```
+- Population Relocation: Facilitating the relocation of Woylies to conservation areas to establish additional populations, a strategy designed to mitigate the risk of extinction. This can be observed in Expectation 3, where the majority of Woylie clusters are in national parks.
 
-#### Expectation 2: Seasonality Tests {r} \# Perform seasonality tests to
+- Mitigation of Introduced Predators: Implementing effective predator control measures, including methods such as trapping, baiting, and strategic fencing, to reduce the impact of invasive species like foxes and cats.
 
-determine if there is a significant seasonal pattern in sightings. \#
-Explain the results and their implications. \# Code for seasonality
-tests
+- Disease Management Programs: Implementing proactive disease management programs, which include vaccination initiatives for Woylies and vigilant population monitoring to detect and respond to potential disease outbreaks, as evidenced by Expectation 1, which reveals a recent spike in Woylie observations.
 
-```{r}
-# Create a time series from the monthly data
-ts_data <- ts(sightings_count$Number_of_Sightings, frequency = 12, start = c(2000, 11))
-ts_data
-```
+These conservation endeavors play a vital role in the ongoing protection and flourishing of Woylies within the Australian landscape.
 
-### Comparison with Expectations Expectation 1:
-
-The data presented in our analysis reveals a significant downward trend
-in Woylie sightings over time. Through a linear regression model, we
-determined that the slope of the trend line is negative (0.003989),
-signifying a noticeable decline. The R-squared value of 0.08153
-indicates that our model explains a modest yet statistically significant
-portion of the variance in Woylie sightings.
-
-This trend indicates a concerning decline in Woylie populations, likely
-attributed to multiple factors such as habitat loss, the presence of
-introduced predators, and disease. It's important to emphasize that
-Woylies are critically endangered, with their population having
-plummeted by over 90% in the last two centuries.
-
-### Comparison with Expectation 2:
-
-The observed seasonal pattern in Woylie sightings reveals a distinct
-trend characterized by an increase in sightings during the spring and
-summer months, followed by a decline in the autumn and winter months.
-This intriguing pattern can be attributed to several underlying factors:
-
-Abundance of Food: Woylies primarily subsist on a diet of insects and
-seeds. The surge in sightings during the warmer seasons correlates with
-heightened food availability, as both plants and insects flourish during
-this time.
-
-Breeding Season: Woylies engage in breeding activities during the spring
-and summer, with newborn pups typically making their debut in late
-summer and early autumn. During this period, the increased sightings may
-be a consequence of heightened activity as Woylies nurture their
-offspring.
-
-Weather Influences: Woylies exhibit adaptations to warmer and drier
-environmental conditions. Consequently, they may reduce their activity
-levels during the cooler and wetter autumn and winter months, leading to
-fewer recorded sightings.
-
-In essence, the observed seasonal pattern in Woylie sightings
-underscores the species' ability to adapt to varying environmental
-conditions throughout the year. These findings shed light on the
-intricate interplay between Woylie behavior and the changing seasons."
-
-### Comparison with Expectation 3
-
-The analysis of geographical data underscores the sobering reality of
-the Woylie's current status, revealing their presence in a limited
-number of isolated populations within Western Australia and South
-Australia. Their historical range, once extensive, has seen a
-significant reduction due to relentless challenges posed by habitat
-loss, introduced predators, and disease.
-
-The provided map vividly portrays the concentration of remaining Woylie
-populations, primarily situated in the southwestern regions of Western
-Australia and the southern Flinders Ranges of South Australia.
-Additionally, isolated pockets of Woylie populations persist in the
-central Kimberley region of Western Australia and the Eyre Peninsula of
-South Australia.
-
-The geographical distribution of Woylies raises profound conservation
-concerns. The small size and isolation of these populations render them
-highly susceptible to a spectrum of threats, including potential
-extinction triggered by unpredictable events like bushfires or disease
-outbreaks.
-
-To safeguard the future of Woylies and their ecosystems, comprehensive
-conservation initiatives have been initiated. These multifaceted efforts
-encompass:
-
-Habitat Restoration and Preservation: Prioritizing the identification
-and safeguarding of critical Woylie habitats, encompassing high-quality
-areas and key connectivity zones between disparate populations.
-
-Mitigation of Introduced Predators: Implementing effective predator
-control measures, encompassing methods such as trapping, baiting, and
-strategic fencing, to curb the impact of invasive species like foxes and
-cats.
-
-Disease Management Programs: Enacting proactive programs for disease
-management, including vaccination initiatives for Woylies and vigilant
-population monitoring to detect and respond to potential disease
-outbreaks.
-
-Population Translocation: Fostering the relocation of Woylies to new
-areas to establish additional populations, a strategy designed to
-mitigate the risk of extinction arising from unforeseen events and
-enhance the overall resilience of the Woylie population.
-
-These concerted conservation endeavors are instrumental in the ongoing
-protection and flourishing of Woylies within the Australian landscape.
-
-Specific recommendations for effective conservation strategies
-encompass:
-
-Identification and Protection of Vital Habitats: Precisely delineating
-and conserving critical Woylie habitats, encompassing areas of
-exceptional ecological value and connectivity corridors that link
-divergent Woylie communities.
-
-Stringent Control of Invasive Predators: Vigilantly managing invasive
-predators such as foxes and cats through a multifaceted approach that
-includes trapping, baiting, and strategically designed protective
-enclosures.
-
-Formulation and Execution of Robust Disease Management Regimens:
-Enacting comprehensive disease management programs inclusive of
-vaccination initiatives and vigilant surveillance to promptly address
-potential disease outbreaks.
-
-Strategic Population Translocation: Strategic relocation of Woylies to
-new regions to establish fresh populations, thereby mitigating the
-vulnerability to extinction due to unpredictable events and reinforcing
-the overall resilience of the Woylie population.
-
-These combined efforts represent a pivotal commitment to ensuring the
-enduring vitality of Woylies and their integral place within the
-Australian ecosystem.
-
-## Exploration of Woylie Sightings with Weather Data
+## Exploration of Woylie Sightings with Weather Data {#sec-ref-1}
 
 ```{r}
 # load the woylie stations file back in
@@ -939,7 +698,7 @@ The tourism data will be filtered for the region of Narrabri Surrounds as part o
 
 ```{r}
 #| label: fig-narr
-#| fig-cap: "Number of holiday trips in the Narrabri region"
+#| fig-cap: "Number of Holiday Trips in Narrabri Surrounds"
 
 load("data/woylie_region.rda")
 
@@ -959,7 +718,7 @@ pl1 <-
   geom_line() +
   geom_point() +
   theme_classic() +
-  ggtitle("Tourism trends in Narrabri Surrounds") +
+  ggtitle("Tourism Trends in Narrabri Surrounds") +
   labs(
     x = "Year (Quarter)",
     y = "Total holiday trips",
@@ -984,7 +743,7 @@ narrabri_surrounds_tourism <- tourism_pl %>%
 
 Similarly to @fig-narr, holiday tourism can be presented in a year calendar format to visualise and observe the annual tourism trend. The same irregular pattern with no clear year-by-year trend in tourism numbers can also be seen in @fig-holiday-year.
 
-```{r echo=FALSE}
+```{r}
 #| label: fig-holiday-year
 #| fig-cap: "Holiday Tourism in Narrabri Surrounds by Year (1998 - 2022)"
 
@@ -1004,7 +763,7 @@ ggplot(narrabri_surrounds_tourism,
 
 When grouping the tourism visit numbers in Narrabri Surrounds by quarter, Quarter 1 experiences the fewest tourists compared to Quarter 3, which receives the most. Specifically, from January to March, Narrabri Surrounds experiences the least tourism, and from July to September, the area has the most tourism, as depicted in @fig-holiday-group.
 
-```{r echo=FALSE}
+```{r}
 #| label: fig-holiday-group
 #| fig-cap: "Total Holiday Tourism in Narrabri Surrounds by Quarter (1998 - 2022)"
 
@@ -1088,45 +847,10 @@ Based on the analysis of @fig-sighting, following are the key takeaways:
 :::
 
 
-```{r echo=FALSE}
+```{r}
 #| label: fig-woylie-obs
 #| fig-cap: "Column chart of Woylie Sightings in Narrabri Surrounds (September - December 2022)"
 
-ggplot(narrabri_surrounds_tourism,
-       aes(x = Quarter, y = Trips, fill = as.factor(Q))) +
-  geom_col() +
-  facet_wrap( ~ Year, scales = "free_x") +
-  labs(title = "Holiday Tourism in Narrabri Surrounds by Year",
-       x = "Quarter",
-       y = "Number of trips ('000)") +
-  theme_bw() +
-  scale_fill_brewer(palette = "Set3") +
-  guides(fill = guide_legend(title = "Quarterly Period")) +
-  theme(axis.text.x = element_blank(),
-        axis.ticks.x = element_blank())
-```
-
-
-```{r echo=FALSE}
-narrabri_surrounds_tourism %>%
-  ggplot(aes(x = Q, y = Trips, fill = as.factor(Q))) +
-  geom_col() +
-  labs(
-    title = "Total Holiday Tourism in Narrabri Surrounds by Quarter",
-    subtitle = "Years 1998 - 2022",
-    x = "Quarter",
-    y = "Number of trips ('000)"
-  ) +
-  theme_bw() +
-  scale_fill_brewer(palette = "Set3") +
-  guides(fill = "none") 
-```
-
-There is no clear year-by-year trend in tourism numbers. When grouping the tourism numbers by quarter, Quarter 1 experiences the fewest tourists compared to Quarter 3, which receives the most. Specifically, from January to March, Narrabri Surrounds experiences the least tourism, and from July to September, the area has the most tourism.
-
-In terms of sightings of the Woylie specifically in the Narrabri region, these sightings occurred only in Quarters 3 and 4 of 2022. This suggests a recent surge in observations, but unfortunately, the tourism data for trips involving over a thousand people is only available for Quarter 3, 2022.
-
-```{r echo=FALSE}
 q_colours <- RColorBrewer::brewer.pal(12, "Set3")[3:4]
 
 woylie_tsibble %>%
