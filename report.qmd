@@ -95,18 +95,16 @@ woylie <-
   galah_call() %>%
   galah_identify("Bettongia penicillata ogilbyi") %>%
   galah_select(group = c("basic", "event")) %>% 
-  atlas_occurrences()
+  atlas_occurrences() %>%
+  select(-1)
 
 # save data as a csv in data-raw folder
 write.csv(woylie, file = "data-raw/woylie.csv")
 ```
 
-```{r}
+```{r echo=FALSE}
 # load data back into R environment
 woylie <- read_csv("data-raw/woylie.csv")
-
-# remove unnecessary 1st column
-woylie <- woylie[, -1]
 ```
 
 ```{r echo=FALSE}
@@ -192,8 +190,6 @@ variables2 %>%
 
 In preparation for the forthcoming analysis, an Initial Data Analysis (IDA) was conducted by removing a few unnecessary columns and identifying and systematically saving only the wild sightings.
 
-After reducing the dataset, variable types and missing values were checked, as depicted in Figure @fig-vis-dat. There were no missing values that were significantly of interest or required cleaning.
-
 ```{r}
 # filter wild sightings
 WILD_THING_woylie <- woylie %>%
@@ -210,6 +206,8 @@ WILD_THING_woylie <- woylie %>%
 
 save(WILD_THING_woylie, file = "data/WILD_THING_woylie.rda")
 ```
+
+After reducing the dataset, variable types and missing values were checked, as depicted in Figure @fig-vis-dat. There were no missing values that were significantly of interest or required cleaning.
 
 ```{r}
 #| label: fig-vis-dat
@@ -241,22 +239,7 @@ aus_stations <- ghcnd_stations() |>
   select(-data) 
 ```
 
-Utilising an interactive Leaflet map of Woylie sightings allows for the identification of the nearest weather stations to the clusters of Woylie sightings. As demonstrated in @fig-cluster-map, the five closest weather stations are:
-
-1.  Weather Station ID: ASN00020028, which is closest to the Danggali
-    Wilderness Protection area.
-
-2.  Weather Station ID: ASN00023373, which is closest to the Yookamura
-    Private Nature Reserve.
-
-3.  Weather Station ID: ASN00018192, which is closest to the sightings
-    near Port Lincoln at the Lincoln National Park.
-
-4.  Weather Station ID: ASN00076031, which is closest to the sightings
-    at Mallee Cliffs National Park.
-
-5.  Weather Station ID: ASN00054038, located near the sightings at
-    Pilliga East State Forest.
+Utilising an interactive Leaflet map of Woylie sightings allows for the identification of the nearest weather stations to the clusters of Woylie sightings. 
 
 ```{r}
 #| label: fig-cluster-map
@@ -302,7 +285,24 @@ map_clusters <- map_clusters %>%
 map_clusters
 ```
 
-The highest number of Woylie sightings was recorded in Pilliga East State Forest, and consequently, the weather data was obtained from the nearest weather station, Narrabri Airport. The weather data can then be merged with Woylie observation data to create a comprehensive dataset for use in @sec-ref-1.
+As demonstrated in @fig-cluster-map, the five closest weather stations are:
+
+1.  Weather Station ID: ASN00020028, which is closest to the Danggali
+    Wilderness Protection area.
+
+2.  Weather Station ID: ASN00023373, which is closest to the Yookamura
+    Private Nature Reserve.
+
+3.  Weather Station ID: ASN00018192, which is closest to the sightings
+    near Port Lincoln at the Lincoln National Park.
+
+4.  Weather Station ID: ASN00076031, which is closest to the sightings
+    at Mallee Cliffs National Park.
+
+5.  Weather Station ID: ASN00054038, located near the sightings at
+    Pilliga East State Forest.
+    
+The highest number of Woylie sightings was recorded in Pilliga East State Forest, and as a result, the weather data to be obtained will be from the nearest weather station, which is the Narrabri Airport weather station.
 
 ```{r eval=FALSE}
 # filter weather station
@@ -322,6 +322,8 @@ narrabri <- aus_stations |>
   unnest(ts) |>
   mutate(tmax = tmax / 10, tmin = tmin / 10)
 ```
+
+This weather data can then be merged with Woylie observation data to create a comprehensive dataset for use in @sec-ref-1.
 
 ```{r eval=FALSE}
 # rename eventDate as date for convenience
@@ -372,7 +374,7 @@ inference techniques support or contradict our initial assumptions.
 Now, let's move forward with exploring the data visually to acquire
 meaningful insights into the behavior and distribution of the Woylie.
 
-### Expectation 1: Trend in Woylie Sightings
+### Expectation 1: Trend in Woylie Sightings {#sec-ref-3}
 
 ```{r}
 # Code for time series plot
@@ -413,7 +415,7 @@ ggplot(WILD_THING_woylie, aes(x = month)) +
 
 ```
 
-### Expectation 3: Geographical Distribution
+### Expectation 3: Geographical Distribution {#sec-ref-2}
 
 ```{r}
 # Create a leaflet map
@@ -456,11 +458,11 @@ In essence, the observed seasonal pattern in Woylie sightings shows how the spec
 
 The historical range of the Woylie, once extensive, has experienced a significant reduction due to relentless challenges posed by habitat loss, introduced predators, and disease. To safeguard the future of Woylies and their ecosystems, comprehensive conservation initiatives have been initiated. These efforts encompass:
 
-- Population Relocation: Facilitating the relocation of Woylies to conservation areas to establish additional populations, a strategy designed to mitigate the risk of extinction. This can be observed in Expectation 3, where the majority of Woylie clusters are in national parks.
+- Population Relocation: This strategy aims to facilitate the relocation of Woylies to conservation areas in order to establish additional populations, with the goal of mitigating the risk of extinction. This can be observed in @sec-ref-2, where the majority of Woylie clusters were shown to be located in National Parks.
 
 - Mitigation of Introduced Predators: Implementing effective predator control measures, including methods such as trapping, baiting, and strategic fencing, to reduce the impact of invasive species like foxes and cats.
 
-- Disease Management Programs: Implementing proactive disease management programs, which include vaccination initiatives for Woylies and vigilant population monitoring to detect and respond to potential disease outbreaks, as evidenced by Expectation 1, which reveals a recent spike in Woylie observations.
+- Disease Management Programs: The implementation of proactive disease management programs, including vaccination initiatives for Woylies and vigilant population monitoring to detect and respond to potential disease outbreaks. This is evidenced in @sec-ref-3 where the section reveals a recent spike in Woylie observations.
 
 These conservation endeavors play a vital role in the ongoing protection and flourishing of Woylies within the Australian landscape.
 
@@ -698,7 +700,7 @@ The tourism data will be filtered for the region of Narrabri Surrounds as part o
 
 ```{r}
 #| label: fig-narr
-#| fig-cap: "Number of Holiday Trips in Narrabri Surrounds"
+#| fig-cap: "Total Holiday Trips in Narrabri Surrounds"
 
 load("data/woylie_region.rda")
 
@@ -728,11 +730,11 @@ pl1 <-
 ggplotly(pl1)
 ```
 
-Based on our initial analysis of @fig-narr, we can observe the following:
+Based on the initial analysis of @fig-narr, the following observations can be made:
 
-1. The number of trips designated as "holidays" are highly irregular with multiple quarters and years of no holiday visitors in the region of interest.
-2. As a result, there is no discernible seasonality in the holiday visits in this region.
-3. The highest number of holiday visitors were recorded in the 3rd quarter of 2009 with close to 4278 visits.
+1. The number of trips designated as "holiday" is highly irregular, with multiple quarters and years showing no holiday visitors in the region of interest.
+2. Consequently, there is no discernible seasonality in the holiday visits in this region.
+3. The highest number of holiday visitors was recorded in the 3rd quarter of 2001, with nearly 13,445 visits.
 
 ```{r echo=FALSE}
 narrabri_surrounds_tourism <- tourism_pl %>%
@@ -740,8 +742,6 @@ narrabri_surrounds_tourism <- tourism_pl %>%
          Q = quarter(Quarter),
          Quarter = tsibble::yearquarter(Quarter))
 ```
-
-Similarly to @fig-narr, holiday tourism can be presented in a year calendar format to visualise and observe the annual tourism trend. The same irregular pattern with no clear year-by-year trend in tourism numbers can also be seen in @fig-holiday-year.
 
 ```{r}
 #| label: fig-holiday-year
@@ -761,7 +761,7 @@ ggplot(narrabri_surrounds_tourism,
         axis.ticks.x = element_blank())
 ```
 
-When grouping the tourism visit numbers in Narrabri Surrounds by quarter, Quarter 1 experiences the fewest tourists compared to Quarter 3, which receives the most. Specifically, from January to March, Narrabri Surrounds experiences the least tourism, and from July to September, the area has the most tourism, as depicted in @fig-holiday-group.
+Similarly to @fig-narr, holiday tourism can be presented in a year calendar format to visualise and observe the annual tourism trend. The same irregular pattern with no clear year-by-year trend in tourism numbers can also be seen in @fig-holiday-year.
 
 ```{r}
 #| label: fig-holiday-group
@@ -780,6 +780,9 @@ narrabri_surrounds_tourism %>%
   scale_fill_brewer(palette = "Set3") +
   guides(fill = "none") 
 ```
+
+When grouping the tourism visit numbers in Narrabri Surrounds by quarter, Quarter 1 experiences the fewest tourists compared to Quarter 3, which receives the most. Specifically, from January to March, Narrabri Surrounds experiences the least tourism, and from July to September, the area has the most tourism, as depicted in @fig-holiday-group.
+
 ## Tourists & Species Sightings
 
 The examination of the number of visitors in the Narrabri Surrounds region for holiday purposes has now laid the foundation for an exploration of wildlife sightings and visitation trends, allowing for the investigation of potential correlations.
@@ -835,14 +838,14 @@ pl2
 :::{.callout-note}
 # Key takeaways
 
-Based on the analysis of @fig-sighting, following are the key takeaways:
+Based on the analysis of @fig-sighting, the following key observations can be made:
 
-1. While the Narrabri region was observed to be the region with the highest Woylie sightings in Australia, this was not always the case.
-2. Based on the sightings data from the Atlas of Living Australia, the sightings of Woylies in the Narrabri region were all in the 3rd and 4th quarters of the year 2022.
-3. Upon observing this peculiar trend in the data, a deeper analysis was undertaken to get to the root cause for the skewed sightings.
-4. Based on a detailed report by the [Australian wildlife organisation](https://www.australianwildlife.org/wp-content/uploads/2023/08/Pilliga-Ecohealth-Report-2022-23.pdf), the Woylies due to __being an endangered wild being__, are inhabited within the __safe confines of the Pilliga East Forest reserve, which is in the Narrabri SA2 region__.
-5. These Woylies were transferred from Western Australia to New South Wales (where Narrabri region is a part of) in large numbers in the year 2022 for the __purpose of safekeeping and providing the right environment for them to breed.__
-6. The __special conservation efforts taken up by the Australian wildlife organisation__ as mentioned in the above points are expected to contribute to the __high number of Woylie sightings in the year 2022__.
+1. While the Narrabri region was found to have the highest Woylie sightings in Australia, this was not always the case.
+2. According to the sightings data from the Atlas of Living Australia, Woylie sightings in the Narrabri region were exclusively in the 3rd and 4th quarters of 2022.
+3. Recognising this unique trend in the data, a more in-depth analysis was conducted to identify the underlying cause of this skewed pattern.
+4. According to a detailed report by the [Australian wildlife organisation](https://www.australianwildlife.org/wp-content/uploads/2023/08/Pilliga-Ecohealth-Report-2022-23.pdf), Woylies, __being an endangered species__, are now inhabiting the __protected Pilliga East Forest reserve, located in the Narrabri SA2 region.__
+5. A significant number of Woylies were transferred from Western Australia to New South Wales (including the Narrabri region) in 2022, with the __purpose of providing a safe environment for breeding and conservation efforts.__
+6. The __special conservation initiatives undertaken by the Australian wildlife organisation,__ as mentioned in the points above, are expected to contribute to the __high number of Woylie sightings in the year 2022.__
 
 :::
 
