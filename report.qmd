@@ -775,6 +775,14 @@ This aligns with our findings, indicating that there is little to no ecotourism 
 For the purpose of performing a temporal analysis of the tourist patterns, we will be focusing on the tourist footfalls in the Narrabri region with the highest Woylie sightings.
 
 ```{r}
+library(lubridate)
+temporal_data <- tourism %>% filter(Region == "Narrabri Surrounds")
+temporal_data$Quarter <- as.character(temporal_data$Quarter)
+quarter_split <- strsplit(temporal_data$Quarter, " ")
+temporal_data$Year <- sapply(quarter_split, function(x) x[1])
+temporal_data$Quarter <- sapply(quarter_split, function(x) x[2])
+temporal_data$Year <- as.numeric(temporal_data$Year)
+
 annual_data <- temporal_data %>%
   group_by(Year) %>%
   summarise(TotalTrips = sum(Trips))
@@ -817,13 +825,6 @@ ggplot(temporal_data, aes(x = Quarter, y = as.factor(Year), fill = Trips)) +
 - **Q4** : Activity in Q4 is on the lower side, with lighter shades indicating fewer trips.
 
 ```{r}
-library(lubridate)
-temporal_data <- tourism %>% filter(Region == "Narrabri Surrounds")
-temporal_data$Quarter <- as.character(temporal_data$Quarter)
-quarter_split <- strsplit(temporal_data$Quarter, " ")
-temporal_data$Year <- sapply(quarter_split, function(x) x[1])
-temporal_data$Quarter <- sapply(quarter_split, function(x) x[2])
-temporal_data$Year <- as.numeric(temporal_data$Year)
 
 grouped_data <- temporal_data %>%
   group_by(Quarter) %>%
@@ -933,9 +934,6 @@ while figure @fig-trendanalysis provides us with an understanding of the relativ
 
 
 ```{r}
-#| label:fig-trendecomp
-#| fig-cap: "Seasonal decomposition of holiday trips in the Narrabri region"
-
 
 # Convert data to a ts object 
 ts_data_trips <- ts(tourism_pl_grouped$Total_trips, frequency=4)
