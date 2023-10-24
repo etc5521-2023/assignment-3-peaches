@@ -959,26 +959,41 @@ annual_data <- temporal_data %>%
 ggplot(annual_data, aes(x = Year, y = TotalTrips)) +
   geom_line(group=1, size=1) +
   geom_point(size=3) +
-  geom_smooth(method='loess', color="red", se=FALSE) +  # Add a smoothing curve
-  annotate("text", x=2002, y=75, label="Peak in 2005", vjust=-1) +  # Adjusted positioning
-  annotate("text", x=2016, y=75, label="Peak around 2018", vjust=-1) +  # Adjusted positioning
-  expand_limits(y=0) +  # Adjust y-axis
-  labs(title = "Enhanced Annual Trend of Trips",
+  geom_smooth(method='loess', color="red", se=FALSE) +  
+  annotate("text", x=2002, y=75, label="Peak in 2005", vjust=-1) +  
+  annotate("text", x=2016, y=75, label="Peak around 2018", vjust=-1) +  
+  expand_limits(y=0) +  
+  labs(title = "Annual Trend of Trips",
        x = "Year",
        y = "Total Trips") +
   theme_minimal() +
-  theme(axis.text.x=element_text(angle=45, hjust=1))  # Rotate x-axis labels for clarity
+  theme(axis.text.x=element_text(angle=45, hjust=1))  
 
 
 ```
+- This graph depicts the trend of trips over the years. 
+
+- There are two significant peaks in the data – one in 2005 and another around 2018. The trend suggests fluctuations in the total number of trips throughout the years.
+
+- Post-2018, there seems to be a decline in trips, but it's starting to recover towards 2022.
 ```{r}
- ggplot(temporal_data, aes(x = Quarter, y = as.factor(Year), fill = Trips)) +
+ggplot(temporal_data, aes(x = Quarter, y = as.factor(Year), fill = Trips)) +
   geom_tile() +
   scale_fill_gradient(low = "white", high = "darkred") +
   labs(title = "Seasonal Patterns Across Years", x = "Quarter", y = "Year") +
   theme_minimal()
 
 ```
+- There appears to be an increasing trend in the number of trips from 1998 until around 2021-2022. The darker shades in more recent years, especially around 2021-2022, indicate more trips compared to the lighter shades in earlier years.
+
+- **Q1**: The trips in Q1 seems Q1 has demonstrated fluctuations over the years, starting with low activity in the late 1990s to early 2000s, experiencing a rise in the mid 2000s, stabilizing in the late 2000s to early 2010s, and then witnessing another increase in the recent years, notably 2022.
+
+- **Q2** : This quarter appears to have moderate activity over the years
+
+- **Q3** :  The consistent dark shades for Q3 indicate a substantial number of trips, especially in the recent years from 2016 onwards. 
+
+- **Q4** : Activity in Q4 is on the lower side, with lighter shades indicating fewer trips.
+
 ```{r}
 library(lubridate)
 temporal_data <- tourism %>% filter(Region == "Narrabri Surrounds")
@@ -1001,6 +1016,9 @@ ggplot(grouped_data, aes(x = Quarter, y = TotalTrips)) +
        y = "Total Trips") +
   theme(text = element_text(size = 14))
 ```
+- The third quarter (Q3) is the most active period, suggesting factors or events in these months (July to September) that drive an increase in the number of trips.
+
+- There is a clear progression of activity from Q1 to Q3, starting with the lowest activity in Q1 and gradually increasing to reach its pinnacle in Q3.
 ```{r}
 
 all_purposes_data <- temporal_data %>%
@@ -1023,7 +1041,9 @@ ggplot(all_purposes_data_filtered, aes(x = Quarter, y = TotalTrips, fill = Purpo
 
 
 ```
+- Business trips are least frequent in the first quarter and grow progressively with the peak in Q4. This could imply end-of-year meetings, reviews, or projects that drive increased business travel.
 
+- Visiting-related trips maintain a fairly consistent number throughout the year, suggesting that family or friend visits are evenly spread and not particularly influenced by the season.
 ```{r}
 
 library(tsibble)
@@ -1123,13 +1143,6 @@ __Residual Component:__ This is the part of the data that is not explained by th
 2. The trend of the holiday data does not show a clear rise or fall of trips in the Narrabri region. The total trips are observed to vary around approximately 2000 trips
 every quarter.
 :::
-
-
-
-
-
-
-
 
 
 
