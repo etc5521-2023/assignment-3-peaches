@@ -95,8 +95,7 @@ woylie <-
   galah_call() %>%
   galah_identify("Bettongia penicillata ogilbyi") %>%
   galah_select(group = c("basic", "event")) %>% 
-  atlas_occurrences() %>%
-  select(-1)
+  atlas_occurrences()
 
 # save data as a csv in data-raw folder
 write.csv(woylie, file = "data-raw/woylie.csv")
@@ -104,7 +103,8 @@ write.csv(woylie, file = "data-raw/woylie.csv")
 
 ```{r echo=FALSE}
 # load data back into R environment
-woylie <- read_csv("data-raw/woylie.csv")
+woylie <- read_csv("data-raw/woylie.csv") %>%
+  select(-1)
 ```
 
 ```{r echo=FALSE}
@@ -188,7 +188,7 @@ variables2 %>%
 
 ## Species data
 
-In preparation for the forthcoming analysis, an Initial Data Analysis (IDA) was conducted by removing a few unnecessary columns and identifying and systematically saving only the wild sightings.
+In preparation for the forthcoming analysis, an Initial Data Analysis (IDA) was conducted on the species data. This involved removing a few unnecessary columns and systematically saving only the wild sightings.
 
 ```{r}
 # filter wild sightings
