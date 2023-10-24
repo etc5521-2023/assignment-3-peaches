@@ -764,112 +764,8 @@ Another way to interpret the scatter plot is that the points tend to cluster aro
 
 # Temporal analysis
 
-For the purpose of performing a temporal analysis of the tourist patterns, we will be focusing on the tourist footfalls in the Narrabri region with the highest Woylie sightings.
 
 
-
-```{r}
-
-library(tsibble)
-library(tsibbletalk)
-library(feasts)
-
-top_regions <- c("Narrabri Surrounds")
-
-tourism_shared <- tourism %>% filter(Region %in% top_regions) %>%
-  as_shared_tsibble(spec = Region * Purpose)
-
-
-
-
-tourism_feat <- tourism_shared %>%
-
-  features(Trips, feat_stl)
-
- 
-
-p1 <- tourism_shared %>%
-
-  ggplot(aes(x = Quarter, y = Trips)) +
-
-  geom_line(aes(group = Region), alpha = 0.5) +
-
-  facet_wrap(~ Purpose, scales = "free_y") + theme_classic() + ggtitle("Tourism trends in the Narrabri region") + 
-  theme(axis.text.x = element_text(size =5)) + labs(y = "Number of trips (in 1000s)")
-
-p2 <- tourism_feat %>%
-
-  ggplot(aes(x = trend_strength, y = seasonal_strength_year,color=Purpose)) +
-  geom_point() + theme_classic() + ggtitle("Trend analysis of tourism estimates in Narrabri region")
-```
-
-
-```{r}
-#| label: fig-trend
-#| fig-cap: "Tourism trends in the Narrabri region for various purposes"
-ggplotly(p1)
-```
-
-
-
-```{r}
-#| label: fig-trendanalysis
-#| fig-cap: "Trend analysis in the Narrabri region for various purposes"
-ggplotly(p2)
-```
-
-Figure @fig-trend illustrates the pattern of trips for the various purposes in the Narrabri region
-while figure @fig-trendanalysis provides us with an understanding of the relative trend strength and seasonality of the data pertaining to the various purposes of trips.
-
-:::{.callout-note}
-# Key takeaway
-1. There is a distinct pattern in the number of trips for each of the purposes (Business,Holiday,Other,and Visiting) when analysing the tourism data for the Narrabri region.
-
-2. There have been significant periods of time with very low business trips in this region. However, the recent business trips have been more frequent and in higher numbers.
-
-3. As expected with most holiday trends, there appears to be a seasonality in the holiday trips for the Narrabri region. This has been additionally observed by the high seasonal strength for holiday trips in @fig-trendanalysis.
-
-4. Additionally, there appears to be a low seasonality in the the trips relating to business, visits and "others". This means that the pattern of trips in the region for the stated purposes do not repeat itself at regular intervals.
-
-5. There is however a high trend strength in the overall total trips as well as the visit trips based on the analysis of @fig-trendanalysis. This indicates that the total trips due to visits and the overall total trips in the region have increased over time, especially in the recent years.
-
-:::
-
-
-
-```{r}
-#| label:fig-trendecomp
-#| fig-cap: "Seasonal decomposition of holiday trips in the Narrabri region"
-
-
-# Convert data to a ts object 
-ts_data_trips <- ts(tourism_pl_grouped$Total_trips, frequency=4)
-
- 
-
-# Decompose the time series for average trips
-decomposition_trips <- stl(ts_data_trips, s.window="periodic")
-
- 
-
-# Plot the decomposition
-autoplot(decomposition_trips) + labs(title = "Seasonal Decomposition of Holiday Trips in Narrabri region")
-```
-@fig-trendecomp illustrates the seasonal decomposition of the total trips over the years in the Narrabri region. The resulting plot will typically include four components:
-
-__Original Time Series:__ The actual data points.
-__Trend Component:__ This represents the long-term trend in the data.
-__Seasonal Component:__ This represents the seasonal pattern or periodic fluctuations.
-__Residual Component:__ This is the part of the data that is not explained by the trend or seasonal components.
-
-:::{.callout-note}
-# Key takeaways
-
-1. The holiday data shows that the seasonality has been more consistent in the recent years when compared to the initial years of the data.
-
-2. The trend of the holiday data does not show a clear rise or fall of trips in the Narrabri region. The total trips are observed to vary around approximately 2000 trips
-every quarter.
-:::
 
 # Ecotourism
 
@@ -1054,6 +950,35 @@ This aligns with our findings, indicating that there is little to no ecotourism 
 
 ## Temporal Analysis 
 
+For the purpose of performing a temporal analysis of the tourist patterns, we will be focusing on the tourist footfalls in the Narrabri region with the highest Woylie sightings.
+
+```{r}
+annual_data <- temporal_data %>%
+  group_by(Year) %>%
+  summarise(TotalTrips = sum(Trips))
+ggplot(annual_data, aes(x = Year, y = TotalTrips)) +
+  geom_line(group=1, size=1) +
+  geom_point(size=3) +
+  geom_smooth(method='loess', color="red", se=FALSE) +  # Add a smoothing curve
+  annotate("text", x=2002, y=75, label="Peak in 2005", vjust=-1) +  # Adjusted positioning
+  annotate("text", x=2016, y=75, label="Peak around 2018", vjust=-1) +  # Adjusted positioning
+  expand_limits(y=0) +  # Adjust y-axis
+  labs(title = "Enhanced Annual Trend of Trips",
+       x = "Year",
+       y = "Total Trips") +
+  theme_minimal() +
+  theme(axis.text.x=element_text(angle=45, hjust=1))  # Rotate x-axis labels for clarity
+
+
+```
+```{r}
+ ggplot(temporal_data, aes(x = Quarter, y = as.factor(Year), fill = Trips)) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "darkred") +
+  labs(title = "Seasonal Patterns Across Years", x = "Quarter", y = "Year") +
+  theme_minimal()
+
+```
 ```{r}
 library(lubridate)
 temporal_data <- tourism %>% filter(Region == "Narrabri Surrounds")
@@ -1077,71 +1002,136 @@ ggplot(grouped_data, aes(x = Quarter, y = TotalTrips)) +
   theme(text = element_text(size = 14))
 ```
 ```{r}
-business_data <- temporal_data %>% filter(Purpose== "Business") %>% group_by(Quarter) %>%
+
+all_purposes_data <- temporal_data %>%
+  group_by(Quarter, Purpose) %>%
   summarize(
     TotalTrips = sum(Trips, na.rm = TRUE)
   )
-ggplot(business_data, aes(x = Quarter, y = TotalTrips)) +
-  geom_bar(stat = "identity", fill = "steelblue", color = "black") +
+all_purposes_data_filtered <- all_purposes_data %>% 
+  filter(Purpose != "Total")
+
+
+ggplot(all_purposes_data_filtered, aes(x = Quarter, y = TotalTrips, fill = Purpose)) +
+  geom_bar(stat = "identity", color = "black") +
+  facet_wrap(~ Purpose, scales = "free_y") +
   theme_minimal() +
-  labs(title = "Business Trips per Quarter",
+  labs(title = "Trips per Quarter by Purpose",
        x = "Quarter",
-       y = "Total Trips") +
+       y = "") +
   theme(text = element_text(size = 14))
-```
-```{r}
-holiday_data <- temporal_data %>% filter(Purpose== "Holiday") %>% group_by(Quarter) %>%
-  summarize(
-    TotalTrips = sum(Trips, na.rm = TRUE)
-  )
-ggplot(holiday_data, aes(x = Quarter, y = TotalTrips)) +
-  geom_bar(stat = "identity", fill = "steelblue", color = "black") +
-  theme_minimal() +
-  labs(title = "Holiday Trips per Quarter",
-       x = "Quarter",
-       y = "Total Trips") +
-  theme(text = element_text(size = 14))
-```
 
 
-```{r}
-ggplot(temporal_data, aes(x = Quarter, y = Trips, group = Year, color = as.factor(Year))) +
-     geom_line() +
-     labs(title="Year-by-Year Analysis", x="Quarter", y="Total Trips") +
-     theme_minimal() +
-     theme(legend.title = element_blank())
 ```
 
 ```{r}
- ggplot(temporal_data, aes(x = Quarter, y = Trips)) +
-     geom_bar(stat = "identity", position = "dodge") +
-     facet_wrap(~Year) +
-     labs(title="Seasonal Patterns Across Years", x="Quarter", y="Total Trips") +
-     theme_minimal()
+
+library(tsibble)
+library(tsibbletalk)
+library(feasts)
+
+top_regions <- c("Narrabri Surrounds")
+
+tourism_shared <- tourism %>% filter(Region %in% top_regions) %>%
+  as_shared_tsibble(spec = Region * Purpose)
+
+
+
+
+tourism_feat <- tourism_shared %>%
+
+  features(Trips, feat_stl)
+
+ 
+
+p1 <- tourism_shared %>%
+
+  ggplot(aes(x = Quarter, y = Trips)) +
+
+  geom_line(aes(group = Region), alpha = 0.5) +
+
+  facet_wrap(~ Purpose, scales = "free_y") + theme_classic() + ggtitle("Tourism trends in the Narrabri region") + 
+  theme(axis.text.x = element_text(size =5)) + labs(y = "Number of trips (in 1000s)")
+
+p2 <- tourism_feat %>%
+
+  ggplot(aes(x = trend_strength, y = seasonal_strength_year,color=Purpose)) +
+  geom_point() + theme_classic() + ggtitle("Trend analysis of tourism estimates in Narrabri region")
 ```
-## Tignostics
 
 ```{r}
-reg_1 <- temporal_data %>%
-  group_by(Purpose) %>%
-  nest() %>%
-  mutate(model = purrr::map(data, ~lm(Trips ~ Year, data = .x) %>% tidy)) %>% 
-  unnest(model) %>%
-  select(Purpose, term, estimate) %>%
-  spread(term, estimate) %>%
-  rename(intercept = `(Intercept)`, slope=Year)
-reg_2 <- temporal_data %>%
-  group_by(Purpose) %>%
-  nest() %>%
-  mutate(model = purrr::map(data, ~lm(Trips ~ Year, data = .x) %>% glance)) %>% 
-  unnest(model) %>%
-  select(Purpose, r.squared, sigma, BIC, deviance)
-reg <- left_join(reg_1, reg_2)
-reg <- reg %>% filter(sigma > 0)
-ggscatmat(reg, columns=3:7)
-
-
+#| label: fig-trend
+#| fig-cap: "Tourism trends in the Narrabri region for various purposes"
+ggplotly(p1)
 ```
+
+
+```{r}
+#| label: fig-trendanalysis
+#| fig-cap: "Trend analysis in the Narrabri region for various purposes"
+ggplotly(p2)
+```
+
+Figure @fig-trend illustrates the pattern of trips for the various purposes in the Narrabri region
+while figure @fig-trendanalysis provides us with an understanding of the relative trend strength and seasonality of the data pertaining to the various purposes of trips.
+
+:::{.callout-note}
+# Key takeaway
+1. There is a distinct pattern in the number of trips for each of the purposes (Business,Holiday,Other,and Visiting) when analysing the tourism data for the Narrabri region.
+
+2. There have been significant periods of time with very low business trips in this region. However, the recent business trips have been more frequent and in higher numbers.
+
+3. As expected with most holiday trends, there appears to be a seasonality in the holiday trips for the Narrabri region. This has been additionally observed by the high seasonal strength for holiday trips in @fig-trendanalysis.
+
+4. Additionally, there appears to be a low seasonality in the the trips relating to business, visits and "others". This means that the pattern of trips in the region for the stated purposes do not repeat itself at regular intervals.
+
+5. There is however a high trend strength in the overall total trips as well as the visit trips based on the analysis of @fig-trendanalysis. This indicates that the total trips due to visits and the overall total trips in the region have increased over time, especially in the recent years.
+
+:::
+
+
+```{r}
+#| label:fig-trendecomp
+#| fig-cap: "Seasonal decomposition of holiday trips in the Narrabri region"
+
+
+# Convert data to a ts object 
+ts_data_trips <- ts(tourism_pl_grouped$Total_trips, frequency=4)
+
+ 
+
+# Decompose the time series for average trips
+decomposition_trips <- stl(ts_data_trips, s.window="periodic")
+
+ 
+
+# Plot the decomposition
+autoplot(decomposition_trips) + labs(title = "Seasonal Decomposition of Holiday Trips in Narrabri region")
+```
+@fig-trendecomp illustrates the seasonal decomposition of the total trips over the years in the Narrabri region. The resulting plot will typically include four components:
+
+__Original Time Series:__ The actual data points.
+__Trend Component:__ This represents the long-term trend in the data.
+__Seasonal Component:__ This represents the seasonal pattern or periodic fluctuations.
+__Residual Component:__ This is the part of the data that is not explained by the trend or seasonal components.
+
+:::{.callout-note}
+# Key takeaways
+
+1. The holiday data shows that the seasonality has been more consistent in the recent years when compared to the initial years of the data.
+
+2. The trend of the holiday data does not show a clear rise or fall of trips in the Narrabri region. The total trips are observed to vary around approximately 2000 trips
+every quarter.
+:::
+
+
+
+
+
+
+
+
+
 
 
 
