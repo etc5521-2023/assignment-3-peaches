@@ -16,35 +16,37 @@ editor:
 knitr::opts_chunk$set(echo = TRUE,message = FALSE,warning = FALSE)
 ```
 
+![](images/img1.jpeg){fig-align="center"}
+
 # Introduction
 
-```{r, message=FALSE}
+```{r, message=FALSE, echo=FALSE}
 # Load libraries
-library(galah)
-library(tidyverse)
-library(ggplot2)
-library(nullabor)
-library(leaflet)
-library(spatstat) 
-library(plotly)
-library(tsibble)
-library(sf)
-library(rmapshaper)
-library(lubridate)
 library(broom)
-library(GGally)
 library(forecast)
+library(galah)
+library(GGally)
 library(ggalt)
-
+library(ggplot2)
+library(leaflet)
+library(lubridate)
+library(nullabor)
+library(plotly)
+library(rmapshaper)
+library(rnoaa)
+library(sf)
+library(spatstat) 
+library(tidyverse)
+library(tsibble)
 ```
 
-```{r}
+```{r echo=FALSE}
 # loading tourism data 
 load("data/tourism.RDA")
 ```
 
 
-![](images/img1.jpeg){width="300"}
+
 
 The Brush-Tailed Bettong or Woylie (Bettongia penicillata ogilbyi) is a
 remarkable Australian marsupial with unique characteristics. It thrives
@@ -227,7 +229,6 @@ The [Global Historical Climatology Network (GHCN)](https://www.ncei.noaa.gov/pro
 
 ```{r}
 # downloading the coordinates of Australian weather stations
-library(rnoaa)
 aus_stations <- ghcnd_stations() |>
   filter(str_starts(id, "ASN")) |>
   filter(last_year >= 2020) |>
@@ -420,29 +421,18 @@ ggplot(WILD_THING_woylie, aes(x = month)) +
 ### Expectation 3: Geographical Distribution {#sec-ref-2}
 
 ```{r}
-# Create a leaflet map
-map <- leaflet(data = WILD_THING_woylie) %>%
-  addTiles()  # Add a basemap (you can customize the basemap provider)
+#| label: fig-cluster-map-2
+#| fig-cap: "The five highest clusters of Woylie sightings."
 
-# Add circle markers for each sighting
-map <- map %>%
-  addCircleMarkers(
-    lng = ~decimalLongitude,  # Longitude
-    lat = ~decimalLatitude,    # Latitude
-    popup = ~paste("Sighting Date: ", format(eventDate, "%Y-%m-%d")),  # Popup text
-    radius = 5,  # Marker radius
-    color = "blue",  # Marker color
-    fillOpacity = 0.7 # Marker fill opacity
-  )
-
-# Show the map
-map
-
+map_clusters
 ```
 
-We will create a geographical map or heatmap to visually represent the
-distribution of sightings. This will enable us to verify if the
-sightings align with our expectations regarding habitat preferences.
+The Leaflet map shown in @sec-ref and provided here again in @fig-cluster-map-2 has already given us a geographical representation of Woylie sightings.
+
+Woylies exhibit habitat preferences specific to certain regions within Australia, and these preferences are linked to five particular weather stations: Gluepot Reserve, Nuriootpa Viticultural, North Shields (Port Lincoln Airport), Mildura Airport, and Narrabri Airport, respectively. These weather stations are associated with the following National Parks: Danggali Wilderness Protection area, Yookamura Private Nature Reserve, Lincoln National Park, Mallee Cliffs National Park, and Pilliga East State Forest.
+
+
+The significant reduction in Woylie numbers, resulting from challenges related to habitat loss and disease, is apparent on the map. The strategy of population relocation, designed to facilitate the movement of Woylies to conservation areas, is evident in the fact that the majority of Woylie clusters are now located in National Parks. The implementation of disease management programs is also substantiated by evidence in @sec-ref-3, which revealed a recent increase in Woylie sightings in recent years, primarily because they are more readily available for observation in National Parks.
 
 ### Theoretical Justification for Expectation 2
 
@@ -456,17 +446,7 @@ The observed seasonal pattern in Woylie sightings reveals a distinct trend chara
 
 In essence, the observed seasonal pattern in Woylie sightings shows how the species adapts to varying environmental conditions throughout the year.
 
-### Theoretical Justification for Expectation 3
 
-The historical range of the Woylie, once extensive, has experienced a significant reduction due to relentless challenges posed by habitat loss, introduced predators, and disease. To safeguard the future of Woylies and their ecosystems, comprehensive conservation initiatives have been initiated. These efforts encompass:
-
-- Population Relocation: This strategy aims to facilitate the relocation of Woylies to conservation areas in order to establish additional populations, with the goal of mitigating the risk of extinction. This can be observed in @sec-ref-2, where the majority of Woylie clusters were shown to be located in National Parks.
-
-- Mitigation of Introduced Predators: Implementing effective predator control measures, including methods such as trapping, baiting, and strategic fencing, to reduce the impact of invasive species like foxes and cats.
-
-- Disease Management Programs: The implementation of proactive disease management programs, including vaccination initiatives for Woylies and vigilant population monitoring to detect and respond to potential disease outbreaks. This is evidenced in @sec-ref-3 where the section reveals a recent spike in Woylie observations.
-
-These conservation endeavors play a vital role in the ongoing protection and flourishing of Woylies within the Australian landscape.
 
 ## Exploration of Woylie Sightings with Weather Data {#sec-ref-1}
 
@@ -1036,22 +1016,46 @@ second part of Assignment 3.
 
 # References
 
+## Websites 
+
 -   WWF Australia. (2021). Census Results Show West Australian Woylies
     Are Ready for Big Move to South Australia. Retrieved from
     https://wwf.org.au/news/2021/census-results-show-west-australian-woylies-are-ready-for-big-move-to-south-australia/
-
 -   Department of Biodiversity, Conservation and Attractions, Western
     Australia. (n.d.). Recovery plan for the Woylie (Bettongia
     penicillata ogilbyi) 2019-2023. Retrieved from
     https://library.dbca.wa.gov.au/static/FullTextFiles/071861.pdf
-
 -   Australian Wildlife Conservancy. (n.d.). Woylie - Brush-tailed
     Bettong. Retrieved from
     https://www.australianwildlife.org/wildlife/woylie-brush-tailed-bettong/
-
 -   Jones, M. E., & Benshemesh, J. (2013). The Woylie: Australia's
     Forgotten Future. The Conversation. Retrieved from
     https://theconversation.com/australian-endangered-species-woylie-19448
+    
+## Packages
+
+- **broom**: Robinson D, Hayes A, Couch S (2023). _broom: Convert Statistical Objects into Tidy Tibbles_. R package version 1.0.5, <https://CRAN.R-project.org/package=broom>.
+- **forecast**: Hyndman R, Athanasopoulos G, Bergmeir C, Caceres G, Chhay L, O'Hara-Wild M,
+  Petropoulos F, Razbash S, Wang E, Yasmeen F (2023). _forecast: Forecasting functions
+  for time series and linear models_. R package version 8.21,
+  <https://pkg.robjhyndman.com/forecast/>.
+  Hyndman RJ, Khandakar Y (2008). “Automatic time series forecasting: the forecast
+  package for R.” _Journal of Statistical Software_, *26*(3), 1-22.
+  doi:10.18637/jss.v027.i03 <https://doi.org/10.18637/jss.v027.i03>.
+- **galah**:   Westgate M, Kellie D, Stevenson M, Newman P (2023). _galah: Biodiversity Data from the Living Atlas Community_. R package version 1.5.3, <https://CRAN.R-project.org/package=galah>.
+- **GGally**: Schloerke B, Cook D, Larmarange J, Briatte F, Marbach M, Thoen E, Elberg A, Crowley J (2021). _GGally: Extension to 'ggplot2'_. R package version 2.1.2, <https://CRAN.R-project.org/package=GGally>.
+- **ggalt**: Rudis B, Bolker B, Schulz J (2017). _ggalt: Extra Coordinate Systems, 'Geoms', Statistical Transformations, Scales and Fonts for 'ggplot2'_. R package version 0.4.0, <https://CRAN.R-project.org/package=ggalt>.
+- **ggplot2**: H. Wickham. ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York, 2016.
+- **leaflet**: Cheng J, Schloerke B, Karambelkar B, Xie Y (2023). _leaflet: Create Interactive Web Maps with the JavaScript 'Leaflet' Library_. R package version 2.2.0, <https://CRAN.R-project.org/package=leaflet>.
+- **lubridate**: Garrett Grolemund, Hadley Wickham (2011). Dates and Times Made Easy with lubridate. Journal of Statistical Software, 40(3), 1-25. URL https://www.jstatsoft.org/v40/i03/.
+- **nullabor**: Buja, A., Cook, D., Hofmann, H., Lawrence, M., Lee, E.-K., Swayne, D. F, Wickham, H. (2009) Statistical Inference for Exploratory Data Analysis and Model Diagnostics Royal Society Philosophical Transactions A, 367(1906):4361-4383. URL http://rsta.royalsocietypublishing.org/content/367/1906/4361.article-info
+- **plotly**: C. Sievert. Interactive Web-Based Data Visualization with R, plotly, and shiny. Chapman and Hall/CRC Florida, 2020.
+- **rmapshaper**: Teucher A, Russell K (2023). _rmapshaper: Client for 'mapshaper' for 'Geospatial' Operations_. R package version 0.5.0, <https://CRAN.R-project.org/package=rmapshaper>.
+- **rnoaa**: Chamberlain S, Hocking D (2023). _rnoaa: 'NOAA' Weather Data from R_. R package version 1.4.0, <https://CRAN.R-project.org/package=rnoaa>.
+- **sf**: Pebesma, E., & Bivand, R. (2023). Spatial Data Science: With Applications in R. Chapman and Hall/CRC. https://doi.org/10.1201/9780429459016 Pebesma, E., 2018. Simple Features for R: Standardized Support for Spatial Vector Data. The R Journal 10 (1), 439-446, https://doi.org/10.32614/RJ-2018-009
+- **spatstat**: Baddeley A, Rubak E, Turner R (2015). _Spatial Point Patterns: Methodology and Applications with R_. Chapman and Hall/CRC Press, London. ISBN 9781482210200, <https://www.routledge.com/Spatial-Point-Patterns-Methodology-and-Applications-with-R/Baddeley-Rubak-Turner/p/book/9781482210200/>.
+- **tidyverse**: Wickham H, Averick M, Bryan J, Chang W, McGowan LD, François R, Grolemund G, Hayes A, Henry L, Hester J, Kuhn M, Pedersen TL, Miller E, Bache SM, Müller K, Ooms J, Robinson D, Seidel DP, Spinu V, Takahashi K, Vaughan D, Wilke C, Woo K, Yutani H (2019). “Welcome to the tidyverse.” _Journal of Open Source Software_, *4*(43), 1686. doi:10.21105/joss.01686 <https://doi.org/10.21105/joss.01686>.
+- **tsibble**: Wang, E, D Cook, and RJ Hyndman (2020). A new tidy data structure to support exploration and modeling of temporal data, Journal of Computational and Graphical Statistics, 29:3, 466-478, doi:10.1080/10618600.2019.1695624.
 
 # Acknowledgments
 
