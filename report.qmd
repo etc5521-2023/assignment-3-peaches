@@ -379,13 +379,20 @@ meaningful insights into the behavior and distribution of the Woylie.
 ### Expectation 1: Trend in Woylie Sightings {#sec-ref-3}
 
 ```{r}
-# Code for time series plot
-ggplot(WILD_THING_woylie, aes(x = eventDate)) +
-  geom_line(stat="count") +  # Count the number of sightings per date
+WILD_THING_woylie$year <- year(WILD_THING_woylie$eventDate)
+sightings_per_year <- aggregate(eventDate ~ year, WILD_THING_woylie, length)
+ggplot(sightings_per_year, aes(x = year, y = eventDate)) +
+  geom_line(aes(group = 1)) +           
+  geom_point(size = 3, color = "blue") + 
   labs(title = "Trend in Woylie Sightings Over Time",
        x = "Year",
        y = "Number of Sightings") +
-  theme_minimal()
+  theme_classic() +
+  theme(
+    plot.title = element_text(hjust = 0.5), # Center the title
+    axis.title.x = element_text(margin = margin(t = 20, b = 0)),
+    axis.title.y = element_text(margin = margin(l = 20, r = 0))
+  )
 
 ```
 
