@@ -777,7 +777,7 @@ while figure @fig-trendanalysis provides us with an understanding of the relativ
 
 
 ```{r}
-#| label: fig-trendanalysis
+#| label: fig-trendecomp
 #| fig-cap: "Trend analysis in the Narrabri region for various purposes"
 
 
