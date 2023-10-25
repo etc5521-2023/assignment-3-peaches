@@ -68,7 +68,11 @@ marsupial.
 
 ![The brush-tailed Bettong or Woylie (Bettongia penicillata ogilbyi)](woylie.png){#fig-woyliepic}
 
+:::{.callout-note}
+# Expectations
+
 From this data we expect the following results:
+
 
 -   "We expect to observe a decline in Woylie occurrences over the past
     20 years, reflecting their critically endangered status."
@@ -84,7 +88,7 @@ From this data we expect the following results:
 -   "It is unlikely that there will be a significant number of sightings
     in urban areas, as Woylies tend to avoid human-populated regions due
     to habitat disturbance."
-    
+:::
 In our report we first analyse records from [Atlas of Living Australia (ALA)](https://www.ala.org.au/) database and check if they match our expectations, we also explore how weather is related to when Woylie sightings occur and find the region with most number of Woylie sightings. Further we do an analysis that delves into the trends of tourism within that region.
 
 # Data description
@@ -116,8 +120,8 @@ woylie <- read_csv("data-raw/woylie.csv") %>%
 ```
 
 ```{r echo=FALSE}
-#| label: fig-data
-#| fig-cap: "Variable definitions for the Woylie dataset"
+#| label: tbl-data
+#| tbl-cap: "Variable definitions for the Woylie dataset"
 
 variables <-
   data.frame(
@@ -164,11 +168,11 @@ In addition, to conduct an analysis on ecotourism of the Woylie, tourism data fr
 
 This dataset includes spatial, temporal, and trip information. It comprises 4 variables and 1,228,000 observations covering Quarter 1 of 1998 to Quarter 4 of 2022 across all Australian Statistical Area Level 2 (SA2) regions of Australia.
 
-The data dictionary of the variables can be seen in @fig-data-tourism.
+The data dictionary of the variables can be seen in @tbl-data-tourism.
 
 ```{r echo=FALSE}
-#| label: fig-data-tourism
-#| fig-cap: "Variable definitions for the Tourism dataset"
+#| label: tbl-data-tourism
+#| tbl-cap: "Variable definitions for the Tourism dataset"
 
 variables2 <-
   data.frame(
@@ -404,33 +408,12 @@ ggplot(sightings_per_year, aes(x = year, y = eventDate)) +
 -   This plot will observe the trend in Woylie sightings over the years.
 -   This helps us assess whether the population is declining as
     expected.
--   We see that the actual trend is not aligning with our expectation, we see a       relatively flat trend with minimal sightings from around 2000 up until            approximately 2015 and significant spike in sightings around 2020.
+-   We see that the actual trend is not aligning with our expectation, we see a       
+    relatively flat trend with minimal sightings from around 2000 up until            
+    approximately 2015 and significant spike in sightings around 2020.
 
-### Expectation 2: Seasonal Pattern in Sightings
 
--   We will generate the following chart to visualize the seasonal
-    pattern chart to investigate whether there are particular periods
-    during the year when Woylie sightings are more frequent.
--   This analysis will assist us in determining if these sightings
-    coincide with breeding seasons or specific climate conditions. Below
-    is the code for generating the seasonal pattern chart.
-
-```{r}
-# Extract the month from the eventDate column
-WILD_THING_woylie$month <- lubridate::month(WILD_THING_woylie$eventDate)
-
-# Create a bar plot of monthly sightings
-ggplot(WILD_THING_woylie, aes(x = month)) +
-  geom_bar(stat = "count") +
-  labs(title = "Monthly Seasonal Pattern in Woylie Sightings",
-       x = "Month",
-       y = "Number of Sightings") +
-  scale_x_continuous(breaks = 1:12, labels = month.abb) +  # Label months with abbreviations
-  theme_minimal()
-
-```
-
-### Expectation 3: Geographical Distribution {#sec-ref-2}
+### Expectation 2: Geographical Distribution {#sec-ref-2}
 
 ```{r}
 #| label: fig-cluster-map-2
@@ -469,29 +452,20 @@ load(file = "data/woylie_stations.rda")
 ```
 
 
-```{r}
-#Plot a bar chart to see the sightings each year
-ggplot(woylie_stations, aes(x = date)) +
-  geom_bar() +
-  labs(title = "Woylie Sightings over time")
-```
 
-Since, it appears there is a spike in sightings between 2021 and 2023. We will check the years where sightings occur. 
+
 
 ```{r}
-#check years that sightings actually occur
-#create a column for years
+#| label: fig-monthly
+#| fig-cap: "Woylie sightings in 2022 across various seasons"
 
-woylie_stations$year <- lubridate::year(woylie_stations$date)
+load(file = "data/woylie_stations.rda")
+spring_months <- c("September","October","November","December")
+summer_months <- c("January","February","March")
+autumn_months <- c("April","May")
+winter_months <- c("June","July","August")
 
-woylie_stations%>% filter(sightings == 1)%>%distinct(year)
-  
-  
-```
 
-2022 is the only year that woylie sightings have been recorded. Therefore, the following visualizations will contain only information from 2022 as the other years are irrelevant in this respect.
-
-```{r}
 # Filtering  the data for sightings in 2022
 woylie_sightings_2022 <- woylie_stations %>%
   filter(year(date) == 2022)
@@ -500,15 +474,28 @@ woylie_sightings_2022 <- woylie_stations %>%
 woylie_sightings_2022$month_name <- 
   factor(format(as.Date(woylie_sightings_2022$date), "%B"), levels = month.name)
 
+woylie_sightings_2022 <- woylie_sightings_2022 %>% mutate(season = case_when(month_name %in% spring_months ~ "Spring",
+                                                                             month_name %in% summer_months ~ "Summer",
+                                                                             month_name %in% autumn_months ~ "Autumn",
+                                                                             month_name %in% winter_months ~ "Winter"
+                                                                             ))
+
 # A bar chart to visualize the number of sightings in 2022
-ggplot(woylie_sightings_2022, aes(x = month_name)) +
-  geom_bar() +
-  labs(title = "Woylie Sightings in 2022",
+
+woylie_sightings_2022_grouped <- woylie_sightings_2022 %>% group_by(month_name,season) %>% summarise(Total_sightings = n())
+
+ggplot(woylie_sightings_2022_grouped, aes(x = month_name,y = Total_sightings,fill = season)) +
+  geom_col(color = 'black') +
+  labs(title = "Woylie sightings in 2022 across various seasons",
        x = "Month",
-       y = "Number of Sightings")+
-  theme(axis.text.x = element_text(angle = 25, hjust = 1))
+       y = "Number of Sightings",fill = "Season") +  theme_classic() +
+  theme(axis.text.x  = element_text(angle = 25, hjust = 1)) + geom_label(aes(label = Total_sightings)) + 
+  scale_fill_brewer(palette = "Accent",type = "div") 
 
 ```
+
+@fig-monthly illustrates that the number of Woylie sightings varied throughout the year, but the highest number of sightings occurred in the spring season (between September to Deecem
+
 
 The provided code filters the dataset to isolate Woylie sightings that occurred exclusively in the year 2022 and subsequently generates a bar chart to visualize the distribution of these sightings across different months.
 
@@ -584,21 +571,22 @@ annual_data <- temporal_data %>%
   group_by(Year) %>%
   summarise(TotalTrips = sum(Trips))
 ggplot(annual_data, aes(x = Year, y = TotalTrips)) +
-  geom_line(group=1, size=1) +
+  geom_line(group=1, size=1,aes(color = "Annual trips")) +
   geom_point(size=3) +
-  geom_smooth(method='loess', color="red", se=FALSE) +  
+  geom_smooth(method='loess', se=FALSE,aes(color = "Trend line")) +  
   annotate("text", x=2002, y=75, label="Peak in 2002", vjust=-1) +  
-  annotate("text", x=2016, y=75, label="Peak around 2018", vjust=-1) +  
+  annotate("text", x=2016, y=75, label="Peak around 2018", vjust=-1.5) +  
   expand_limits(y=0) +  
   labs(title = "Annual Trend of Trips",
        x = "Year",
        y = "Total Trips") +
   theme_classic() +
-  theme(axis.text.x=element_text(angle=45, hjust=1))  
+  theme(axis.text.x=element_text(angle=45, hjust=1)) +
+  scale_color_manual(values = c("Trend line" = "red","Annual trips" = "black")) + labs(colour = "Legend")
 
 
 ```
- @fig-temporal1 illustrates the annual trend of trips in the Narrabri Surrounds region
+ @fig-temporal1 illustrates the annual trend of trips in the Narrabri Surrounds region.
 
 :::{.callout-note}
 # Key takeaway
@@ -615,7 +603,8 @@ ggplot(annual_data, aes(x = Year, y = TotalTrips)) +
 #| label: fig-temporal2
 #| fig-cap: "Seasonal Patterns Across Years"
 
-hp <- ggplot(temporal_data, aes(x = Quarter, y = as.factor(Year), fill = Trips)) +
+
+hp <- ggplot(temporal_data, aes(x = Quarter, y = Year, fill = Trips)) +
   geom_tile() +
   scale_fill_gradient(low = "white", high = "darkred") +
   labs(title = "Seasonal Patterns Across Years", x = "Quarter", y = "Year") +
@@ -633,7 +622,7 @@ hp_plotly
 
 2. **Q1**: The trips in Q1 seems Q1 has demonstrated fluctuations over the years, starting with low activity in the late 1990s to early 2000s, experiencing a rise in the mid 2000s, stabilizing in the late 2000s to early 2010s, and then witnessing another increase in the recent years, notably 2022.
 
-3.**Q2** : This quarter appears to have moderate activity over the years
+3. **Q2** : This quarter appears to have moderate activity over the years
 
 4. **Q3** :  The consistent dark shades for Q3 indicate a substantial number of trips, especially in the recent years from 2016 onwards. 
 
@@ -692,7 +681,7 @@ ggplot(all_purposes_data_filtered, aes(x = Quarter, y = TotalTrips, fill = Purpo
   theme_classic() +
   labs(title = "Trips per Quarter by Purpose",
        x = "Quarter",
-       y = "") +
+       y = "",subtitle = "Narrabri Surrounds region") +
   theme(text = element_text(size = 14))
 
 
@@ -742,7 +731,8 @@ p1 <- tourism_shared %>%
 p2 <- tourism_feat %>%
 
   ggplot(aes(x = trend_strength, y = seasonal_strength_year,color=Purpose)) +
-  geom_point() + theme_classic() + ggtitle("Trend analysis of tourism estimates in Narrabri region")
+  geom_point(size = 3) + theme_classic() + ggtitle("Trend analysis of tourism estimates in Narrabri region") + 
+  labs(x = "Trend strength",y = "Seasonality strength (annual)") + scale_color_brewer(palette = "Dark2")
 ```
 
 ```{r}
@@ -803,14 +793,14 @@ decomposition_trips <- stl(ts_data_trips, s.window="periodic")
  
 
 # Plot the decomposition
-autoplot(decomposition_trips) + labs(title = "Seasonal Decomposition of Holiday Trips in Narrabri region")
+autoplot(decomposition_trips) + labs(title = "Seasonal Decomposition of Holiday Trips in Narrabri region") + theme_minimal()
 ```
 @fig-trendecomp illustrates the seasonal decomposition of the total trips over the years in the Narrabri region. The resulting plot will typically include four components:
 
-__Original Time Series:__ The actual data points.
-__Trend Component:__ This represents the long-term trend in the data.
-__Seasonal Component:__ This represents the seasonal pattern or periodic fluctuations.
-__Residual Component:__ This is the part of the data that is not explained by the trend or seasonal components.
+__Original Time Series:__ The actual data points. \
+__Trend Component:__ This represents the long-term trend in the data. \
+__Seasonal Component:__ This represents the seasonal pattern or periodic fluctuations. \
+__Residual Component:__ This is the part of the data that is not explained by the trend or seasonal components. \
 
 :::{.callout-note}
 # Key takeaways
@@ -862,11 +852,14 @@ pl1 <-
 ggplotly(pl1)
 ```
 
+:::{.callout-note}
+# Key takeaway
 Based on the initial analysis of @fig-narr, the following observations can be made:
 
 1. The number of trips designated as "holiday" is highly irregular, with multiple quarters and years showing no holiday visitors in the region of interest.
 2. Consequently, there is no discernible seasonality in the holiday visits in this region.
 3. The highest number of holiday visitors was recorded in the 3rd quarter of 2001, with nearly 13,445 visits.
+:::
 
 ```{r echo=FALSE}
 narrabri_surrounds_tourism <- tourism_pl %>%
@@ -970,7 +963,7 @@ woylie_tsibble %>%
     y = "Number of Sightings"
   ) +
   theme_classic() +
-  geom_label(aes(x = as.Date("2022-09-19"), y = 3, label = "~6,522 tourist"), color = "#800080", size = 3)+
+  geom_label(aes(x = as.Date("2022-09-19"), y = 3, label = "~6,522 tourists"), color = "#800080", size = 3)+
   guides(fill = guide_legend(title = "Tourism"))
 ```
 
@@ -1032,12 +1025,29 @@ strategies, including safeguarding their habitats, curbing the impact of
 invasive species, and effectively managing diseases that affect these
 marsupials.
 
-Acknowledging Limitations
+:::{.callout-warning}
+# Limitations
 
 It is imperative to acknowledge the constraints and limitations
-encountered during our analysis. These limitations provide context for
-our findings and emphasize the need for continued research and data
-collection.
+encountered during our analysis which have been delineated as follows:
+
+- The observations for the Woylie sightings were observed to be extremely skewed towards the year 2022 for the Narrabri region. 
+As a result, the insights generated were for a brief period of time and require more data for further meaningful analysis.
+
+- The tourism data with respect to the Narrabri Surrounds region for the year of 2022 was observed to be extremely limited. The poor quality and availability of the data was observed to pose further challenges so as to ascertain any significant correlation between the tourim and sighting trends.
+
+:::
+
+:::{.callout-note}
+# Suggestions
+
+- While performing a detailed analysis of the Woylie sightings, the data quality was observed to be poor with multiple missing values.
+The reporting authorities can take note of the challenges faced while performing a detailed analysis with incomplete data.
+
+- Multiple observations have been recorded after long periods of time. While this may indicate the elusive behaviour of the Woylies, it is unclear whether this is contributed by the irregular recording of data. Hence, a key suggestion to aid detailed and accurate analyses would be to furnish complete data at regular intervals.
+
+:::
+
 
 Future Directions
 
@@ -1061,8 +1071,6 @@ We emphasize the importance of ongoing monitoring and research to ensure
 the long-term survival of this iconic and critically endangered
 Australian species.
 
-It's worth noting that exploring tourism patterns will happen in the
-second part of Assignment 3.
 
 # References
 
