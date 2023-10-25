@@ -16,7 +16,6 @@ editor:
 knitr::opts_chunk$set(echo = TRUE,message = FALSE,warning = FALSE)
 ```
 
-![](images/img1.jpeg){fig-align="center"}
 
 # Introduction
 
@@ -192,7 +191,7 @@ variables2 %>%
 
 ## Species data
 
-In preparation for the forthcoming analysis, an Initial Data Analysis (IDA) was conducted on the species data. This involved removing a few unnecessary columns and systematically saving only the wild sightings.
+In preparation for the forthcoming analysis, an Initial Data Analysis (IDA) was conducted on the species data. This involved removing a few unnecessary columns and systematically saving only the wild sightings, as the analysis focuses on the natural wild habitat and behavior of the species.
 
 ```{r}
 # filter wild sightings
@@ -427,12 +426,13 @@ ggplot(WILD_THING_woylie, aes(x = month)) +
 map_clusters
 ```
 
-The Leaflet map shown in @sec-ref and provided here again in @fig-cluster-map-2 has already given us a geographical representation of Woylie sightings.
+The Leaflet map, initially featured in @sec-ref and presented again in @fig-cluster-map-2, provides a clear geographic representation of Woylie sightings.
 
-Woylies exhibit habitat preferences specific to certain regions within Australia, and these preferences are linked to five particular weather stations: Gluepot Reserve, Nuriootpa Viticultural, North Shields (Port Lincoln Airport), Mildura Airport, and Narrabri Airport, respectively. These weather stations are associated with the following National Parks: Danggali Wilderness Protection area, Yookamura Private Nature Reserve, Lincoln National Park, Mallee Cliffs National Park, and Pilliga East State Forest.
+Woylies exhibit distinct habitat preferences across various regions in Australia, and these preferences are closely associated with five specific weather stations: Gluepot Reserve, Nuriootpa Viticultural, North Shields (Port Lincoln Airport), Mildura Airport, and Narrabri Airport. These weather stations correspond to the following National Parks: Danggali Wilderness Protection area, Yookamura Private Nature Reserve, Lincoln National Park, Mallee Cliffs National Park, and Pilliga East State Forest.
 
+The map starkly highlights the significant reduction in Woylie populations, stemming from challenges related to habitat loss and disease. Notably, it demonstrates the success of the population relocation strategy, which aims to guide Woylies towards conservation areas. The majority of Woylie clusters are now concentrated within the National Parks, as shown on the map.
 
-The significant reduction in Woylie numbers, resulting from challenges related to habitat loss and disease, is apparent on the map. The strategy of population relocation, designed to facilitate the movement of Woylies to conservation areas, is evident in the fact that the majority of Woylie clusters are now located in National Parks. The implementation of disease management programs is also substantiated by evidence in @sec-ref-3, which revealed a recent increase in Woylie sightings in recent years, primarily because they are more readily available for observation in National Parks.
+Moreover, the implementation of disease management programs is supported by evidence in @sec-ref-3, which indicates a recent upsurge in Woylie sightings in recent years. This increase can be attributed to the fact that these creatures are more readily observed within National Parks, further underscoring the effectiveness of this conservation approach.
 
 ### Theoretical Justification for Expectation 2
 
@@ -561,14 +561,11 @@ Upon analysing the maximum and minimum temperatures on the days of Woylie sighti
 
 Ecotourism involves traveling to places in support of the conservation efforts of endangered wildlife. To assess the level of interest in ecotourism for the Woylie, an analysis that combines tourism data from [Tourism Research Australia (TRA)](https://www.tra.gov.au) and Woylie sightings near the weather station of interest, Narrabri Airport, as reported in @sec-ref, will provide us with a holistic view. To ensure a more accurate matching of the data with tourism data, the observations of the Woylie are subsetted to focus on the Australian Statistical Area Level 2 (SA2) region: Narrabri Surrounds.
 
-## Tourists in Narrabri Surrounds 
+## Narrabri Surrounds 
 
 The tourism data will be filtered for the region of Narrabri Surrounds as part of the analysis. The purpose of tourism trips will also be filtered to holiday trips since this suggests the intention to travel for sightseeing and exploration. Other purposes, such as visiting friends and relatives or business, may include visiting the endangered Woylie species during the trip, but the purposes are too broad to draw conclusive insights. Therefore, choosing holiday tourism data will result in the most accurate analysis.
 
 ```{r}
-#| label: fig-narr
-#| fig-cap: "Total Holiday Trips in Narrabri Surrounds"
-
 load("data/woylie_region.rda")
 
 tourism_woylie <- tourism %>%
@@ -581,6 +578,11 @@ tourism_pl_grouped <- tourism_pl %>%
   group_by_key() %>%
   index_by() %>%
   summarise(Total_trips = round(sum(Trips * 1000)))
+```
+
+```{r}
+#| label: fig-narr
+#| fig-cap: "Total Holiday Trips in Narrabri Surrounds"
 
 pl1 <-
   ggplot(data = tourism_pl_grouped, aes(x = Quarter, y = Total_trips)) +
@@ -628,7 +630,7 @@ ggplot(narrabri_surrounds_tourism,
         axis.ticks.x = element_blank())
 ```
 
-Similarly to @fig-narr, holiday tourism can be presented in a year calendar format to visualise and observe the annual tourism trend. The same irregular pattern with no clear year-by-year trend in tourism numbers can also be seen in @fig-holiday-year.
+Similarly to @fig-narr, @fig-holiday-year presents holiday tourism in a year calendar format to visualise and observe the annual tourism trend. The data reveals a similar irregular pattern with no clear year-by-year trend in tourism numbers.
 
 ```{r}
 #| label: fig-holiday-group
@@ -648,9 +650,9 @@ narrabri_surrounds_tourism %>%
   guides(fill = "none") 
 ```
 
-When grouping the tourism visit numbers in Narrabri Surrounds by quarter, Quarter 1 experiences the fewest tourists compared to Quarter 3, which receives the most. Specifically, from January to March, Narrabri Surrounds experiences the least tourism, and from July to September, the area has the most tourism, as depicted in @fig-holiday-group.
+When grouping the tourism visit numbers in Narrabri Surrounds by quarter, Quarter 1 experiences the fewest tourists compared to Quarter 3, which receives the most, as can be seen in @fig-holiday-group. Specifically, from January to March, Narrabri Surrounds sees the least tourism, while from July to September, the area has the most tourism.
 
-## Tourists & Species Sightings
+## Species Sightings
 
 The examination of the number of visitors in the Narrabri Surrounds region for holiday purposes has now laid the foundation for an exploration of wildlife sightings and visitation trends, allowing for the investigation of potential correlations.
 
@@ -683,29 +685,37 @@ woylie_narrabri_grouped <- woylie_narrabri %>% group_by(eventDate) %>% summarise
 ```
 
 ```{r}
-#| label: fig-sighting
+#| label: fig-woylie-obs
 #| fig-cap: "Trend line graph of Woylie Sightings in Narrabri Surrounds (September - December 2022)"
+
+q_colours <- RColorBrewer::brewer.pal(12, "Set3")[3:4]
+
 woylie_tsibble <- woylie_narrabri_grouped %>%
   as_tsibble(key = Total_sightings, index = eventDate)
 
-pl2 <- ggplot(data = woylie_tsibble,
-              aes(x = eventDate,
-                  y = Total_sightings)) +
+woylie_tsibble %>%
+  ggplot(aes(x = as.Date(eventDate), y = Total_sightings)) +
+  geom_rect(aes(xmin = as.Date("2022-09-06"), xmax = as.Date("2022-10-01"), ymin = 0, ymax = +Inf, fill = "3")) +
+ # geom_rect(aes(xmin = as.Date("2022-10-01"), xmax = as.Date("2023-01-01"), ymin = 0, ymax = 1, fill = "4")) +
   geom_line() +
   geom_point() +
-  labs(x = "Date of Sighting",
-       y = "Number of Sightings",
-       subtitle = "September - December 2022") +
-  ggtitle("Woylie Sightings in Narrabri Surrounds") +
-  theme_classic()
-
-pl2
+  scale_fill_manual(values = c("3" = q_colours[1], "4" = q_colours[2])) +
+  labs(
+    title = "Woylie Observations in Narrabri Surrounds",
+    subtitle = "September - December 2022",
+    x = "Date of Sighting",
+    y = "Number of Sightings"
+  ) +
+  theme_classic() +
+  guides(fill = guide_legend(title = "Quarter"))
 ```
+
+@fig-woylie-obs displays the sightings that occurred in Quarters 3 and 4 of 2022. This recent, short surge in observations is too brief to correspond with the tourism data. This is evident from the highlighted quarter. It was the only quarter where trips involving over a thousand people occurred, which is also noticeable in the last calendar plot in @fig-holiday-year.
 
 :::{.callout-note}
 # Key takeaways
 
-Based on the analysis of @fig-sighting, the following key observations can be made:
+Based on the analysis of @fig-woylie-obs, the following key observations can be made:
 
 1. While the Narrabri region was found to have the highest Woylie sightings in Australia, this was not always the case.
 2. According to the sightings data from the Atlas of Living Australia, Woylie sightings in the Narrabri region were exclusively in the 3rd and 4th quarters of 2022.
@@ -716,39 +726,11 @@ Based on the analysis of @fig-sighting, the following key observations can be ma
 
 :::
 
-
-```{r}
-#| label: fig-woylie-obs
-#| fig-cap: "Column chart of Woylie Sightings in Narrabri Surrounds (September - December 2022)"
-
-q_colours <- RColorBrewer::brewer.pal(12, "Set3")[3:4]
-
-woylie_tsibble %>%
-  ggplot(aes(x = as.Date(eventDate), y = Total_sightings)) +
-  geom_rect(aes(xmin = as.Date("2022-09-06"), xmax = as.Date("2022-10-01"), ymin = -Inf, ymax = 0, fill = "3")) +
-  geom_rect(aes(xmin = as.Date("2022-10-01"), xmax = as.Date("2023-01-01"), ymin = -Inf, ymax = 0, fill = "4")) +
-  geom_col() +
-  scale_fill_manual(values = c("3" = q_colours[1], "4" = q_colours[2])) +
-  labs(
-    title = "Woylie Observations in Narrabri Surrounds",
-    subtitle = "September - December 2022",
-    x = "Date of Sighting",
-    y = "Number of Sightings"
-  ) +
-  theme_classic() +
-  guides(fill = guide_legend(title = "Quarterly Period"))
-```
-
-@fig-woylie-obs depicts the same information as @fig-sighting, showing the sightings that occurred in Quarters 3 and 4 of 2022 but in a column chart format. As can be seen in the highlighted quarters, this recent short surge in observations is too brief to align with the tourism data, as it only covers trips involving over a thousand people in Quarter 3, 2022, as shown in the last calendar plot of @fig-holiday-year.
-
-:::{.callout-note}
-# Conclusion of Ecotourism in Narrabri Surrounds
 Overall, there is a limited relation between these two sets of data. It is evident that tourism in the Narrabri Surrounds area exhibits significant inconsistency and year-to-year variation. The peak in Woylie observations in Narrabri Surrounds toward the end of 2022 can be attributed to conservation efforts for this endangered species, resulting in a notable increase in sightings. However, the lack of alignment between these two time periods hinders further analysis. This suggests that tourism in the area may not be strongly linked to Woylie sightings, ultimately yielding an inconclusive result in terms of ecotourism.
 
 In general, an internet search for terms such as _"Pilliga State Conservation Area,"_ _"Pilliga National Park",_ _"Woylie,"_ and _"Narrabri Surrounds,"_ or a combination of these terms, yields minimal results related to marketing efforts promoting visits to the area for Woylie sightings.
 
 This aligns with our findings, indicating that there is little to no ecotourism activity in this area for this particular species.
-:::
 
 ## Temporal Analysis 
 
