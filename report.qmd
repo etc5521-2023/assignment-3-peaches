@@ -695,11 +695,11 @@ woylie_tsibble <- woylie_narrabri_grouped %>%
 
 woylie_tsibble %>%
   ggplot(aes(x = as.Date(eventDate), y = Total_sightings)) +
-  geom_rect(aes(xmin = as.Date("2022-09-06"), xmax = as.Date("2022-10-01"), ymin = 0, ymax = +Inf, fill = "3")) +
+  geom_rect(aes(xmin = as.Date("2022-09-06"), xmax = as.Date("2022-10-01"), ymin = 0, ymax = +Inf, fill = "Quarter 3")) +
  # geom_rect(aes(xmin = as.Date("2022-10-01"), xmax = as.Date("2023-01-01"), ymin = 0, ymax = 1, fill = "4")) +
   geom_line() +
   geom_point() +
-  scale_fill_manual(values = c("3" = q_colours[1], "4" = q_colours[2])) +
+  scale_fill_manual(values = c("Quarter 3" = q_colours[1], "4" = q_colours[2])) +
   labs(
     title = "Woylie Observations in Narrabri Surrounds",
     subtitle = "September - December 2022",
@@ -707,7 +707,8 @@ woylie_tsibble %>%
     y = "Number of Sightings"
   ) +
   theme_classic() +
-  guides(fill = guide_legend(title = "Quarter"))
+  geom_label(aes(x = as.Date("2022-09-19"), y = 3, label = "~6,522 tourist"), color = "#800080", size = 3)+
+  guides(fill = guide_legend(title = "Tourism"))
 ```
 
 @fig-woylie-obs displays the sightings that occurred in Quarters 3 and 4 of 2022. This recent, short surge in observations is too brief to correspond with the tourism data. This is evident from the highlighted quarter. It was the only quarter where trips involving over a thousand people occurred, which is also noticeable in the last calendar plot in @fig-holiday-year.
