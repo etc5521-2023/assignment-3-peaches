@@ -628,11 +628,13 @@ ggplot(annual_data, aes(x = Year, y = TotalTrips)) +
 #| label: fig-temporal2
 #| fig-cap: "Seasonal Patterns Across Years"
 
-ggplot(temporal_data, aes(x = Quarter, y = as.factor(Year), fill = Trips)) +
+hp <- ggplot(temporal_data, aes(x = Quarter, y = as.factor(Year), fill = Trips)) +
   geom_tile() +
   scale_fill_gradient(low = "white", high = "darkred") +
   labs(title = "Seasonal Patterns Across Years", x = "Quarter", y = "Year") +
   theme_classic()
+hp_plotly <- ggplotly(hp)
+hp_plotly
 
 ```
 @fig-temporal2 represents seasonal patterns from the years 1998-2022
@@ -789,6 +791,8 @@ while figure @fig-trendanalysis provides us with an understanding of the relativ
 
 
 ```{r}
+#| label: fig-trendanalysis
+#| fig-cap: "Trend analysis in the Narrabri region for various purposes"
 
 
 tourism_woylie <- tourism %>%
