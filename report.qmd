@@ -1,5 +1,5 @@
 ---
-title: "The Brush-Tailed Bettong </br> (Bettongia penicillata ogilbyi)"
+title: "Woylies Unveiled: A Peek into the World of Australia's Mysterious Marsupials"
 author: "Tanish, Ashvin Ranatunga, Khuyen Nguyen, Arindam Baruah, Yashika Taneja"
 format: 
   html:
@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE,message = FALSE,warning = FALSE)
 
 # Introduction
 
-```{r, message=FALSE}
+```{r, message=FALSE,echo=FALSE}
 # Load libraries
 library(galah)
 library(tidyverse)
@@ -38,13 +38,13 @@ library(ggalt)
 
 ```
 
-```{r}
+```{r echo=FALSE}
 # loading tourism data 
 load("data/tourism.RDA")
 ```
 
 
-![](images/img1.jpeg){width="300"}
+
 
 The Brush-Tailed Bettong or Woylie (Bettongia penicillata ogilbyi) is a
 remarkable Australian marsupial with unique characteristics. It thrives
@@ -64,6 +64,10 @@ places like the Perth Zoo and the Australian Wildlife Conservancy's
 Scotia Sanctuary where visitors can catch a glimpse of this unique
 marsupial.
 
+![The brush-tailed Bettong or Woylie (Bettongia penicillata ogilbyi)](woylie.png){#fig-woyliepic}
+
+:::{.callout-note}
+# Expectations
 From this data we expect the following results:
 
 -   "We expect to observe a decline in Woylie occurrences over the past
@@ -80,6 +84,7 @@ From this data we expect the following results:
 -   "It is unlikely that there will be a significant number of sightings
     in urban areas, as Woylies tend to avoid human-populated regions due
     to habitat disturbance."
+:::
 
 # Data description
 ## Species data
@@ -470,35 +475,20 @@ These conservation endeavors play a vital role in the ongoing protection and flo
 
 ## Exploration of Woylie Sightings with Weather Data {#sec-ref-1}
 
+Upon analysing the Woylie sightings for the Narrabri region, we observe that the sightings in this region are recorded solely for the year of 2022. The entailing reasons for such unusual occurrences of the Woylies in this region have been further delineated in @sec-reason.
+
+
 ```{r}
-# load the woylie stations file back in
+#| label: fig-monthly
+#| fig-cap: "Woylie sightings in 2022 across various seasons"
+
 load(file = "data/woylie_stations.rda")
-```
+spring_months <- c("September","October","November","December")
+summer_months <- c("January","February","March")
+autumn_months <- c("April","May")
+winter_months <- c("June","July","August")
 
 
-```{r}
-#Plot a bar chart to see the sightings each year
-ggplot(woylie_stations, aes(x = date)) +
-  geom_bar() +
-  labs(title = "Woylie Sightings over time")
-```
-
-Since, it appears there is a spike in sightings between 2021 and 2023. We will check the years where sightings occur. 
-
-```{r}
-#check years that sightings actually occur
-#create a column for years
-
-woylie_stations$year <- lubridate::year(woylie_stations$date)
-
-woylie_stations%>% filter(sightings == 1)%>%distinct(year)
-  
-  
-```
-
-2022 is the only year that woylie sightings have been recorded. Therefore, the following visualizations will contain only information from 2022 as the other years are irrelevant in this respect.
-
-```{r}
 # Filtering  the data for sightings in 2022
 woylie_sightings_2022 <- woylie_stations %>%
   filter(year(date) == 2022)
@@ -507,23 +497,31 @@ woylie_sightings_2022 <- woylie_stations %>%
 woylie_sightings_2022$month_name <- 
   factor(format(as.Date(woylie_sightings_2022$date), "%B"), levels = month.name)
 
+woylie_sightings_2022 <- woylie_sightings_2022 %>% mutate(season = case_when(month_name %in% spring_months ~ "Spring",
+                                                                             month_name %in% summer_months ~ "Summer",
+                                                                             month_name %in% autumn_months ~ "Autumn",
+                                                                             month_name %in% winter_months ~ "Winter"
+                                                                             ))
+
 # A bar chart to visualize the number of sightings in 2022
-ggplot(woylie_sightings_2022, aes(x = month_name)) +
-  geom_bar() +
-  labs(title = "Woylie Sightings in 2022",
+
+woylie_sightings_2022_grouped <- woylie_sightings_2022 %>% group_by(month_name,season) %>% summarise(Total_sightings = n())
+
+ggplot(woylie_sightings_2022_grouped, aes(x = month_name,y = Total_sightings,fill = season)) +
+  geom_col(color = 'black') +
+  labs(title = "Woylie sightings in 2022 across various seasons",
        x = "Month",
-       y = "Number of Sightings")+
-  theme(axis.text.x = element_text(angle = 25, hjust = 1))
+       y = "Number of Sightings",fill = "Season") +  theme_classic() +
+  theme(axis.text.x  = element_text(angle = 25, hjust = 1)) + geom_label(aes(label = Total_sightings)) + 
+  scale_fill_brewer(palette = "Accent",type = "div") 
 
 ```
 
-The provided code filters the dataset to isolate Woylie sightings that occurred exclusively in the year 2022 and subsequently generates a bar chart to visualize the distribution of these sightings across different months.
-
-The resulting bar chart shows that the number of Woylie sightings varied throughout the year, but the highest number of sightings occurred in the spring and summer months (October to March). The lowest number of sightings occurred in the winter months (April to September).
+@fig-monthly illustrates that the number of Woylie sightings varied throughout the year, but the highest number of sightings occurred in the spring season (between September to Deecember). The sightings in the other seasons were observed to be equally distributed. This clearly suggests that the Woylies are likely to be sighted towards the later part of the year in the spring season.
 
 There are a few possible explanations for this pattern. One possibility is that Woylies are more active during the spring and summer months due to the warmer weather and longer days. Another possibility is that there is more food available for Woylies during the spring and summer months. Finally, it is also possible that Woylies are more visible during the spring and summer months because they are spending more time outside.
 
-To delve into the connection between temperature and sightings, you have the option to craft scatter plots or line plots that unveil how temperature variables like 'tmax' or 'tmin' correlate with the observed number of sightings. Here's an illustrative instance of crafting a plot:
+To delve into the relation between temperature and sightings, we can explore dumbbell charts that unveil how temperature variables like 'tmax' or 'tmin' correlate with the observed number of sightings as illustrated by @fig-temp.
 
 ```{r}
 #A scatter plot to visualize the relationship between tmax and sightings
@@ -670,7 +668,7 @@ narrabri_surrounds_tourism %>%
 
 When grouping the tourism visit numbers in Narrabri Surrounds by quarter, Quarter 1 experiences the fewest tourists compared to Quarter 3, which receives the most. Specifically, from January to March, Narrabri Surrounds experiences the least tourism, and from July to September, the area has the most tourism, as depicted in @fig-holiday-group.
 
-## Tourists & Species Sightings
+## Tourists & Species Sightings {#sec-reason}
 
 The examination of the number of visitors in the Narrabri Surrounds region for holiday purposes has now laid the foundation for an exploration of wildlife sightings and visitation trends, allowing for the investigation of potential correlations.
 
@@ -899,7 +897,8 @@ p1 <- tourism_shared %>%
 p2 <- tourism_feat %>%
 
   ggplot(aes(x = trend_strength, y = seasonal_strength_year,color=Purpose)) +
-  geom_point() + theme_classic() + ggtitle("Trend analysis of tourism estimates in Narrabri region")
+  geom_point(size = 3) + theme_classic() + ggtitle("Trend analysis of tourism estimates in Narrabri region") + labs(x = "Trend strength", y = "Seasonality strength (Each year)")
+                                                                                
 ```
 
 ```{r}
@@ -934,6 +933,8 @@ while figure @fig-trendanalysis provides us with an understanding of the relativ
 
 
 ```{r}
+#| label: fig-trendecomp
+#| fig-cap: "Seasonal Decomposition of Holiday Trips in Narrabri region"
 
 # Convert data to a ts object 
 ts_data_trips <- ts(tourism_pl_grouped$Total_trips, frequency=4)
