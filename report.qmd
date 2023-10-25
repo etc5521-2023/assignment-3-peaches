@@ -951,10 +951,10 @@ autoplot(decomposition_trips) + labs(title = "Seasonal Decomposition of Holiday 
 ```
 @fig-trendecomp illustrates the seasonal decomposition of the total trips over the years in the Narrabri region. The resulting plot will typically include four components:
 
-__Original Time Series:__ The actual data points.
-__Trend Component:__ This represents the long-term trend in the data.
-__Seasonal Component:__ This represents the seasonal pattern or periodic fluctuations.
-__Residual Component:__ This is the part of the data that is not explained by the trend or seasonal components.
+__Original Time Series:__ The actual data points. \
+__Trend Component:__ This represents the long-term trend in the data. \
+__Seasonal Component:__ This represents the seasonal pattern or periodic fluctuations. \
+__Residual Component:__ This is the part of the data that is not explained by the trend or seasonal components. \
 
 :::{.callout-note}
 # Key takeaways
