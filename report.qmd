@@ -1,5 +1,5 @@
 ---
-title: "The Brush-Tailed Bettong </br> (Bettongia penicillata ogilbyi)"
+title: "Woylies Unveiled: A Peek into the World of Australia's Mysterious Marsupials"
 author: "Tanish, Ashvin Ranatunga, Khuyen Nguyen, Arindam Baruah, Yashika Taneja"
 format: 
   html:
@@ -19,24 +19,25 @@ knitr::opts_chunk$set(echo = TRUE,message = FALSE,warning = FALSE)
 
 # Introduction
 
-```{r, message=FALSE, echo=FALSE}
+```{r, message=FALSE,echo=FALSE}
 # Load libraries
-library(broom)
-library(forecast)
 library(galah)
-library(GGally)
-library(ggalt)
-library(ggplot2)
-library(leaflet)
-library(lubridate)
-library(nullabor)
-library(plotly)
-library(rmapshaper)
-library(rnoaa)
-library(sf)
-library(spatstat) 
 library(tidyverse)
+library(ggplot2)
+library(nullabor)
+library(leaflet)
+library(spatstat) 
+library(plotly)
 library(tsibble)
+library(sf)
+library(rmapshaper)
+library(lubridate)
+library(broom)
+library(GGally)
+library(forecast)
+library(ggalt)
+library(rnoaa)
+
 ```
 
 ```{r echo=FALSE}
@@ -64,6 +65,8 @@ attraction for tourists due to its elusive nature, there are a few
 places like the Perth Zoo and the Australian Wildlife Conservancy's
 Scotia Sanctuary where visitors can catch a glimpse of this unique
 marsupial.
+
+![The brush-tailed Bettong or Woylie (Bettongia penicillata ogilbyi)](woylie.png){#fig-woyliepic}
 
 From this data we expect the following results:
 
@@ -862,7 +865,8 @@ p1 <- tourism_shared %>%
 p2 <- tourism_feat %>%
 
   ggplot(aes(x = trend_strength, y = seasonal_strength_year,color=Purpose)) +
-  geom_point() + theme_classic() + ggtitle("Trend analysis of tourism estimates in Narrabri region")
+  geom_point(size = 3) + theme_classic() + ggtitle("Trend analysis of tourism estimates in Narrabri region") + labs(x = "Trend strength", y = "Seasonality strength (Each year)")
+                                                                                
 ```
 
 ```{r}
@@ -897,7 +901,8 @@ while figure @fig-trendanalysis provides us with an understanding of the relativ
 
 
 ```{r}
-
+#| label: fig-trendecomp
+#| fig-cap: "Seasonal Decomposition of Holiday Trips in Narrabri region"
 # Convert data to a ts object 
 ts_data_trips <- ts(tourism_pl_grouped$Total_trips, frequency=4)
 
@@ -913,10 +918,10 @@ autoplot(decomposition_trips) + labs(title = "Seasonal Decomposition of Holiday 
 ```
 @fig-trendecomp illustrates the seasonal decomposition of the total trips over the years in the Narrabri region. The resulting plot will typically include four components:
 
-__Original Time Series:__ The actual data points.
-__Trend Component:__ This represents the long-term trend in the data.
-__Seasonal Component:__ This represents the seasonal pattern or periodic fluctuations.
-__Residual Component:__ This is the part of the data that is not explained by the trend or seasonal components.
+__Original Time Series:__ The actual data points. \
+__Trend Component:__ This represents the long-term trend in the data. \
+__Seasonal Component:__ This represents the seasonal pattern or periodic fluctuations. \
+__Residual Component:__ This is the part of the data that is not explained by the trend or seasonal components. \
 
 :::{.callout-note}
 # Key takeaways
