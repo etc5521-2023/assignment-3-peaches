@@ -676,7 +676,7 @@ ggplot(all_purposes_data, aes(x = Quarter, y = TotalTrips, fill = Purpose)) +
 :::{.callout-note}
 # Key takeaway
 
-1. Business trips are least frequent in the first quarter and grow progressively with the peak in Q4. This could imply end-of-year meetings, reviews, or projects that drive increased business travel.
+1. Business trips are least frequent in the first quarter and peak in Q4. This could imply end-of-year meetings, reviews, or projects that drive increased business travel.
 
 2. Visiting-related trips maintain a fairly consistent number throughout the year, suggesting that family or friend visits are evenly spread and not particularly influenced by the season.
 
