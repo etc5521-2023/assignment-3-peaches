@@ -65,7 +65,7 @@ can live free from predators.The allure of encountering unique creatures in the 
 ![The brush-tailed Bettong or Woylie (Bettongia penicillata ogilbyi)](woylie.png){#fig-woyliepic}
 
 :::{.callout-note}
-# Expectations
+# Expectations for sightings and weather data
 
 From this data we expect the following results:
 
@@ -84,13 +84,19 @@ From this data we expect the following results:
 -   "It is unlikely that there will be a significant number of sightings
     in urban areas, as Woylies tend to avoid human-populated regions due
     to habitat disturbance."
+
+:::
+
+In our report we first analyse records from [Atlas of Living Australia (ALA)](https://www.ala.org.au/) database and check if they match our expectations, we also explore how weather is related to when Woylie sightings occur and find the region with most number of Woylie sightings. Further we perform an analysis that delves into the trends of tourism within that region. With respect to our analysis pertaining to the tourism trends, our expectations are as follows:
+
+:::{.callout-note}
+# Expectations for tourism data
+
 -   We expect most of the Woylie sightings to either be in Western or Southern        Australia.
 -   We expect most number of holiday trips to be in September through November or     March through May.
 -   We expect a seasonal holiday pattern in the region of interest which may          consequently lead to higher Woylie sightings.
 
 :::
-
-In our report we first analyse records from [Atlas of Living Australia (ALA)](https://www.ala.org.au/) database and check if they match our expectations, we also explore how weather is related to when Woylie sightings occur and find the region with most number of Woylie sightings. Further we do an analysis that delves into the trends of tourism within that region.
 
 # Data description
 ## Species data
@@ -386,7 +392,7 @@ inference techniques support or contradict our initial assumptions.
 Now, let's move forward with exploring the data visually to acquire
 meaningful insights into the behavior and distribution of the Woylie.
 
-### Expectation 1: Trend in Woylie Sightings {#sec-ref-3}
+### Trend in Woylie Sightings {#sec-ref-3}
 
 ```{r}
 #| label: fig-woylietrend1
@@ -417,7 +423,7 @@ We see that the actual trend is not aligning with our expectations, we see a rel
 :::
 
 
-### Expectation 2: Geographical Distribution {#sec-ref-2}
+### Geographical Distribution {#sec-ref-2}
 
 ```{r}
 #| label: fig-cluster-map-2
@@ -799,7 +805,7 @@ __Residual Component:__ This is the part of the data that is not explained by th
 
 Ecotourism involves traveling to places in support of the conservation efforts of endangered wildlife. To assess the level of interest in ecotourism for the Woylie, an analysis that combines tourism data from [Tourism Research Australia (TRA)](https://www.tra.gov.au) and Woylie sightings near the weather station of interest, Narrabri Airport, as reported in @sec-ref, will provide us with a holistic view. To ensure a more accurate matching of the data with tourism data, the observations of the Woylie are subsetted to focus on the Australian Statistical Area Level 2 (SA2) region: Narrabri Surrounds.
 
-## Narrabri Surrounds 
+## Tourism trend in Narrabri Surrounds 
 
 The tourism data will be filtered for the region of Narrabri Surrounds as part of the analysis. The purpose of tourism trips will also be filtered to holiday trips since this suggests the intention to travel for sightseeing and exploration. Other purposes, such as visiting friends and relatives or business, may include visiting the endangered Woylie species during the trip, but the purposes are too broad to draw conclusive insights. Therefore, choosing holiday tourism data will result in the most accurate analysis.
 
