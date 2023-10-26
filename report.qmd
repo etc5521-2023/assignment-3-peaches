@@ -433,17 +433,7 @@ The map starkly highlights the significant reduction in Woylie populations, stem
 
 Moreover, the implementation of disease management programs is supported by evidence in @sec-ref-3, which indicates a recent upsurge in Woylie sightings in recent years. This increase can be attributed to the fact that these creatures are more readily observed within National Parks, further underscoring the effectiveness of this conservation approach.
 
-### Theoretical Justification for Expectation 2
 
-The observed seasonal pattern in Woylie sightings reveals a distinct trend characterised by an increase in sightings during the Spring and Summer months, followed by a decline in the Autumn and Winter months. This intriguing pattern can be attributed to several underlying factors:
-
-- Abundance of Food: Woylies primarily subsist on a diet of insects and seeds. The surge in sightings during the warmer seasons correlates with heightened food availability, as both plants and insects flourish during this time.
-
-- Breeding Season: Woylies engage in breeding activities during the Spring and Summer, with newborn pups typically making their debut in late Summer and early Autumn. During this period, the increased sightings may be a consequence of heightened activity as Woylies nurture their offspring.
-
-- Weather Influences: Woylies exhibit adaptations to warmer and drier environmental conditions. Consequently, they may reduce their activity levels during the cooler and wetter Autumn and Winter months, leading to fewer recorded sightings.
-
-In essence, the observed seasonal pattern in Woylie sightings shows how the species adapts to varying environmental conditions throughout the year.
 
 
 
@@ -739,20 +729,19 @@ ggplotly(p1)
 ggplotly(p2)
 ```
 
-Figure @fig-trend illustrates the pattern of trips for the various purposes in the Narrabri region
-while figure @fig-trendanalysis provides us with an understanding of the relative trend strength and seasonality of the data pertaining to the various purposes of trips.
+@fig-trend illustrates the pattern of trips for various purposes in the Narrabri region, while @fig-trendanalysis provides us with an understanding of the relative trend strength and seasonality of the data related to various trip purposes.
 
 :::{.callout-note}
 # Key takeaway
-1. There is a distinct pattern in the number of trips for each of the purposes (Business,Holiday,Other,and Visiting) when analysing the tourism data for the Narrabri region.
+1. There is a distinct pattern in the number of trips for each of the purposes (Business, Holiday, Other, and Visiting) when analysing the tourism data for the Narrabri region.
 
-2. There have been significant periods of time with very low business trips in this region. However, the recent business trips have been more frequent and in higher numbers.
+2. There have been significant periods of time in this region with very low business trips. However, recently, business trips have become more frequent and in higher numbers.
 
-3. As expected with most holiday trends, there appears to be a seasonality in the holiday trips for the Narrabri region. This has been additionally observed by the high seasonal strength for holiday trips in @fig-trendanalysis.
+3. As expected, typical of many holiday trends, a noticeable seasonality in holiday trips for the Narrabri region becomes apparent. This is further substantiated by the intermediate seasonal strength of around 0.4 observed in @fig-trendanalysis.
 
-4. Additionally, there appears to be a low seasonality in the the trips relating to business, visits and "others". This means that the pattern of trips in the region for the stated purposes do not repeat itself at regular intervals.
+4. Additionally, there seems to be low seasonality in trips related to business, visits, and 'other' purposes. This suggests that the patterns of trips in the region for these purposes do not exhibit regular intervals.
 
-5. There is however a high trend strength in the overall total trips as well as the visit trips based on the analysis of @fig-trendanalysis. This indicates that the total trips due to visits and the overall total trips in the region have increased over time, especially in the recent years.
+5. However, there is a moderate trend strength in the overall total trips as well as in visit-related trips, based on the analysis in @fig-trendanalysis. This indicates that the total trips due to visits and the overall total trips in the region have increased over time, particularly in recent years.
 
 :::
 
@@ -847,8 +836,8 @@ ggplotly(pl1)
 # Key takeaway
 Based on the initial analysis of @fig-narr, the following observations can be made:
 
-1. The number of trips designated as "holiday" is highly irregular, with multiple quarters and years showing no holiday visitors in the region of interest.
-2. Consequently, there is no discernible seasonality in the holiday visits in this region.
+1. The number of trips designated as "holiday" is irregular, with several quarters and years showing no holiday visitors in the region of interest. However, after 2008, trips become more frequent.
+2. Consequently, there is only a moderate seasonality in holiday visits in this region.
 3. The highest number of holiday visitors was recorded in the 3rd quarter of 2001, with nearly 13,445 visits.
 :::
 
@@ -877,7 +866,7 @@ ggplot(narrabri_surrounds_tourism,
         axis.ticks.x = element_blank())
 ```
 
-Similarly to @fig-narr, @fig-holiday-year presents holiday tourism in a year calendar format to visualise and observe the annual tourism trend. The data reveals a similar irregular pattern with no clear year-by-year trend in tourism numbers.
+Similar to @fig-narr, @fig-holiday-year presents holiday tourism in a year calendar format to visualise and observe the annual tourism trend. The data reveals increased tourism frequency after 2008.
 
 ```{r}
 #| label: fig-holiday-group
