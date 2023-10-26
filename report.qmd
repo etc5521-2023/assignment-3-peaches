@@ -99,7 +99,7 @@ To ensure a robust foundation for the analysis, occurrence records of the Brush-
 
 This dataset includes essential information, such as date, time, and collector identification details, and comprises 13 variables and 2,276 observations across Australia as of the current report.
 
-The code to derive the species data can be viewed below and the data dictionary of the variables can be seen in @fig-data.
+The code to derive the species data can be viewed below and the data dictionary of the variables can be seen in @tbl-data.
 
 ```{r, eval=FALSE}
 # load occurence records for woylie from ALA
@@ -407,7 +407,8 @@ ggplot(sightings_per_year, aes(x = year, y = eventDate)) +
   )
 
 ```
-@woylietrend1 shows the trend in Woylie sightings over the years.
+@fig-woylietrend1 shows the trend in Woylie sightings over the years.
+
 :::{.callout-note}
 # Key takeaway
 
@@ -637,10 +638,8 @@ hp
 
 
 ```{r}
-
 #| label: fig-temporal4
 #| fig-cap: "Trips per Quarter by Purpose"
-#| 
 
 all_purposes_data <- temporal_data %>%
   group_by(Quarter, Purpose) %>%
@@ -660,7 +659,7 @@ ggplot(all_purposes_data, aes(x = Quarter, y = TotalTrips, fill = Purpose)) +
   theme(text = element_text(size = 14))
 
 ```
-@fig-temporal4  shows distribution of trips made in the Narrabri Surrounds region, broken down by their primary purpose - Business, Holiday, Visiting, Other, and Total.
+@fig-temporal4 shows distribution of trips made in the Narrabri Surrounds region, broken down by their primary purpose - Business, Holiday, Visiting, Other, and Total.
 
 :::{.callout-note}
 # Key takeaway
