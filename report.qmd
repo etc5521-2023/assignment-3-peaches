@@ -60,11 +60,7 @@ including habitat loss, introduced predators, and disease. Consequently,
 the Woylie is currently classified as a critically endangered species,
 receiving protection from the Australian government. Most of the
 remaining Woylie population resides in wildlife sanctuaries, where they
-can live free from predators. While the Woylie is not a common
-attraction for tourists due to its elusive nature, there are a few
-places like the Perth Zoo and the Australian Wildlife Conservancy's
-Scotia Sanctuary where visitors can catch a glimpse of this unique
-marsupial.
+can live free from predators.The allure of encountering unique creatures in the wild has given rise to ecotourism, a sustainable form of tourism that emphasizes personal experiences with nature and promotes conservation. Given the Woylie's elusive nature, our analysis seeks to understand the relationship between Woylie sightings and tourist visits 
 
 ![The brush-tailed Bettong or Woylie (Bettongia penicillata ogilbyi)](woylie.png){#fig-woyliepic}
 
@@ -88,6 +84,10 @@ From this data we expect the following results:
 -   "It is unlikely that there will be a significant number of sightings
     in urban areas, as Woylies tend to avoid human-populated regions due
     to habitat disturbance."
+-   We expect most of the Woylie sightings to either be in Western or Southern        Australia.
+-   We expect most number of holiday trips to be in September through November or     March through May.
+-   We expect a seasonal holiday pattern in the region of interest which may          consequently lead to higher Woylie sightings.
+
 :::
 
 In our report we first analyse records from [Atlas of Living Australia (ALA)](https://www.ala.org.au/) database and check if they match our expectations, we also explore how weather is related to when Woylie sightings occur and find the region with most number of Woylie sightings. Further we do an analysis that delves into the trends of tourism within that region.
@@ -1068,6 +1068,8 @@ Australian species.
 -   Jones, M. E., & Benshemesh, J. (2013). The Woylie: Australia's
     Forgotten Future. The Conversation. Retrieved from
     https://theconversation.com/australian-endangered-species-woylie-19448
+-   Museum of Western Australia. (n.d.). Woylie. Retrieved from             https://visit.museum.wa.gov.au/boolabardip/woylie#:~:text=Now%2C%20they%20can%20only%20be,to%20a%20few%20fenced%20reserves.
+-   Australia Your Way. (n.d.). When to Visit NSW. Retrieved from     https://australiayourway.com/when-to-visit-nsw/
     
 ## Packages
 
