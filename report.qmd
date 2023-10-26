@@ -70,20 +70,20 @@ can live free from predators.The allure of encountering unique creatures in the 
 From this data we expect the following results:
 
 
--   "We expect to observe a decline in Woylie occurrences over the past
-    20 years, reflecting their critically endangered status."
--   "The dataset is likely to show fewer sightings in the wild over
+-   We expect to observe a decline in Woylie occurrences over the past
+    20 years, reflecting their critically endangered status.
+-   The dataset is likely to show fewer sightings in the wild over
     recent years, given that Woylies are mostly found in protected
-    sanctuaries."
--   "Woylies are expected to have limited sightings near weather
+    sanctuaries.
+-   Woylies are expected to have limited sightings near weather
     stations, as their habitat preferences are specific to certain
-    regions within Australia."
--   "We anticipate a seasonal pattern in sightings, with more
+    regions within Australia.
+-   We anticipate a seasonal pattern in sightings, with more
     occurrences during specific times of the year, possibly correlating
-    with breeding seasons or favorable climate conditions."
--   "It is unlikely that there will be a significant number of sightings
+    with breeding seasons or favorable climate conditions.
+-   It is unlikely that there will be a significant number of sightings
     in urban areas, as Woylies tend to avoid human-populated regions due
-    to habitat disturbance."
+    to habitat disturbance.
 
 :::
 
