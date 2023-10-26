@@ -600,7 +600,11 @@ ggplot(annual_data, aes(x = Year, y = TotalTrips)) +
 #| fig-cap: "Seasonal Patterns Across Years"
 #| 
 
-plot_data <- temporal_data
+plot_data <- temporal_data %>%
+  group_by(Year, Quarter) %>%
+  summarize(
+    TotalTrips = sum(Trips, na.rm = TRUE)
+  )
 plot_data$Year <- as.factor(plot_data$Year)
 plot_data$Quarter <- factor(plot_data$Quarter, levels = c("Q1", "Q2", "Q3", "Q4"))
 
@@ -608,13 +612,15 @@ plot_data$Quarter <- factor(plot_data$Quarter, levels = c("Q1", "Q2", "Q3", "Q4"
 plot_data <- plot_data[order(plot_data$Year, plot_data$Quarter), ]
 
 # Plotting the heatmap
-hp <- ggplot(plot_data, aes(x = Quarter, y = Year, fill = Trips)) +
+hp <- ggplot(plot_data, aes(x = Quarter, y = Year, fill = TotalTrips)) +
   geom_tile() +
-  scale_fill_gradient(name = "Trips (in 1000s)", low = "white", high = "darkred") +  
+  scale_fill_gradient2(name = "Trips (in 1000s)", 
+                       low = "white",  high = "darkred") +
   labs(title = "Seasonal Patterns Across Years", x = "Quarter", y = "Year") +
   theme_classic()
 
-hp
+
+ggplotly(hp)
 
 ```
 
@@ -624,15 +630,15 @@ hp
 :::{.callout-note}
 # Key takeaway
 
-1. There appears to be an increasing trend in the number of trips from 1998 until around 2021-2022. The darker shades in more recent years, especially around 2021-2022, indicate more trips compared to the lighter shades in earlier years. It indicates a cyclic nature of the trip volumes with peaks and troughs. 
+1. The number of trips seems to be consistent throughout the earlier years ( 1998-2005), with no significant peaks or troughs across the quarters.
 
-2. **Q1**: The trips in Q1 seems Q1 has demonstrated fluctuations over the years, starting with low activity in the late 1990s to early 2000s, experiencing a rise in the mid 2000s, stabilizing in the late 2000s to early 2010s, and then witnessing another increase in the recent years, notably 2022.
+2. **Q1**: Generally, the colors for Q1 across the years seem to be on the lighter side compared to other quarters. This suggests that Q1 typically witnesses fewer trips. 1998-2005 shows a fairly consistent shade for Q1, indicating that the number of trips were fairly consistent during this period for Q1
 
-3. **Q2** : This quarter appears to have moderate activity over the years
+3. **Q2** : This quarter appears to have variable trip numbers without a consistent trend, the volume of trips seem similar to Q1 but with some years having higher number of trips 
 
-4. **Q3** :  The consistent dark shades for Q3 indicate a substantial number of trips, especially in the recent years from 2016 onwards. 
+4. **Q3** :   Q3 consistently displays the darkest hues on the heatmap across multiple years, indicating that this quarter usually experiences the highest volume of trips when compared to the other quarters.
 
-5. **Q4** : Activity in Q4 is on the lower side, with lighter shades indicating fewer trips.
+5. **Q4** : This quarter appears to have variable trip numbers without a consistent trend. Some years in the early and mid-2010s display darker shades, indicating increased travel activity during that time
 
 :::
 
