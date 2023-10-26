@@ -1,6 +1,6 @@
 ---
 title: "Woylies Unveiled: A Peek into the World of Australia's Mysterious Marsupials"
-author: "Tanish, Ashvin Ranatunga, Khuyen Nguyen, Arindam Baruah, Yashika Taneja"
+author: "Tanish Johar, Ashvin Ranatunga, Khuyen Nguyen, Arindam Baruah, Yashika Taneja"
 format: 
   html:
     code-fold: true
@@ -220,7 +220,7 @@ WILD_THING_woylie <- woylie %>%
 save(WILD_THING_woylie, file = "data/WILD_THING_woylie.rda")
 ```
 
-After reducing the dataset, variable types and missing values were checked, as depicted in Figure @fig-vis-dat. There were no missing values that were significantly of interest or required cleaning.
+After reducing the dataset, variable types and missing values were checked, as depicted in @fig-vis-dat. There were no missing values that were significantly of interest or required cleaning.
 
 ```{r}
 #| label: fig-vis-dat
@@ -392,8 +392,8 @@ meaningful insights into the behavior and distribution of the Woylie.
 #| label: fig-woylietrend1
 #| fig-cap: "The trend in Woylie Sightings Over Time"
 WILD_THING_woylie$year <- year(WILD_THING_woylie$eventDate)
-sightings_per_year <- aggregate(eventDate ~ year, WILD_THING_woylie, length)
-ggplot(sightings_per_year, aes(x = year, y = eventDate)) +
+sightings_per_year <- WILD_THING_woylie %>% group_by(year) %>% summarise(Total_sightings = n())
+ggplot(sightings_per_year, aes(x = year, y = Total_sightings)) +
   geom_line(aes(group = 1)) +           
   geom_point(size = 3, color = "blue") + 
   labs(title = "Trend in Woylie Sightings Over Time",
@@ -404,7 +404,7 @@ ggplot(sightings_per_year, aes(x = year, y = eventDate)) +
     plot.title = element_text(hjust = 0.5), # Center the title
     axis.title.x = element_text(margin = margin(t = 20, b = 0)),
     axis.title.y = element_text(margin = margin(l = 20, r = 0))
-  )
+  ) + geom_label(aes(label = Total_sightings,vjust = -0.25,hjust = 1)) + ylim(c(0,2000))
 
 ```
 @fig-woylietrend1 shows the trend in Woylie sightings over the years.
@@ -589,7 +589,7 @@ ggplot(annual_data, aes(x = Year, y = TotalTrips)) +
 
 2. Post-2018, there seems to be a decline in trips, but it recovers towards 2022.
 
-3.Around the years 2005 and 2015, there are evident dips in the number of trips,thus the trips were considerably lower than their surrounding years.
+3. Around the years 2005 and 2015, there are evident dips in the number of trips,thus the trips were considerably lower than their surrounding years.
 
 4. The trend line indicates a cyclic nature of the trip volumes with peaks and troughs. 
 
@@ -668,12 +668,12 @@ ggplot(all_purposes_data, aes(x = Quarter, y = TotalTrips, fill = Purpose)) +
 
 2. Visiting-related trips maintain a fairly consistent number throughout the year, suggesting that family or friend visits are evenly spread and not particularly influenced by the season.
 
-3.Holiday trips gradually increase from Q1 to Q2 and surge in Q3. There's a decline in Q4, but it still remains higher than Q1, suggesting an interest in holidays during the latter part of the year.
+3. Holiday trips gradually increase from Q1 to Q2 and surge in Q3. There's a decline in Q4, but it still remains higher than Q1, suggesting an interest in holidays during the latter part of the year.
 
-4.Overall, The third quarter (Q3) is the most active period, suggesting factors or events in these months (July to September) that drive an increase in the number of trips. There is a clear progression of activity from Q1 to Q3, starting with the lowest activity in Q1 and gradually increasing to reach its pinnacle in Q3.
+4. Overall, The third quarter (Q3) is the most active period, suggesting factors or events in these months (July to September) that drive an increase in the number of trips. There is a clear progression of activity from Q1 to Q3, starting with the lowest activity in Q1 and gradually increasing to reach its pinnacle in Q3.
 
 
-6.Among the specific purposes, "Visiting" trips dominate, followed by "Holiday" trips. "Business" and "Other" have a relatively lower volume of trips, with "Business" trips being the least common.
+5. Among the specific purposes, "Visiting" trips dominate, followed by "Holiday" trips. "Business" and "Other" have a relatively lower volume of trips, with "Business" trips being the least common.
 
 
 :::
