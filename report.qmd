@@ -89,6 +89,7 @@ From this data we expect the following results:
     in urban areas, as Woylies tend to avoid human-populated regions due
     to habitat disturbance."
 :::
+
 In our report we first analyse records from [Atlas of Living Australia (ALA)](https://www.ala.org.au/) database and check if they match our expectations, we also explore how weather is related to when Woylie sightings occur and find the region with most number of Woylie sightings. Further we do an analysis that delves into the trends of tourism within that region.
 
 # Data description
@@ -388,6 +389,8 @@ meaningful insights into the behavior and distribution of the Woylie.
 ### Expectation 1: Trend in Woylie Sightings {#sec-ref-3}
 
 ```{r}
+#| label: fig-woylietrend1
+#| fig-cap: "The trend in Woylie Sightings Over Time"
 WILD_THING_woylie$year <- year(WILD_THING_woylie$eventDate)
 sightings_per_year <- aggregate(eventDate ~ year, WILD_THING_woylie, length)
 ggplot(sightings_per_year, aes(x = year, y = eventDate)) +
@@ -404,13 +407,13 @@ ggplot(sightings_per_year, aes(x = year, y = eventDate)) +
   )
 
 ```
+@woylietrend1 shows the trend in Woylie sightings over the years.
+:::{.callout-note}
+# Key takeaway
 
--   This plot will observe the trend in Woylie sightings over the years.
--   This helps us assess whether the population is declining as
-    expected.
--   We see that the actual trend is not aligning with our expectation, we see a       
-    relatively flat trend with minimal sightings from around 2000 up until            
-    approximately 2015 and significant spike in sightings around 2020.
+We see that the actual trend is not aligning with our expectations, we see a relatively flat trend with minimal sightings from around 2000 up until approximately 2015 and a significant spike in sightings around 2020.
+
+:::
 
 
 ### Expectation 2: Geographical Distribution {#sec-ref-2}
@@ -602,18 +605,28 @@ ggplot(annual_data, aes(x = Year, y = TotalTrips)) +
 ```{r}
 #| label: fig-temporal2
 #| fig-cap: "Seasonal Patterns Across Years"
+#| 
 
+plot_data <- temporal_data
+plot_data$Year <- as.factor(plot_data$Year)
+plot_data$Quarter <- factor(plot_data$Quarter, levels = c("Q1", "Q2", "Q3", "Q4"))
 
-hp <- ggplot(temporal_data, aes(x = Quarter, y = Year, fill = Trips)) +
+# Sort data by Year and Quarter
+plot_data <- plot_data[order(plot_data$Year, plot_data$Quarter), ]
+
+# Plotting the heatmap
+hp <- ggplot(plot_data, aes(x = Quarter, y = Year, fill = Trips)) +
   geom_tile() +
-  scale_fill_gradient(low = "white", high = "darkred") +
+  scale_fill_gradient(name = "Trips (in 1000s)", low = "white", high = "darkred") +  
   labs(title = "Seasonal Patterns Across Years", x = "Quarter", y = "Year") +
   theme_classic()
-hp_plotly <- ggplotly(hp)
-hp_plotly
+
+hp
 
 ```
-@fig-temporal2 represents seasonal patterns from the years 1998-2022
+
+
+@fig-temporal2 represents seasonal patterns from the years 1998-2022 in the Narrabbri Surrounds region
 
 :::{.callout-note}
 # Key takeaway
@@ -633,37 +646,8 @@ hp_plotly
 
 ```{r}
 
-#| label: fig-temporal3
-#| fig-cap: "Total Trips per Quarter"
-#| 
-grouped_data <- temporal_data %>%
-  group_by(Quarter) %>%
-  summarize(
-    TotalTrips = sum(Trips, na.rm = TRUE)
-  )
-ggplot(grouped_data, aes(x = Quarter, y = TotalTrips)) +
-  geom_bar(stat = "identity", fill = "steelblue", color = "black") +
-  theme_classic() +
-  labs(title = "Total Trips per Quarter",
-       x = "Quarter",
-       y = "Total Trips") +
-  theme(text = element_text(size = 14))
-```
-:::{.callout-note}
-# Key takeaway
-
-1. The third quarter (Q3) is the most active period, suggesting factors or events in these months (July to September) that drive an increase in the number of trips.
-
-2. There is a clear progression of activity from Q1 to Q3, starting with the lowest activity in Q1 and gradually increasing to reach its pinnacle in Q3.
-
-
-:::
-
-
-```{r}
-
 #| label: fig-temporal4
-#| fig-cap: "Total Trips per Quarter"
+#| fig-cap: "Trips per Quarter by Purpose"
 #| 
 
 all_purposes_data <- temporal_data %>%
@@ -671,21 +655,21 @@ all_purposes_data <- temporal_data %>%
   summarize(
     TotalTrips = sum(Trips, na.rm = TRUE)
   )
-all_purposes_data_filtered <- all_purposes_data %>% 
-  filter(Purpose != "Total")
+all_purposes_data$Purpose <- factor(all_purposes_data$Purpose, 
+                                    levels = c("Business", "Holiday", "Visiting", "Other", "Total"))
 
-
-ggplot(all_purposes_data_filtered, aes(x = Quarter, y = TotalTrips, fill = Purpose)) +
+ggplot(all_purposes_data, aes(x = Quarter, y = TotalTrips, fill = Purpose)) +
   geom_bar(stat = "identity", color = "black") +
-  facet_wrap(~ Purpose, scales = "free_y") +
+  facet_wrap(~ Purpose) +   
   theme_classic() +
   labs(title = "Trips per Quarter by Purpose",
        x = "Quarter",
        y = "",subtitle = "Narrabri Surrounds region") +
   theme(text = element_text(size = 14))
 
-
 ```
+@fig-temporal4  shows distribution of trips made in the Narrabri Surrounds region, broken down by their primary purpose - Business, Holiday, Visiting, Other, and Total.
+
 :::{.callout-note}
 # Key takeaway
 
@@ -693,7 +677,12 @@ ggplot(all_purposes_data_filtered, aes(x = Quarter, y = TotalTrips, fill = Purpo
 
 2. Visiting-related trips maintain a fairly consistent number throughout the year, suggesting that family or friend visits are evenly spread and not particularly influenced by the season.
 
-3.Holiday trips gradually increase from Q1 to Q2 and surge in Q3.
+3.Holiday trips gradually increase from Q1 to Q2 and surge in Q3. There's a decline in Q4, but it still remains higher than Q1, suggesting an interest in holidays during the latter part of the year.
+
+4.Overall, The third quarter (Q3) is the most active period, suggesting factors or events in these months (July to September) that drive an increase in the number of trips. There is a clear progression of activity from Q1 to Q3, starting with the lowest activity in Q1 and gradually increasing to reach its pinnacle in Q3.
+
+
+6.Among the specific purposes, "Visiting" trips dominate, followed by "Holiday" trips. "Business" and "Other" have a relatively lower volume of trips, with "Business" trips being the least common.
 
 
 :::
