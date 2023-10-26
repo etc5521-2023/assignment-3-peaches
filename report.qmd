@@ -589,7 +589,7 @@ ggplot(annual_data, aes(x = Year, y = TotalTrips)) +
 
 
 ```
- @fig-temporal1 illustrates the annual trend of trips in the Narrabri Surrounds region.
+ @fig-temporal1 displays the annual trend of trips from 2000 to 2020, highlighting both the yearly fluctuations in the number of trips and the overarching trend across the years.
 
 :::{.callout-note}
 # Key takeaway
@@ -598,7 +598,9 @@ ggplot(annual_data, aes(x = Year, y = TotalTrips)) +
 
 2. Post-2018, there seems to be a decline in trips, but it recovers towards 2022.
 
-3. The trend line indicates a cyclic nature of the trip volumes with peaks and troughs. 
+3.Around the years 2005 and 2015, there are evident dips in the number of trips,thus the trips were considerably lower than their surrounding years.
+
+4. The trend line indicates a cyclic nature of the trip volumes with peaks and troughs. 
 
 :::
 
