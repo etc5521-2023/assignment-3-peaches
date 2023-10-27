@@ -12,9 +12,9 @@ ID: 32779267 \
 Monash E-Mail: abar0090@student.monash.edu 
 
 Name: Kelly Nguyen \
-ID:  \
+ID: 33533113\
 Monash E-mail: kngu0086@student.monash.edu 
 
 Name: Yashika Taneja \
-ID: \
+ID: 33002363 \
 Monash E-mail: ytan0309@student.monash.edu

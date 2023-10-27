@@ -799,6 +799,8 @@ __Residual Component:__ This is the part of the data that is not explained by th
 1. The holiday data shows that the seasonality has been more consistent in the recent years when compared to the initial years of the data.
 
 2. The trend of the holiday data does not show a clear rise or fall of trips in the Narrabri region. The total trips are observed to vary around approximately 2000 trips every quarter.
+
+3. The recent rise in the seasonality of the holiday trips for the Narrabri regions could attributed to the annual 45km [Tour de Gorge bike ride](https://www.environment.nsw.gov.au/media/OEHMedia16082601.htm) through the Pilliga Nature Reserve which first started in the year 2013. 
 :::
 
 # Ecotourism
